@@ -1,0 +1,14 @@
+{
+  "extraKnownMarketplaces": {
+    "bethere": {
+      "source": {
+        "source": "git",
+        "url": "git@github-bethere:bethere-group/bethere-claude-plugin.git"
+      },
+      "autoUpdate": true
+    }
+  },
+  "enabledPlugins": {
+    "bethere-tools@bethere": true
+  }
+}
