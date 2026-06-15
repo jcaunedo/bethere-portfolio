@@ -2,5 +2,6 @@ export {
   Typography,
   typographyVariants,
   type TypographyProps,
-  type TypographyVariant,
+  type TypographySize,
+  type TypographyWeight,
 } from "./typography";

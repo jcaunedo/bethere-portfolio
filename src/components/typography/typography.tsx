@@ -2,59 +2,63 @@ import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
+/**
+ * Type scale from the BeThere design system (Figma: bethere.ds).
+ * `size` carries font-size + line-height (via the --text-* tokens) plus the
+ * design-system font assignment: sizes up to `lg` use the body font, `xl` and
+ * larger use the display/headline font. `weight` is an independent axis.
+ */
 const typographyVariants = cva("", {
   variants: {
-    variant: {
-      h1: "scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl",
-      h2: "scroll-m-20 text-3xl font-semibold tracking-tight",
-      h3: "scroll-m-20 text-2xl font-semibold tracking-tight",
-      h4: "scroll-m-20 text-xl font-semibold tracking-tight",
-      p: "leading-7 [&:not(:first-child)]:mt-6",
-      lead: "text-xl text-muted-foreground",
-      large: "text-lg font-semibold",
-      small: "text-sm font-medium leading-none",
-      muted: "text-sm text-muted-foreground",
-      blockquote: "mt-6 border-l-2 pl-6 italic",
-      code: "relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold",
+    size: {
+      xs: "font-sans text-xs",
+      sm: "font-sans text-sm",
+      base: "font-sans text-base",
+      lg: "font-sans text-lg tracking-[0.01em]",
+      xl: "font-display text-xl tracking-[0.01em]",
+      "2xl": "font-display text-2xl",
+      "3xl": "font-display text-3xl",
+      "4xl": "font-display text-4xl",
+      "5xl": "font-display text-5xl",
+      "6xl": "font-display text-6xl",
+      "7xl": "font-display text-7xl",
+    },
+    weight: {
+      regular: "font-normal",
+      medium: "font-medium",
+      semibold: "font-semibold",
+      bold: "font-bold",
+      black: "font-black",
     },
   },
   defaultVariants: {
-    variant: "p",
+    size: "base",
+    weight: "regular",
   },
 });
 
-const variantElementMap: Record<string, React.ElementType> = {
-  h1: "h1",
-  h2: "h2",
-  h3: "h3",
-  h4: "h4",
-  p: "p",
-  lead: "p",
-  large: "div",
-  small: "small",
-  muted: "p",
-  blockquote: "blockquote",
-  code: "code",
-};
-
-type TypographyVariant = NonNullable<
-  VariantProps<typeof typographyVariants>["variant"]
+type TypographySize = NonNullable<
+  VariantProps<typeof typographyVariants>["size"]
+>;
+type TypographyWeight = NonNullable<
+  VariantProps<typeof typographyVariants>["weight"]
 >;
 
 interface TypographyProps
   extends React.HTMLAttributes<HTMLElement>,
     VariantProps<typeof typographyVariants> {
+  /** Element to render. Defaults to a <p>. Use this for semantics, e.g. as="h1". */
   as?: React.ElementType;
 }
 
 const Typography = React.forwardRef<HTMLElement, TypographyProps>(
-  ({ className, variant = "p", as, children, ...props }, ref) => {
-    const Component = as ?? variantElementMap[variant ?? "p"] ?? "p";
+  ({ className, size, weight, as, children, ...props }, ref) => {
+    const Component = as ?? "p";
 
     return (
       <Component
         ref={ref}
-        className={cn(typographyVariants({ variant }), className)}
+        className={cn(typographyVariants({ size, weight }), className)}
         {...props}
       >
         {children}
@@ -68,5 +72,6 @@ export {
   Typography,
   typographyVariants,
   type TypographyProps,
-  type TypographyVariant,
+  type TypographySize,
+  type TypographyWeight,
 };

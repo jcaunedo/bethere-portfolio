@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { ChevronRight, Loader2, Mail } from "lucide-react";
+import { ChevronRight, Mail } from "lucide-react";
 import { Button } from "./button";
 
 const meta: Meta<typeof Button> = {
@@ -9,13 +9,33 @@ const meta: Meta<typeof Button> = {
   argTypes: {
     variant: {
       control: "select",
-      options: ["default", "destructive", "outline", "secondary", "ghost", "link"],
+      options: [
+        "default",
+        "destructive",
+        "destructiveSolid",
+        "secondary",
+        "outline",
+        "ghost",
+        "link",
+      ],
     },
     size: {
       control: "select",
-      options: ["default", "xs", "sm", "lg", "icon", "icon-xs", "icon-sm", "icon-lg"],
+      options: [
+        "xs",
+        "sm",
+        "md",
+        "lg",
+        "xl",
+        "icon-xs",
+        "icon-sm",
+        "icon",
+        "icon-lg",
+        "icon-xl",
+      ],
     },
     disabled: { control: "boolean" },
+    loading: { control: "boolean" },
   },
 };
 
@@ -31,6 +51,13 @@ export const Default: Story = {
 export const Destructive: Story = {
   args: {
     variant: "destructive",
+    children: "Delete",
+  },
+};
+
+export const DestructiveSolid: Story = {
+  args: {
+    variant: "destructiveSolid",
     children: "Delete",
   },
 };
@@ -83,12 +110,8 @@ export const IconOnly: Story = {
 
 export const Loading: Story = {
   args: {
-    disabled: true,
-    children: (
-      <>
-        <Loader2 className="animate-spin" /> Please wait
-      </>
-    ),
+    loading: true,
+    children: "Please wait",
   },
 };
 
@@ -112,16 +135,35 @@ export const AllVariants: Story = {
       <div className="flex items-center gap-2">
         <Button variant="default">Default</Button>
         <Button variant="destructive">Destructive</Button>
-        <Button variant="outline">Outline</Button>
+        <Button variant="destructiveSolid">Destructive-Solid</Button>
         <Button variant="secondary">Secondary</Button>
+        <Button variant="outline">Outline</Button>
         <Button variant="ghost">Ghost</Button>
         <Button variant="link">Link</Button>
       </div>
       <div className="flex items-center gap-2">
         <Button size="xs">Extra Small</Button>
         <Button size="sm">Small</Button>
-        <Button size="default">Default</Button>
+        <Button size="md">Medium</Button>
         <Button size="lg">Large</Button>
+        <Button size="xl">Extra Large</Button>
+      </div>
+      <div className="flex items-center gap-2">
+        <Button size="icon-xs">
+          <ChevronRight />
+        </Button>
+        <Button size="icon-sm">
+          <ChevronRight />
+        </Button>
+        <Button size="icon">
+          <ChevronRight />
+        </Button>
+        <Button size="icon-lg">
+          <ChevronRight />
+        </Button>
+        <Button size="icon-xl">
+          <ChevronRight />
+        </Button>
       </div>
     </div>
   ),

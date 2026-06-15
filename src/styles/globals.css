@@ -1,3 +1,8 @@
+/* Font @import must be the first statement so the browser honors it.
+   theme.css also imports it (for published consumers of dist/styles.css), but
+   here Tailwind is imported first, which would push theme.css's @import past the
+   top-of-file position where url() @imports are valid. */
+@import url("https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "./theme.css";
