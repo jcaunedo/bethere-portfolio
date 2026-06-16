@@ -27,6 +27,7 @@
 @layer base {
 	html {
 		font-family: var(--font-sans);
+		color: var(--foreground);
 		font-synthesis: none;
 		text-rendering: optimizeLegibility;
 		-webkit-font-smoothing: antialiased;
@@ -55,6 +56,7 @@
 	--color-destructive-foreground: var(--destructive-foreground);
 	--color-destructive-subtle: var(--destructive-subtle);
 	--color-border: var(--border);
+	--color-border-soft: var(--border-soft);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
 
@@ -69,6 +71,62 @@
 	--color-warning: var(--warning);
 	--color-info: var(--info);
 	--color-danger: var(--danger);
+
+	/* ---------- Extended DS semantic tokens (Figma `semantic` collection) ---------- */
+	/* Status tint scales (-05 subtle / -25 / -50) */
+	--color-success-subtle: var(--success-subtle);
+	--color-success-50: var(--success-50);
+	--color-success-25: var(--success-25);
+	--color-warning-subtle: var(--warning-subtle);
+	--color-warning-50: var(--warning-50);
+	--color-warning-25: var(--warning-25);
+	--color-info-subtle: var(--info-subtle);
+	--color-info-50: var(--info-50);
+	--color-info-25: var(--info-25);
+	--color-danger-subtle: var(--danger-subtle);
+	--color-danger-50: var(--danger-50);
+	--color-danger-25: var(--danger-25);
+	--color-destructive-50: var(--destructive-50);
+	--color-destructive-25: var(--destructive-25);
+
+	/* Fill surfaces (color/fill/*) */
+	--color-fill: var(--fill);
+	--color-fill-muted: var(--fill-muted);
+	--color-fill-subtle: var(--fill-subtle);
+
+	/* Foreground tints (color/foreground/subtle|soft) */
+	--color-foreground-subtle: var(--foreground-subtle);
+	--color-foreground-soft: var(--foreground-soft);
+
+	/* Card tints (color/card/muted|subtle) */
+	--color-card-muted: var(--card-muted);
+	--color-card-subtle: var(--card-subtle);
+
+	/* Brand/role tints (color/primary|secondary|terciary/*) */
+	--color-primary-muted: var(--primary-muted);
+	--color-primary-subtle: var(--primary-subtle);
+	--color-primary-soft: var(--primary-soft);
+	--color-secondary-subtle: var(--secondary-subtle);
+	--color-tertiary-subtle: var(--tertiary-subtle);
+
+	/* Icon roles (color/icon/*) */
+	--color-icon: var(--icon);
+	--color-icon-muted: var(--icon-muted);
+	--color-icon-subtle: var(--icon-subtle);
+	--color-icon-primary: var(--icon-primary);
+	--color-icon-on-primary: var(--icon-on-primary);
+
+	/* Input extras (color/input/*) */
+	--color-input-border-disabled: var(--input-border-disabled);
+	--color-input-ring: var(--input-ring);
+	--color-input-ring-outside: var(--input-ring-outside);
+	--color-input-fill: var(--input-fill);
+
+	/* Interaction states (color/states/*) */
+	--color-state-hover: var(--state-hover);
+	--color-state-active: var(--state-active);
+	--color-state-highlight: var(--state-highlight);
+	--color-state-disabled: var(--state-disabled);
 
 	/* ---------- Sidebar colors ---------- */
 	--color-sidebar-background: var(--sidebar-background);
@@ -236,11 +294,11 @@
 
 	/* Core (shadcn roles) */
 	--background: var(--sand-50);
-	--foreground: var(--sand-900);
+	--foreground: var(--neutral-700);
 	--card: var(--white);
-	--card-foreground: var(--sand-900);
+	--card-foreground: var(--neutral-900);
 	--popover: var(--white);
-	--popover-foreground: var(--sand-900);
+	--popover-foreground: var(--neutral-900);
 
 	--primary: var(--sunset-500);
 	--primary-foreground: var(--white);
@@ -252,13 +310,14 @@
 	--muted: var(--sand-200);
 	--muted-foreground: var(--neutral-500);
 	--accent: var(--neutral-100);
-	--accent-foreground: var(--sand-900);
+	--accent-foreground: var(--neutral-900);
 
 	--destructive: #e43232;
 	--destructive-foreground: var(--white);
-	--destructive-subtle: #ffe9e9; /* light-red fill for the default destructive style */
+	--destructive-subtle: #e432320d; /* Figma color/alerts/destructive-05 — 5% destructive tint */
 
 	--border: var(--neutral-200);
+	--border-soft: var(--neutral-100); /* Figma color/border/border-soft & input border-disabled (neutral-100) */
 	--input: var(--neutral-200);
 	--ring: var(--sunset-500);
 
@@ -278,6 +337,63 @@
 	--danger: #e22323;
 	--danger-subtle: #e223230d;
 
+	/* ===========================================================================
+     EXTENDED SEMANTIC — additional role tokens imported from Figma `semantic`
+     collection (values aliased to primitives where Figma does; raw alpha tints
+     otherwise). Light/published-DS values.
+     =========================================================================== */
+
+	/* Status tint scales (Figma color/alerts/* -25 / -50) */
+	--success-50: #01a74680;
+	--success-25: #01a74640;
+	--warning-50: #e0740080;
+	--warning-25: #e0740040;
+	--info-50: #0072ca80;
+	--info-25: #0072ca40;
+	--danger-50: #e2232380;
+	--danger-25: #e2232340;
+	--destructive-50: #e4323280;
+	--destructive-25: #cc000040;
+
+	/* Fill surfaces (color/fill/*) */
+	--fill: var(--white);
+	--fill-muted: var(--neutral-100);
+	--fill-subtle: var(--neutral-50);
+
+	/* Foreground tints (color/foreground/subtle|soft) */
+	--foreground-subtle: var(--neutral-400);
+	--foreground-soft: var(--neutral-200);
+
+	/* Card tints (color/card/muted|subtle) */
+	--card-muted: var(--neutral-100);
+	--card-subtle: var(--neutral-50);
+
+	/* Brand/role tints (color/primary|secondary|terciary/*) */
+	--primary-muted: #ff642c26;
+	--primary-subtle: #ff642c1a;
+	--primary-soft: #31373f0d;
+	--secondary-subtle: #c87d5f1a;
+	--tertiary-subtle: #ecdecf80;
+
+	/* Icon roles (color/icon/*) */
+	--icon: var(--neutral-700);
+	--icon-muted: var(--neutral-500);
+	--icon-subtle: var(--neutral-400);
+	--icon-primary: var(--primary);
+	--icon-on-primary: var(--white);
+
+	/* Input extras (color/input/*) */
+	--input-border-disabled: var(--border-soft);
+	--input-ring: var(--neutral-400);
+	--input-ring-outside: #ff782c33;
+	--input-fill: var(--white);
+
+	/* Interaction states (color/states/*) */
+	--state-hover: #0b12220a;
+	--state-active: #f0f2f599;
+	--state-highlight: #fff9e114;
+	--state-disabled: var(--neutral-100);
+
 	/* ---------- Gradients ----------
      gradient-1 (Figma paint style `gradient-1`): top→bottom brand coral.
      Stop 0 = --primary / sunset-500 (#f26740); stop 1 = #ffa47d, a light coral
@@ -289,11 +405,11 @@
 
 	/* Sidebar (derived from neutral/sand — not explicit DS tokens) */
 	--sidebar-background: var(--neutral-50);
-	--sidebar-foreground: var(--sand-900);
+	--sidebar-foreground: var(--neutral-900);
 	--sidebar-primary: var(--sunset-500);
 	--sidebar-primary-foreground: var(--white);
 	--sidebar-accent: var(--neutral-100);
-	--sidebar-accent-foreground: var(--sand-900);
+	--sidebar-accent-foreground: var(--neutral-900);
 	--sidebar-border: var(--neutral-200);
 	--sidebar-ring: var(--sunset-500);
 }
@@ -305,11 +421,11 @@
      DS ships real dark-mode tokens.
      --------------------------------------------------------------------------- */
 	--background: var(--sand-950);
-	--foreground: var(--sand-50);
+	--foreground: var(--neutral-50);
 	--card: var(--sand-900);
-	--card-foreground: var(--sand-50);
+	--card-foreground: var(--neutral-50);
 	--popover: var(--sand-900);
-	--popover-foreground: var(--sand-50);
+	--popover-foreground: var(--neutral-50);
 
 	--primary: var(--sunset-500);
 	--primary-foreground: var(--white);
@@ -321,24 +437,42 @@
 	--muted: var(--sand-800);
 	--muted-foreground: var(--sand-400);
 	--accent: var(--sand-800);
-	--accent-foreground: var(--sand-50);
+	--accent-foreground: var(--neutral-50);
 
 	--destructive: #e43232;
 	--destructive-foreground: var(--white);
 
 	--border: var(--sand-800);
+	--border-soft: var(--sand-800);
 	--input: var(--sand-800);
 	--ring: var(--sunset-500);
 
 	--overlay: #00000099;
 	--link: var(--sunset-400);
 
+	/* Extended tokens — dark derivations (placeholder; alpha tints carry over
+	   from :root unchanged, only the primitive-aliased surfaces are inverted). */
+	--fill: var(--sand-900);
+	--fill-muted: var(--sand-800);
+	--fill-subtle: var(--sand-800);
+	--foreground-subtle: var(--sand-400);
+	--foreground-soft: var(--sand-700);
+	--card-muted: var(--sand-800);
+	--card-subtle: var(--sand-800);
+	--icon: var(--sand-200);
+	--icon-muted: var(--sand-400);
+	--icon-subtle: var(--sand-500);
+	--input-border-disabled: var(--sand-800);
+	--input-ring: var(--sand-500);
+	--input-fill: var(--sand-900);
+	--state-disabled: var(--sand-800);
+
 	--sidebar-background: var(--sand-900);
-	--sidebar-foreground: var(--sand-50);
+	--sidebar-foreground: var(--neutral-50);
 	--sidebar-primary: var(--sunset-500);
 	--sidebar-primary-foreground: var(--white);
 	--sidebar-accent: var(--sand-800);
-	--sidebar-accent-foreground: var(--sand-50);
+	--sidebar-accent-foreground: var(--neutral-50);
 	--sidebar-border: var(--sand-800);
 	--sidebar-ring: var(--sunset-500);
 }
