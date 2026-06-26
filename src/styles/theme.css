@@ -236,6 +236,18 @@
 	--radius-3xl: 1.25rem; /* 20px — rounded-3xl */
 	--radius-4xl: 1.5rem; /* 24px — rounded-4xl / modal */
 
+	/* ---------- Control heights ----------
+	   Shared 5-step height scale for all interactive form controls:
+	   buttons, inputs, selects, toggles, pills, segmented controls, etc.
+	   lg (36 px) is the product default — use it unless density requires otherwise.
+	   Components reference Tailwind h-6/h-7/h-8/h-9/h-10; these vars document intent
+	   and are available as CSS custom properties for consumers. */
+	--control-h-xs: 1.5rem;   /* 24px — very compact  */
+	--control-h-sm: 1.75rem;  /* 28px — compact       */
+	--control-h-md: 2rem;     /* 32px — dense / small */
+	--control-h-lg: 2.25rem;  /* 36px — default ★     */
+	--control-h-xl: 2.5rem;   /* 40px — large / emphasis */
+
 	/* Spacing intentionally inherits Tailwind's default 4px scale —
      the DS spacing tokens (4, 8, 12, 16, 20, 24, 32…px) are identical to it. */
 }

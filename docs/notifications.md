@@ -11,12 +11,12 @@
 
 Global toggles that apply across all notification types. If "Allow Notifications" is off, all other channels are suppressed regardless of their individual state.
 
-| Channel       | Label                               |
-| ------------- | ----------------------------------- |
-| Master switch | Allow Notifications                 |
-| Email         | Send me them to my email            |
-| SMS           | Send me them via SMS (text message) |
-| Mobile        | Push notification                   |
+| Channel       | Label                            |
+| ------------- | -------------------------------- |
+| Master switch | Allow Notifications              |
+| Email         | Email notifications              |
+| SMS           | SMS (text message) notifications |
+| Mobile        | Push notification                |
 
 ---
 

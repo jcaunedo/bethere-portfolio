@@ -19,8 +19,11 @@ const inputVariants = cva(
   {
     variants: {
       size: {
-        lg: "h-9", // Figma "lg · 36"
-        xl: "h-10", // Figma "xl · 40"
+        xs: "h-6 text-xs",   // 24px — very compact
+        sm: "h-7 text-xs",   // 28px — compact
+        md: "h-8",           // 32px — dense / small
+        lg: "h-9",           // 36px — default ★
+        xl: "h-10 text-base", // 40px — large / emphasis
       },
     },
     defaultVariants: { size: "lg" },
