@@ -41,17 +41,30 @@ Single screen, no route split. Contains:
 
 ### 2. Submit email → branch
 
-On "Continue", the system checks the email server-side and branches into one of three states on the **same screen**:
+On "Continue", the system checks the email server-side and branches into one of four states on the **same screen**. The "email not found" case in the current Figma (node `69-1168`) actually conflates two different situations that need different copy and different next actions:
 
 **a. Account found, password-based**
 Password field is revealed below the email field. Button label changes to "Sign In".
 [Frame: Password input revealed](https://www.figma.com/design/Yxntd0OUl1SMXtYSu41h3P/Sign-Up--Sign-In?node-id=69-908)
 
-**b. Account not found (new user)**
-Inline warning: "We couldn't find an account with that email — Change email or try other sign in method above."
-[Frame: Email not found](https://www.figma.com/design/Yxntd0OUl1SMXtYSu41h3P/Sign-Up--Sign-In?node-id=69-1168)
+**b. Account found, but SSO-linked (no password set)**
+The email belongs to a real account, but it was created via Google/Microsoft/Apple — there is no password to check against. Do **not** reveal a password field here; it has nothing to validate. Instead, resolve the linked provider server-side and point the user at it directly:
 
-**c. Incorrect password**
+- Inline message: **"This email is linked to a Google account"** (name the actual provider — Google/Microsoft/Apple)
+- Body: "Sign in with Google to continue."
+- CTA: **"Continue with Google"** — triggers that provider's OAuth directly, same as clicking the SSO button above
+- Fallback copy if the provider can't be resolved (e.g. ambiguous mapping): "This email uses social sign-in. Try Google, Microsoft, or Apple above."
+
+*Requires the "check email" endpoint to return which provider (if any) the account is linked to — flagged in Open Items.*
+
+**c. Account not found (never signed up)**
+Genuinely new email, no account exists. Keep this passwordless, consistent with the verification-based signup in [step 3](#3-new-account--email-verification) — don't ask for a password up front only to redo it via OTP/magic link right after.
+
+- Inline message: "We couldn't find an account with that email."
+- Body: "Create one to get started."
+- CTA: **"Sign Up with Email"** — no password field; clicking routes straight into the email verification step (OTP/magic link), same as the rest of new-account creation
+
+**d. Incorrect password**
 Inline error: "Incorrect email or password — Check your email and password, then try again."
 [Frame: Error](https://www.figma.com/design/Yxntd0OUl1SMXtYSu41h3P/Sign-Up--Sign-In?node-id=69-1000)
 
@@ -78,7 +91,7 @@ If a new user signs up via an SSO provider instead of email, the provider's own 
 | One entry screen, no separate Sign In / Sign Up routes | ✅ Matches — single "Provider Portal" screen for both |
 | SSO-first, email as fallback | ✅ Matches — Google/Microsoft/Apple above the email field |
 | Progressive disclosure (password only appears after email is known) | ✅ Matches — see "Password input revealed" frame |
-| Every branch has a clear next action | ❌ Gap — "email not found" state leaves the CTA labeled "Continue" with no explicit "Create account" affordance |
+| Every branch has a clear next action | ❌ Gap — Figma's single "email not found" frame (`69-1168`) conflates two cases (SSO-linked account vs. genuinely new email) with one generic message and no explicit CTA. Spec above splits these into distinct copy/CTAs — Figma needs a matching update (currently 1 frame, needs 2) |
 | One verification mechanism for new-user email confirmation | ❌ Gap — two frames (OTP code vs. magic link / "Open Gmail") share the same headline and copy, implying an unresolved decision |
 | Consistent field labeling | ⚠️ Minor — "Work email" vs "Work Email" casing differs across frames |
 | Password recovery path reachable from the password step | ⚠️ Unconfirmed — no "Forgot password?" link visible on the "Password input revealed" frame (current live `hotel-portal` login has one) |
@@ -88,7 +101,7 @@ If a new user signs up via an SSO provider instead of email, the provider's own 
 ## Open Items
 
 1. **OTP vs. magic link** — resolve which verification mechanism ships. Recommend OTP code: magic links break when email clients (Gmail, Outlook) pre-fetch/scan links, which can burn a single-use link before the user clicks it — a known failure mode for work-email verification specifically.
-2. **"Email not found" next step** — needs an explicit action, e.g. change the CTA to "Create account" once the not-found state is shown, rather than reusing "Continue" with ambiguous behavior.
+2. **"Email not found" next step** — resolved above: split into "SSO-linked account" (provider-specific redirect, no password field) and "genuinely new email" (CTA "Sign Up with Email", routes to verification, no password field). Figma frame `69-1168` needs to become two frames to match. Requires the email-check API to return the linked provider, if any, so copy can name it specifically ("Continue with Google") rather than a generic fallback.
 3. **Forgot password** — confirm whether it was intentionally omitted from the password-reveal frame or just not shown on that particular screenshot; current production login has this link.
 4. **Label casing** — normalize "Work email" across all frames.
 5. **Gap vs. current implementation** — this is a full rebuild, not a restyle, of `hotel-portal`'s auth. Today: separate `/login` and `/signup` routes, no SSO, and signup collects first/last name + password + confirm-password up front (`SignupForm.tsx`, `GlobalUserLoginForm.tsx`). Adopting this flow means removing the standalone signup route, adding SSO provider integration, and building the branching state machine described above.
