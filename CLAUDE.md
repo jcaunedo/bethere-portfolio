@@ -4,13 +4,13 @@ Shared React component library for all BeThere frontend applications. Built with
 
 ## Quick Reference
 
-| Command | Purpose |
-|---------|---------|
-| `npm run build` | Build library to `dist/` (ESM + types + CSS) |
-| `npm run dev` | Watch mode build |
-| `npm run storybook` | Launch Storybook on port 6006 |
-| `npm run build-storybook` | Build static Storybook site |
-| `npm run lint` | Type-check with `tsc --noEmit` |
+| Command                   | Purpose                                      |
+| ------------------------- | -------------------------------------------- |
+| `npm run build`           | Build library to `dist/` (ESM + types + CSS) |
+| `npm run dev`             | Watch mode build                             |
+| `npm run storybook`       | Launch Storybook on port 6006                |
+| `npm run build-storybook` | Build static Storybook site                  |
+| `npm run lint`            | Type-check with `tsc --noEmit`               |
 
 ## Architecture
 
@@ -29,6 +29,7 @@ npx shadcn add <component>
 ```
 
 This scaffolds the component into `src/components/ui/`. Then:
+
 1. Create a story file: `src/components/ui/<component>.stories.tsx`
 2. Export from `src/index.ts`
 
@@ -37,17 +38,20 @@ This scaffolds the component into `src/components/ui/`. Then:
 Create a directory under `src/components/<name>/` with three files:
 
 ### `<name>.tsx` — Component file
+
 - Use `cva` (class-variance-authority) for variant management
 - Use `cn()` from `@/lib/utils` for class merging
 - Use `React.forwardRef` for ref forwarding
 - Type props with `VariantProps<typeof variants>` intersected with HTML element props
 
 ### `<name>.stories.tsx` — Storybook stories
+
 - Set `tags: ["autodocs"]` for auto-generated docs
 - Create individual stories for each variant/state
 - Include an `AllVariants` story showing everything at once
 
 ### `index.ts` — Re-exports
+
 - Re-export the component, variants, and types
 
 Then add the exports to `src/index.ts`.
@@ -61,19 +65,20 @@ Then add the exports to `src/index.ts`.
 
 ## Key Files
 
-| File | Purpose |
-|------|---------|
-| `src/index.ts` | Public API — all consumer-facing exports |
-| `src/styles/theme.css` | Design tokens, `@theme inline`, CSS variables — shipped to consumers |
-| `src/styles/globals.css` | Storybook entry CSS — imports Tailwind + theme |
-| `src/lib/utils.ts` | `cn()` class merge utility |
-| `components.json` | shadcn CLI configuration |
-| `tsup.config.ts` | Library build configuration |
-| `.storybook/main.ts` | Storybook + Tailwind + path alias setup |
+| File                     | Purpose                                                              |
+| ------------------------ | -------------------------------------------------------------------- |
+| `src/index.ts`           | Public API — all consumer-facing exports                             |
+| `src/styles/theme.css`   | Design tokens, `@theme inline`, CSS variables — shipped to consumers |
+| `src/styles/globals.css` | Storybook entry CSS — imports Tailwind + theme                       |
+| `src/lib/utils.ts`       | `cn()` class merge utility                                           |
+| `components.json`        | shadcn CLI configuration                                             |
+| `tsup.config.ts`         | Library build configuration                                          |
+| `.storybook/main.ts`     | Storybook + Tailwind + path alias setup                              |
 
 ## Updating Colors
 
 All color variables live in `src/styles/theme.css`:
+
 - **Semantic colors** (primary, secondary, muted, etc.) — used by shadcn components via `@theme inline` mappings
 - **Brand colors** (brand-50 through brand-950) — custom palette for BeThere branding, usable as `bg-brand-500`, `text-brand-700`, etc.
 - **Dark mode** — override values in the `.dark` block
