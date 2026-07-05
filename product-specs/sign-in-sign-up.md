@@ -29,13 +29,13 @@ This is the current industry-standard pattern ("identifier-first authentication"
 
 Single screen, no route split. Contains:
 
-| Element | Behavior |
-|---|---|
-| SSO buttons | Google, Microsoft, Apple — each initiates provider OAuth directly, bypassing the rest of the flow |
-| Divider | "or continue with email" |
-| Email field | Labeled "Work email" |
-| Continue button | Disabled (light/inactive) until a valid email is entered; becomes primary (solid) once filled |
-| Footer | "Having trouble accessing your account? Contact Us" + Terms/Privacy links |
+| Element         | Behavior                                                                                          |
+| --------------- | ------------------------------------------------------------------------------------------------- |
+| SSO buttons     | Google, Microsoft, Apple — each initiates provider OAuth directly, bypassing the rest of the flow |
+| Divider         | "or continue with email"                                                                          |
+| Email field     | Labeled "Work email"                                                                              |
+| Continue button | Disabled (light/inactive) until a valid email is entered; becomes primary (solid) once filled     |
+| Footer          | "Having trouble accessing your account? Contact Us" + Terms/Privacy links                         |
 
 [Frame: SSO](https://www.figma.com/design/Yxntd0OUl1SMXtYSu41h3P/Sign-Up--Sign-In?node-id=23-600)
 
@@ -77,7 +77,7 @@ Inline error: "Incorrect email or password — Check your email and password, th
 
 ### 3. New account → email verification
 
-For a new email, "Continue" routes straight here — no intermediate confirm screen. The OTP is sent immediately, and this step confirms ownership before account creation completes. Password is intentionally not collected until *after* verification succeeds (see [4. Set password](#4-set-password)) — no account credential is validated against an unverified email.
+For a new email, "Continue" routes straight here — no intermediate confirm screen. The OTP is sent immediately, and this step confirms ownership before account creation completes. Password is intentionally not collected until _after_ verification succeeds (see [4. Set password](#4-set-password)) — no account credential is validated against an unverified email.
 
 - **3A** [Check your inbox — empty state](https://www.figma.com/design/Yxntd0OUl1SMXtYSu41h3P/Sign-Up--Sign-In?node-id=217-1543) — 6-digit code entry split 3+3, "Resend code" link
 - **3B** [Check your inbox — filled state](https://www.figma.com/design/Yxntd0OUl1SMXtYSu41h3P/Sign-Up--Sign-In?node-id=218-1742) — same screen, all 6 digits entered
@@ -87,8 +87,14 @@ The code auto-verifies as soon as all 6 digits are entered — there's no manual
 **3C** [Verifying code](https://www.figma.com/design/Yxntd0OUl1SMXtYSu41h3P/Sign-Up--Sign-In?node-id=230-3246) — shown immediately after the 6th digit is entered, while the server checks the code: OTP inputs filled, small spinner + "Verifying code..." below, no "Resend code" link, no button.
 
 **Error states:**
+
 - **3F** [Invalid code](https://www.figma.com/design/Yxntd0OUl1SMXtYSu41h3P/Sign-Up--Sign-In?node-id=224-4303) — inline error banner (red, alert icon): "Invalid code" / "Enter the latest 6-digit code sent to your email." OTP boxes outlined in red. "Resend code" link stays below.
 - **3G** [Code expired](https://www.figma.com/design/Yxntd0OUl1SMXtYSu41h3P/Sign-Up--Sign-In?node-id=226-4895) — inline error banner (amber, clock icon): "Code expired" / "Resend the code and try again." "Resend code" link stays below.
+
+**Resend code:** clicking the link replaces it in place, in the same position, through two transient states, then reverts:
+
+- [Sending code...](https://www.figma.com/design/Yxntd0OUl1SMXtYSu41h3P/Sign-Up--Sign-In?node-id=224-3939) — small spinner + "Sending code..."
+- [Code resent](https://www.figma.com/design/Yxntd0OUl1SMXtYSu41h3P/Sign-Up--Sign-In?node-id=224-4082) — green checkmark + "Code resent," shown for ~2 seconds, then reverts to the initial "Resend code" link.
 
 ### 4. Set password
 
@@ -122,4 +128,4 @@ An OTP code is more reliable because the email client can scan the message witho
 ## Implementation notes
 
 - ⚠️ The "check email" endpoint needs to return which provider (if any) a social-sign-in-linked account uses, so step 2b can show provider-specific copy instead of the generic fallback.
-- ⚠️ **Gap vs. current implementation** — this flow is a full rebuild, not a restyle, of `hotel-portal`'s auth. Today: separate `/login` and `/signup` routes, no SSO, and signup collects first/last name + password + confirm-password up front (`SignupForm.tsx`, `GlobalUserLoginForm.tsx`). Building this flow means removing the standalone signup route, adding SSO provider integration, and implementing the branching state machine described above — including moving password collection to *after* OTP verification (`3E`) instead of up front.
+- ⚠️ **Gap vs. current implementation** — this flow is a full rebuild, not a restyle, of `hotel-portal`'s auth. Today: separate `/login` and `/signup` routes, no SSO, and signup collects first/last name + password + confirm-password up front (`SignupForm.tsx`, `GlobalUserLoginForm.tsx`). Building this flow means removing the standalone signup route, adding SSO provider integration, and implementing the branching state machine described above — including moving password collection to _after_ OTP verification (`3E`) instead of up front.
