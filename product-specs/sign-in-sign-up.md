@@ -19,7 +19,7 @@ This flow removes that decision. The user is asked for one thing — their email
 
 This is the current industry-standard pattern ("identifier-first authentication"), used by Slack, Linear, Notion, Stripe, and Vercel.
 
-**Trade-off:** this shifts complexity from the UI (two static forms) to the state machine (one form, several branches). The pattern only pays off if every branch — especially "email not found" — is handled explicitly. See [Open Items](#open-items).
+**Trade-off:** this shifts complexity from the UI (two static forms) to the state machine (one form, several branches). The pattern only pays off if every branch is handled explicitly, which is why each branch below has a defined next action.
 
 ---
 
@@ -47,7 +47,9 @@ On "Continue", the system checks the email server-side and branches into one of 
 Password field is revealed below the email field. Button label changes to "Sign In".
 [Frame: Password input revealed](https://www.figma.com/design/Yxntd0OUl1SMXtYSu41h3P/Sign-Up--Sign-In?node-id=69-908)
 
-**b. Account found, but social-sign-in-linked (no password set)** ✅ *Resolved in Figma*
+A "Forgot password?" link sits at the top-right of the Password field on this frame.
+
+**b. Account found, but social-sign-in-linked (no password set)**
 The email belongs to a real account, but it was created via Google/Microsoft/Apple — there is no password to check against. No password field is shown; it has nothing to validate. The "Continue" button is also removed in this state — the SSO buttons above are the actual next action, so a button below that does nothing would be dead weight.
 
 - Message: **"This email is linked to a Google account"** (name the actual provider — Google/Microsoft/Apple)
@@ -62,14 +64,12 @@ Terminology note: use **"social sign-in"**, not "SSO" — these are consumer OAu
 >
 > **SSO (Single Sign-On)** = an enterprise pattern where one credential/session, controlled by an organization's identity provider (Okta, Azure AD/Entra ID, Google Workspace as IdP), grants access across multiple internal and third-party apps. It's B2B-flavored — a company admin provisions/deprovisions access centrally, usually via SAML or OIDC federation tied to the company's own domain.
 
-*Requires the "check email" endpoint to return which provider the account is linked to, to show the specific-provider copy rather than the fallback.*
+The specific-provider copy requires the "check email" endpoint to return which provider the account is linked to; otherwise the fallback copy is shown.
 
 [Frame: Email linked to a Google account (social sign-in)](https://www.figma.com/design/Yxntd0OUl1SMXtYSu41h3P/Sign-Up--Sign-In?node-id=69-1168)
 
-**c. Account not found (never signed up)** ✅ *Resolved — no intermediate screen*
-Genuinely new email, no account exists. There is no same-screen state and no confirm/CTA step for this case — "Continue" routes straight into email verification ([step 3](#3-new-account--email-verification)), which sends the OTP immediately. This keeps signup passwordless up to that point, consistent with the OTP decision above.
-
-The earlier "Email not found" frame (old generic copy, disabled "Continue" button) has been removed from the file — it no longer represents part of the flow.
+**c. Account not found (never signed up)**
+Genuinely new email, no account exists. There is no same-screen state and no confirm/CTA step for this case — "Continue" routes straight into email verification ([step 3](#3-new-account--email-verification)), which sends the OTP immediately. This keeps signup passwordless up to that point.
 
 **d. Incorrect password**
 Inline error: "Incorrect email or password — Check your email and password, then try again."
@@ -79,16 +79,26 @@ Inline error: "Incorrect email or password — Check your email and password, th
 
 For a new email, "Continue" routes straight here — no intermediate confirm screen. The OTP is sent immediately, and this step confirms ownership before account creation completes. Password is intentionally not collected until *after* verification succeeds (see [4. Set password](#4-set-password)) — no account credential is validated against an unverified email.
 
-- **3A** [Check your inbox — empty state](https://www.figma.com/design/Yxntd0OUl1SMXtYSu41h3P/Sign-Up--Sign-In?node-id=217-1543) — 6-digit code entry split 3+3, "Verify" button disabled until filled, "Resend code" link
-- **3B** [Check your inbox — filled state](https://www.figma.com/design/Yxntd0OUl1SMXtYSu41h3P/Sign-Up--Sign-In?node-id=218-1742) — same screen, code entered, "Verify" button active
+- **3A** [Check your inbox — empty state](https://www.figma.com/design/Yxntd0OUl1SMXtYSu41h3P/Sign-Up--Sign-In?node-id=217-1543) — 6-digit code entry split 3+3, "Resend code" link
+- **3B** [Check your inbox — filled state](https://www.figma.com/design/Yxntd0OUl1SMXtYSu41h3P/Sign-Up--Sign-In?node-id=218-1742) — same screen, all 6 digits entered
 
-This resolves the [OTP vs. magic link](#otp-vs-magic-link) decision: the design now implements OTP only. The old magic-link frame ([25:776](https://www.figma.com/design/Yxntd0OUl1SMXtYSu41h3P/Sign-Up--Sign-In?node-id=25-776), "Open Gmail" button) is legacy and should be archived/removed from the file.
+The code auto-verifies as soon as all 6 digits are entered — there's no manual "Verify" action.
+
+**3C** [Verifying code](https://www.figma.com/design/Yxntd0OUl1SMXtYSu41h3P/Sign-Up--Sign-In?node-id=230-3246) — shown immediately after the 6th digit is entered, while the server checks the code: OTP inputs filled, small spinner + "Verifying code..." below, no "Resend code" link, no button.
+
+**Error states:**
+- **3F** [Invalid code](https://www.figma.com/design/Yxntd0OUl1SMXtYSu41h3P/Sign-Up--Sign-In?node-id=224-4303) — inline error banner (red, alert icon): "Invalid code" / "Enter the latest 6-digit code sent to your email." OTP boxes outlined in red. "Resend code" link stays below.
+- **3G** [Code expired](https://www.figma.com/design/Yxntd0OUl1SMXtYSu41h3P/Sign-Up--Sign-In?node-id=226-4895) — inline error banner (amber, clock icon): "Code expired" / "Resend the code and try again." "Resend code" link stays below.
 
 ### 4. Set password
 
 Shown only after OTP verification succeeds — this is what completes account creation, not a step before it.
 
-**3C** [Set your password](https://www.figma.com/design/Yxntd0OUl1SMXtYSu41h3P/Sign-Up--Sign-In?node-id=218-1816) — "Create a secure password to finish setting up your account", Password + Confirm password fields, CTA **"Set password & Sign In"**.
+**3E** [Complete your profile](https://www.figma.com/design/Yxntd0OUl1SMXtYSu41h3P/Sign-Up--Sign-In?node-id=218-1816) — "Set your name and password to finish setting up your account." Collects **Full Name**, Password, and Confirm password — CTA **"Set password & Sign In"**.
+
+Collecting the name alongside the already-verified email gives a complete profile (name + email) for account communication going forward.
+
+**3D** [Getting setup — loading state](https://www.figma.com/design/Yxntd0OUl1SMXtYSu41h3P/Sign-Up--Sign-In?node-id=27-1001) — shown after "Set password & Sign In" is clicked, while the account is created: BeThere logo, spinner, "Getting setup..." — no user action, transitions automatically.
 
 Verification success functions as the login — there's no separate login screen for a brand-new account. "Set password & Sign In" both completes signup and starts the session in one action.
 
@@ -99,38 +109,17 @@ If a new user signs up via an SSO provider instead of email, the provider's own 
 
 ---
 
-## Alignment audit — spec vs. current Figma
+## Why OTP, not a magic link
 
-| Principle | Figma status |
-|---|---|
-| One entry screen, no separate Sign In / Sign Up routes | ✅ Matches — single "Provider Portal" screen for both |
-| SSO-first, email as fallback | ✅ Matches — Google/Microsoft/Apple above the email field |
-| Progressive disclosure (password only appears after email is known) | ✅ Matches — password now appears even later than before: only *after* OTP verification (`3C`), not during sign-in-vs-signup branching |
-| Every branch has a clear next action | ✅ Matches — `1A` (password), `2A` (social-sign-in-linked), and new-email now route straight into `3A`/`3B` verification with no dead-end intermediate screen |
-| One verification mechanism for new-user email confirmation | ✅ Resolved — OTP only (`3A`/`3B`); the magic-link frame (`25:776`) is legacy and should be removed from the file |
-| Consistent field labeling | ✅ Resolved — "Work email" now consistent across entry, `1A`, `2A`, and the error state |
-| Password recovery path reachable from the password step | ⚠️ Unconfirmed — no "Forgot password?" link visible on the "Password input revealed" frame (current live `hotel-portal` login has one) |
+OTP is the sole email-verification mechanism for new accounts (`3A`/`3B`).
 
----
-
-## OTP vs. magic link
-
-We need to decide which verification method we are shipping: a one-time passcode or a magic link.
-
-**The recommendation is to use an OTP code.**
-
-Magic links can fail in work-email environments because tools like Gmail, Outlook, antivirus systems, and corporate security scanners may automatically open or scan links before the user clicks them. If the magic link is single-use, that scan can accidentally use up the link. When the user later clicks it, the link may already be expired or invalid.
-
-This creates a confusing experience: the user did nothing wrong, but verification fails.
+Magic links can fail in work-email environments because tools like Gmail, Outlook, antivirus systems, and corporate security scanners may automatically open or scan links before the user clicks them. If the magic link is single-use, that scan can accidentally use up the link. When the user later clicks it, the link may already be expired or invalid — a confusing experience where the user did nothing wrong, but verification fails.
 
 An OTP code is more reliable because the email client can scan the message without "using" the code. The user simply copies or enters the code manually, which avoids the risk of a security system burning the verification step before the user gets there.
 
 ---
 
-## Open Items
+## Implementation notes
 
-1. ✅ **OTP vs. magic link** — resolved, OTP code shipped (`3A`/`3B`). Magic-link frame (`25:776`) is legacy — remove from the file.
-2. ✅ **"Email not found" next step** — resolved. The old intermediate confirm screen (`212:1878`) has been removed; a new email now routes straight from the entry screen into OTP verification (`3A`), no confirm/CTA step in between. Social-sign-in-linked case (`69-1168`) remains as previously finalized — "This email is linked to a Google account" / "Use the Google sign-in option above." Still requires the email-check API to return the linked provider, if any, so that copy can name it specifically rather than falling back to "This email uses social sign-in."
-3. ⚠️ **Forgot password** — confirm whether it was intentionally omitted from the password-reveal frame or just not shown on that particular screenshot; current production login has this link.
-4. ✅ **Label casing** — resolved. "Work email" is now consistent (sentence case) across entry, `1A`, `2A`, and the error state.
-5. ⚠️ **Gap vs. current implementation** — this is a full rebuild, not a restyle, of `hotel-portal`'s auth. Today: separate `/login` and `/signup` routes, no SSO, and signup collects first/last name + password + confirm-password up front (`SignupForm.tsx`, `GlobalUserLoginForm.tsx`). Adopting this flow means removing the standalone signup route, adding SSO provider integration, and building the branching state machine described above — including moving password collection to *after* OTP verification (`3C`) instead of up front.
+- ⚠️ The "check email" endpoint needs to return which provider (if any) a social-sign-in-linked account uses, so step 2b can show provider-specific copy instead of the generic fallback.
+- ⚠️ **Gap vs. current implementation** — this flow is a full rebuild, not a restyle, of `hotel-portal`'s auth. Today: separate `/login` and `/signup` routes, no SSO, and signup collects first/last name + password + confirm-password up front (`SignupForm.tsx`, `GlobalUserLoginForm.tsx`). Building this flow means removing the standalone signup route, adding SSO provider integration, and implementing the branching state machine described above — including moving password collection to *after* OTP verification (`3E`) instead of up front.
