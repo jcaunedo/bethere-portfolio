@@ -55,6 +55,7 @@
 	--color-destructive: var(--destructive);
 	--color-destructive-foreground: var(--destructive-foreground);
 	--color-destructive-subtle: var(--destructive-subtle);
+	--color-destructive-soft: var(--destructive-soft);
 	--color-border: var(--border);
 	--color-border-soft: var(--border-soft);
 	--color-input: var(--input);
@@ -65,6 +66,12 @@
 	--color-tertiary-foreground: var(--tertiary-foreground);
 	--color-overlay: var(--overlay);
 	--color-link: var(--link);
+	--color-highlight: var(--highlight);
+	--color-highlight-foreground: var(--highlight-foreground);
+	--color-primary-hover: var(--primary-hover);
+	--color-primary-active: var(--primary-active);
+	--color-tone-accent: var(--tone-accent);
+	--color-tone-accent-foreground: var(--tone-accent-foreground);
 
 	/* ---------- Status / alert colors ---------- */
 	--color-success: var(--success);
@@ -235,6 +242,26 @@
 	--radius-2xl: 1rem; /* 16px — rounded-2xl */
 	--radius-3xl: 1.25rem; /* 20px — rounded-3xl */
 	--radius-4xl: 1.5rem; /* 24px — rounded-4xl / modal */
+	--radius-full: 9999px; /* rounded-full — Figma radius/full & radius/badge */
+
+	/* ---------- Semantic radius roles (Figma `semantic` collection radius/*) ----------
+     Aliases of the primitive scale above, named for their component role. */
+	--radius-base: var(--radius-lg); /* 8px */
+	--radius-card: var(--radius-xl); /* 12px */
+	--radius-modal: var(--radius-4xl); /* 24px */
+	--radius-badge: var(--radius-full);
+	--radius-input: var(--radius-xl); /* 12px */
+	--radius-menu: var(--radius-xl); /* 12px */
+	--radius-menu-option: var(--radius-xl); /* 12px */
+	--radius-button-xs: var(--radius-lg); /* 8px */
+	--radius-button-sm: var(--radius-xl); /* 12px */
+	--radius-button-md: var(--radius-xl); /* 12px */
+	--radius-button-lg: var(--radius-xl); /* 12px */
+	--radius-button-xl: var(--radius-xl); /* 12px */
+	--radius-pill-xs: var(--radius-sm); /* 4px */
+	--radius-pill-sm: var(--radius-sm); /* 4px */
+	--radius-pill-md: var(--radius-lg); /* 8px */
+	--radius-pill-lg: var(--radius-xl); /* 12px */
 
 	/* ---------- Control heights ----------
 	   Shared 5-step height scale for all interactive form controls:
@@ -258,11 +285,11 @@
      =========================================================================== */
 
 	/* Sunset (brand) */
-	--sunset-50: #f9efeb;
-	--sunset-100: #f8decf;
-	--sunset-200: #f6bca5;
-	--sunset-300: #f49377;
-	--sunset-400: #f37955;
+	--sunset-50: #fceee8;
+	--sunset-100: #f9e3d7;
+	--sunset-200: #f8c8b5;
+	--sunset-300: #f59a80;
+	--sunset-400: #f47f5d;
 	--sunset-500: #f26740;
 	--sunset-600: #c84d2c;
 	--sunset-700: #993722;
@@ -314,10 +341,21 @@
 
 	--primary: var(--sunset-500);
 	--primary-foreground: var(--white);
+	--primary-hover: var(--sunset-600); /* Figma color/tone/brand/hover */
+	--primary-active: var(--sunset-950); /* Figma color/tone/brand/active */
 	--secondary: var(--coastal);
 	--secondary-foreground: var(--white);
 	--tertiary: var(--neutral-700);
 	--tertiary-foreground: #55504c;
+
+	/* color/tone/highlight/* — new DS role, coastal-based */
+	--highlight: var(--coastal);
+	--highlight-foreground: var(--white);
+
+	/* color/tone/accent/* — distinct from shadcn's --accent (hover surface);
+	   this is the DS's sand-based accent brand color, e.g. for tags/badges. */
+	--tone-accent: var(--sand-500);
+	--tone-accent-foreground: var(--white);
 
 	--muted: var(--sand-200);
 	--muted-foreground: var(--neutral-500);
@@ -326,7 +364,8 @@
 
 	--destructive: #e43232;
 	--destructive-foreground: var(--white);
-	--destructive-subtle: #e432320d; /* Figma color/alerts/destructive-05 — 5% destructive tint */
+	--destructive-subtle: #ffe9e9; /* Figma color/tone/desctructive/subtle — solid light-pink fill */
+	--destructive-soft: #e432320d; /* Figma color/tone/desctructive/soft — 5% destructive tint (was previously named "subtle") */
 
 	--border: var(--neutral-200);
 	--border-soft: var(--neutral-100); /* Figma color/border/border-soft & input border-disabled (neutral-100) */
@@ -365,7 +404,7 @@
 	--danger-50: #e2232380;
 	--danger-25: #e2232340;
 	--destructive-50: #e4323280;
-	--destructive-25: #cc000040;
+	--destructive-25: #e4323240; /* was #cc000040 — wrong base color, not in Figma; corrected to 25% of --destructive */
 
 	/* Fill surfaces (color/fill/*) */
 	--fill: var(--white);
