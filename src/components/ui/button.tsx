@@ -15,7 +15,7 @@ const buttonVariants = cva(
 				destructive:
 					"bg-destructive-subtle text-destructive hover:bg-[color-mix(in_srgb,var(--destructive-subtle)_92%,var(--destructive))] focus-visible:ring-destructive/20",
 				// Destructive-Solid (alternative — solid red, white text)
-				destructiveSolid:
+				"destructive-solid":
 					"bg-destructive text-white hover:bg-[color-mix(in_srgb,var(--destructive)_90%,black)] focus-visible:ring-destructive/20",
 				// Flat (Secondary)
 				secondary: "bg-accent text-accent-foreground hover:bg-neutral-200",

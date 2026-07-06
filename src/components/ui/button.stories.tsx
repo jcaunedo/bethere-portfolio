@@ -12,7 +12,7 @@ const meta: Meta<typeof Button> = {
       options: [
         "default",
         "destructive",
-        "destructiveSolid",
+        "destructive-solid",
         "secondary",
         "outline",
         "ghost",
@@ -57,7 +57,7 @@ export const Destructive: Story = {
 
 export const DestructiveSolid: Story = {
   args: {
-    variant: "destructiveSolid",
+    variant: "destructive-solid",
     children: "Delete",
   },
 };
@@ -135,7 +135,7 @@ export const AllVariants: Story = {
       <div className="flex items-center gap-2">
         <Button variant="default">Default</Button>
         <Button variant="destructive">Destructive</Button>
-        <Button variant="destructiveSolid">Destructive-Solid</Button>
+        <Button variant="destructive-solid">Destructive-Solid</Button>
         <Button variant="secondary">Secondary</Button>
         <Button variant="outline">Outline</Button>
         <Button variant="ghost">Ghost</Button>
