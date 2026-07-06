@@ -2,6 +2,11 @@ export { cn } from "./lib/utils";
 
 export { Button, buttonVariants } from "./components/ui/button";
 
+export {
+  ButtonNotifications,
+  buttonNotificationsVariants,
+} from "./components/ui/button-notifications";
+
 export { Input, inputVariants } from "./components/ui/input";
 
 export { Textarea, textareaVariants } from "./components/ui/textarea";

@@ -126,8 +126,10 @@
 	/* Input extras (color/input/*) */
 	--color-input-border-disabled: var(--input-border-disabled);
 	--color-input-ring: var(--input-ring);
+	--color-input-ring-focus: var(--input-ring-focus);
 	--color-input-ring-outside: var(--input-ring-outside);
 	--color-input-fill: var(--input-fill);
+	--color-input-fill-read-only: var(--input-fill-read-only);
 
 	/* Interaction states (color/states/*) */
 	--color-state-hover: var(--state-hover);
@@ -138,6 +140,7 @@
 	/* ---------- Sidebar colors ---------- */
 	--color-sidebar-background: var(--sidebar-background);
 	--color-sidebar-foreground: var(--sidebar-foreground);
+	--color-sidebar-icon-foreground: var(--sidebar-icon-foreground);
 	--color-sidebar-primary: var(--sidebar-primary);
 	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
 	--color-sidebar-accent: var(--sidebar-accent);
@@ -436,8 +439,10 @@
 	/* Input extras (color/input/*) */
 	--input-border-disabled: var(--border-soft);
 	--input-ring: var(--neutral-400);
+	--input-ring-focus: var(--primary); /* Figma color/input/ring-focus */
 	--input-ring-outside: #ff782c33;
 	--input-fill: var(--white);
+	--input-fill-read-only: #fcfcfd; /* Figma color/input/fill-read-only — no matching primitive */
 
 	/* Interaction states (color/states/*) */
 	--state-hover: #0b12220a;
@@ -454,9 +459,12 @@
      in card-add-listing-category.tsx; keep its stops in sync with these. */
 	--gradient-1: linear-gradient(180deg, var(--sunset-500) 0%, #ffa47d 100%);
 
-	/* Sidebar (derived from neutral/sand — not explicit DS tokens) */
+	/* Sidebar — background/primary/accent/border still derived from neutral/sand
+	   (not explicit DS tokens); foreground + icon-foreground are real DS values
+	   from Figma's `component` collection (color/component/sidebar-*). */
 	--sidebar-background: var(--neutral-50);
-	--sidebar-foreground: var(--neutral-900);
+	--sidebar-foreground: var(--neutral-600); /* Figma component/sidebar-foreground */
+	--sidebar-icon-foreground: var(--neutral-600); /* Figma component/sidebar-icon-foreground */
 	--sidebar-primary: var(--sunset-500);
 	--sidebar-primary-foreground: var(--white);
 	--sidebar-accent: var(--neutral-100);
@@ -515,11 +523,14 @@
 	--icon-subtle: var(--sand-500);
 	--input-border-disabled: var(--sand-800);
 	--input-ring: var(--sand-500);
+	--input-ring-focus: var(--sunset-500);
 	--input-fill: var(--sand-900);
+	--input-fill-read-only: var(--sand-800);
 	--state-disabled: var(--sand-800);
 
 	--sidebar-background: var(--sand-900);
 	--sidebar-foreground: var(--neutral-50);
+	--sidebar-icon-foreground: var(--neutral-50);
 	--sidebar-primary: var(--sunset-500);
 	--sidebar-primary-foreground: var(--white);
 	--sidebar-accent: var(--sand-800);
