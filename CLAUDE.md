@@ -14,7 +14,7 @@ Shared React component library for all BeThere frontend applications. Built with
 
 ## Architecture
 
-- **Package:** `@bethere/ucl`, ESM-only, published to private npm registry
+- **Package:** `@bethere-group/ucl`, ESM-only, published to **GitHub Packages** (`https://npm.pkg.github.com`) under the `bethere-group` org
 - **Build:** tsup bundles `src/index.ts` → `dist/index.js` + `dist/index.d.ts`; CSS is copied raw to `dist/styles.css`
 - **Styling:** Two CSS files:
   - `src/styles/theme.css` — design tokens, `@theme inline`, CSS variables. This is what consumers import (`dist/styles.css`)
@@ -85,21 +85,36 @@ All color variables live in `src/styles/theme.css`:
 
 To add a new color scale, add variables to `@theme inline`, `:root`, and `.dark` blocks in `theme.css`.
 
+## Release & Publishing
+
+- **Registry:** GitHub Packages (`https://npm.pkg.github.com`), org `bethere-group`. Default branch is `master`.
+- **Version bump:** manual via `npm run release:patch|minor|major` (wraps `npm version`). `preversion` runs `npm run lint`; `npm version` bumps `package.json`, commits, and tags `vX.Y.Z`; `postversion` runs `npm run build`.
+- **Publish:** `.github/workflows/publish.yml` triggers on pushes to `master` filtered to `package.json`, diffs the version against `HEAD~1`, and only publishes when it changed. Auth uses the built-in `secrets.GITHUB_TOKEN` (`packages: write`) — no PAT needed to publish.
+- **Release flow:** commit changes → `npm run release:*` → `git push && git push --tags`.
+- **`.npmrc`:** the repo root `.npmrc` scopes `@bethere-group` to GitHub Packages and reads the auth token from `${NPM_TOKEN}` (expanded at runtime, no secret committed).
+
 ## Consumer Integration
 
+Consumers need a root `.npmrc` scoping `@bethere-group` to GitHub Packages plus an `NPM_TOKEN` (a GitHub PAT with `read:packages`):
+
+```
+@bethere-group:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${NPM_TOKEN}
+```
+
 ```bash
-npm install @bethere/ucl
+npm install @bethere-group/ucl
 ```
 
 ```css
 /* In the consuming app's global CSS */
 @import "tailwindcss";
-@import "@bethere/ucl/styles";
-@source "../node_modules/@bethere/ucl/dist";
+@import "@bethere-group/ucl/styles";
+@source "../node_modules/@bethere-group/ucl/dist";
 ```
 
 The `@source` directive tells Tailwind to scan UCL's bundled JS for utility class names so it generates them in the consumer's build.
 
 ```tsx
-import { Button, Typography } from "@bethere/ucl";
+import { Button, Typography } from "@bethere-group/ucl";
 ```

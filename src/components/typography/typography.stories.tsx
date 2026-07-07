@@ -9,8 +9,17 @@ const meta: Meta<typeof Typography> = {
     size: {
       control: "select",
       options: [
-        "xs", "sm", "base", "lg", "xl",
-        "2xl", "3xl", "4xl", "5xl", "6xl", "7xl",
+        "xs",
+        "sm",
+        "base",
+        "lg",
+        "xl",
+        "2xl",
+        "3xl",
+        "4xl",
+        "5xl",
+        "6xl",
+        "7xl",
       ],
     },
     weight: {
@@ -69,10 +78,48 @@ export const Caption: Story = {
 };
 
 const SIZES = [
-  "7xl", "6xl", "5xl", "4xl", "3xl", "2xl", "xl", "lg", "base", "sm", "xs",
+  "7xl",
+  "6xl",
+  "5xl",
+  "4xl",
+  "3xl",
+  "2xl",
+  "xl",
+  "lg",
+  "base",
+  "sm",
+  "xs",
 ] as const;
 
-export const Scale: Story = {
+export const Small: Story = {
+  args: {
+    variant: "small",
+    children: "Small text for fine print.",
+  },
+};
+
+export const Muted: Story = {
+  args: {
+    variant: "muted",
+    children: "This is muted helper text.",
+  },
+};
+
+export const Blockquote: Story = {
+  args: {
+    variant: "blockquote",
+    children: "After all, everyone enjoys a good quote.",
+  },
+};
+
+export const InlineCode: Story = {
+  args: {
+    variant: "code",
+    children: "npm install @bethere-group/ucl",
+  },
+};
+
+export const AllVariants: Story = {
   render: () => (
     <div className="space-y-2">
       {SIZES.map((size) => (

@@ -32,25 +32,52 @@ Storybook launches on [http://localhost:6006](http://localhost:6006) where you c
 
 ## Using in a BeThere App
 
-Install the package:
+`@bethere-group/ucl` is published to **GitHub Packages** (private, under the
+`bethere-group` org). Consuming apps need a root `.npmrc` that points the
+`@bethere-group` scope at GitHub Packages:
+
+```
+@bethere-group:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${NPM_TOKEN}
+```
+
+Set `NPM_TOKEN` to a GitHub Personal Access Token with the `read:packages`
+scope (in your shell env or `~/.npmrc`). Then install the package:
 
 ```bash
-npm install @bethere/ucl
+npm install @bethere-group/ucl
 ```
 
 Import the theme in your app's global CSS:
 
 ```css
 @import "tailwindcss";
-@import "@bethere/ucl/styles";
-@source "../node_modules/@bethere/ucl/dist";
+@import "@bethere-group/ucl/styles";
+@source "../node_modules/@bethere-group/ucl/dist";
 ```
 
 Use components:
 
 ```tsx
-import { Button, Typography } from "@bethere/ucl";
+import { Button, Typography } from "@bethere-group/ucl";
 ```
+
+## Publishing / Releases
+
+Versions are bumped manually with `npm version` and published automatically by
+CI when the new `package.json` version lands on `master`.
+
+```bash
+# 1. Commit all changes first (npm version requires a clean tree)
+# 2. Bump the version (runs lint, tags vX.Y.Z, rebuilds dist)
+npm run release:patch   # or release:minor / release:major
+# 3. Push the commit + tag
+git push && git push --tags
+```
+
+The [`publish.yml`](.github/workflows/publish.yml) workflow detects the version
+change and publishes the package to GitHub Packages using the built-in
+`GITHUB_TOKEN` (no separate secret required).
 
 ## Project Structure
 
