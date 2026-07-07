@@ -56,6 +56,22 @@ Import the theme in your app's global CSS:
 @source "../node_modules/@bethere-group/ucl/dist";
 ```
 
+Load the **Google Sans Flex** webfont in your app's document `<head>` (the
+package declares the `--font-sans`/`--font-display` tokens but does not fetch
+the font itself). In a Next.js root layout:
+
+```tsx
+// src/app/layout.tsx
+<head>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap"
+    rel="stylesheet"
+  />
+</head>
+```
+
 Use components:
 
 ```tsx

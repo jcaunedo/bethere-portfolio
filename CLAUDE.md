@@ -115,6 +115,8 @@ npm install @bethere-group/ucl
 
 The `@source` directive tells Tailwind to scan UCL's bundled JS for utility class names so it generates them in the consumer's build.
 
+**Webfont:** `dist/styles.css` intentionally does **not** `@import` the "Google Sans Flex" webfont (a render-blocking `url()` @import in distributed CSS is invalid once the consumer imports Tailwind first, and warns at build time). It only declares the `--font-sans`/`--font-display` tokens. The consuming app must load the font in its document `<head>` — e.g. `<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap">` (with `preconnect` hints) in the Next.js root layout, or `next/font`.
+
 ```tsx
 import { Button, Typography } from "@bethere-group/ucl";
 ```

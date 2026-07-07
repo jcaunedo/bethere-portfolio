@@ -1,4 +1,11 @@
-@import url("https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=swap");
+/* ---------- Webfont ----------
+   The "Google Sans Flex" webfont is NOT loaded here. A render-blocking
+   `@import url(...)` inside this distributed stylesheet is invalid once a
+   consumer imports Tailwind before it (an `@import` must precede all rules),
+   which produces a build warning. Instead, consuming apps load the font in
+   their document <head> (e.g. a <link> in the Next.js root layout, or
+   next/font). This file only declares the `--font-sans`/`--font-display`
+   tokens that reference it. See README "Consumer Integration". */
 
 @custom-variant dark (&:is(.dark *));
 

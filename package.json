@@ -27,7 +27,7 @@
     "registry": "https://npm.pkg.github.com"
   },
   "scripts": {
-    "build": "tsup && cp src/styles/theme.css dist/styles.css",
+    "build": "tsup && cp src/styles/theme.css dist/styles.css && node scripts/add-use-client.mjs",
     "dev": "tsup --watch",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
