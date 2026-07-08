@@ -28,16 +28,6 @@ The scale is declared in `src/styles/theme.css` (`@theme inline` block) as `--co
 --control-h-xl: 2.5rem;   /* 40px */
 ```
 
-## Text size pairing
-
-| Control size | Font size | Tailwind |
-| ------------ | --------- | -------- |
-| `xs`         | 12 px     | `text-xs` |
-| `sm`         | 12 px     | `text-xs` |
-| `md`         | 14 px     | `text-sm` |
-| `lg`         | 14 px     | `text-sm` |
-| `xl`         | 16 px     | `text-base` |
-
 ## Component support
 
 | Component         | Sizes supported         | Default |

@@ -28,6 +28,20 @@ export {
 } from "./components/ui/payment-method";
 
 export {
+  SocialLoginButton,
+  socialLoginButtonVariants,
+  GoogleIcon,
+  MicrosoftIcon,
+  AppleIcon,
+  type SocialLoginButtonProps,
+} from "./components/ui/social-login-button";
+
+export {
+  SocialLoginOptions,
+  type SocialLoginOptionsProps,
+} from "./components/ui/social-login-options";
+
+export {
   Combobox,
   type ComboboxOption,
   type ComboboxProps,

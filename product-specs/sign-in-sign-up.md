@@ -69,7 +69,8 @@ The specific-provider copy requires the "check email" endpoint to return which p
 [Frame: Email linked to a Google account (social sign-in)](https://www.figma.com/design/Yxntd0OUl1SMXtYSu41h3P/Sign-Up--Sign-In?node-id=69-1168)
 
 **c. Account not found (never signed up)**
-Genuinely new email, no account exists. There is no same-screen state and no confirm/CTA step for this case — "Continue" routes straight into email verification ([step 3](#3-new-account--email-verification)), which sends the OTP immediately. This keeps signup passwordless up to that point.
+Genuinely new email, no account exists. Unlike 2a/2b, this is a same-screen inline state, not an instant redirect: a warning banner appears below the email field — **"No account found"** / "Sign up to create a provider account." — and the button label changes to "Sign Up." Clicking it routes into email verification ([step 3](#3-new-account--email-verification)), which sends the OTP immediately. This keeps signup passwordless up to that point; the inline state exists only to confirm intent before triggering the OTP send.
+[Frame: Email not found (new email)](https://www.figma.com/design/Yxntd0OUl1SMXtYSu41h3P/Sign-Up--Sign-In?node-id=240-1883)
 
 **d. Incorrect password**
 Inline error: "Incorrect email or password — Check your email and password, then try again."
@@ -77,7 +78,7 @@ Inline error: "Incorrect email or password — Check your email and password, th
 
 ### 3. New account → email verification
 
-For a new email, "Continue" routes straight here — no intermediate confirm screen. The OTP is sent immediately, and this step confirms ownership before account creation completes. Password is intentionally not collected until _after_ verification succeeds (see [4. Set password](#4-set-password)) — no account credential is validated against an unverified email.
+For a new email, "Continue" surfaces the inline "No account found" state ([2c](#2-submit-email--branch)); clicking "Sign Up" from there routes here and sends the OTP immediately. This step confirms ownership before account creation completes. Password is intentionally not collected until _after_ verification succeeds (see [4. Set password](#4-set-password)) — no account credential is validated against an unverified email.
 
 - **3A** [Check your inbox — empty state](https://www.figma.com/design/Yxntd0OUl1SMXtYSu41h3P/Sign-Up--Sign-In?node-id=217-1543) — 6-digit code entry split 3+3, "Resend code" link
 - **3B** [Check your inbox — filled state](https://www.figma.com/design/Yxntd0OUl1SMXtYSu41h3P/Sign-Up--Sign-In?node-id=218-1742) — same screen, all 6 digits entered
@@ -128,4 +129,4 @@ An OTP code is more reliable because the email client can scan the message witho
 ## Implementation notes
 
 - ⚠️ The "check email" endpoint needs to return which provider (if any) a social-sign-in-linked account uses, so step 2b can show provider-specific copy instead of the generic fallback.
-- ⚠️ **Gap vs. current implementation** — this flow is a full rebuild, not a restyle, of `hotel-portal`'s auth. Today: separate `/login` and `/signup` routes, no SSO, and signup collects first/last name + password + confirm-password up front (`SignupForm.tsx`, `GlobalUserLoginForm.tsx`). Building this flow means removing the standalone signup route, adding SSO provider integration, and implementing the branching state machine described above — including moving password collection to _after_ OTP verification (`3E`) instead of up front.
+- ⚠️ **Gap vs. current implementation** — this flow is being built new in `provider-portal`, not adapted from `hotel-portal`'s auth. `hotel-portal` today has separate `/login` and `/signup` routes, no SSO, and signup collects first/last name + password + confirm-password up front (`SignupForm.tsx`, `GlobalUserLoginForm.tsx`) — useful as a reference for what to avoid, not a starting point. Building this flow in `provider-portal` means no standalone signup route, SSO provider integration, and the branching state machine described above — including collecting the password only _after_ OTP verification (`3E`) instead of up front.
