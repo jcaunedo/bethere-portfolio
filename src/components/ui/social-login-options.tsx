@@ -29,19 +29,19 @@ function SocialLoginOptions({
       {...props}
     >
       <SocialLoginButton
-        className="flex-1"
+        className="w-full flex-1"
         icon={<GoogleIcon />}
         label="Google"
         onClick={() => onProviderClick?.("google")}
       />
       <SocialLoginButton
-        className="flex-1"
+        className="w-full flex-1"
         icon={<MicrosoftIcon />}
         label="Microsoft"
         onClick={() => onProviderClick?.("microsoft")}
       />
       <SocialLoginButton
-        className="flex-1"
+        className="w-full flex-1"
         icon={<AppleIcon />}
         label="Apple"
         onClick={() => onProviderClick?.("apple")}
