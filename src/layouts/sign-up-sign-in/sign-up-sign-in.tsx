@@ -75,7 +75,9 @@ function SignUpSignIn() {
           </div>
 
           <div className="flex flex-col items-center gap-1 text-center">
-            <Typography size="xs">By continuing, you have read and agree to BeThere Group</Typography>
+            <Typography size="xs" className="text-muted-foreground">
+              By continuing, you have read and agree to BeThere Group
+            </Typography>
             <Typography size="xs">
               <a href="#" className="text-primary hover:underline">
                 Terms of Service
