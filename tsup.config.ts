@@ -6,7 +6,9 @@ export default defineConfig({
   dts: true,
   sourcemap: true,
   clean: true,
-  external: ["react", "react-dom", "react/jsx-runtime"],
+  // `formik` is an optional peer — externalize it so it's never bundled and
+  // consumers who don't use the Formik* fields tree-shake it away entirely.
+  external: ["react", "react-dom", "react/jsx-runtime", "formik"],
   treeshake: true,
   splitting: false,
   minify: false,

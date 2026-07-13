@@ -1,8 +1,8 @@
 import * as React from "react";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { SocialLoginOptions } from "@/components/ui/social-login-options";
+import { Button } from "@/components/buttons/button";
+import { Input } from "@/components/forms/input";
+import { SocialLoginOptions } from "@/components/buttons/social-login-options";
 import { Typography } from "@/components/typography";
 import heroImage from "./images/hero.png";
 import logo from "./images/logo.png";

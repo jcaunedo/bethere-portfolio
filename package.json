@@ -40,8 +40,14 @@
     "release:major": "npm version major"
   },
   "peerDependencies": {
+    "formik": "^2.4.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
+  },
+  "peerDependenciesMeta": {
+    "formik": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=22"
@@ -63,6 +69,7 @@
     "@tailwindcss/vite": "^4.3.0",
     "@types/react": "^19.2.15",
     "@types/react-dom": "^19.2.3",
+    "formik": "^2.4.6",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "storybook": "^10.4.1",
