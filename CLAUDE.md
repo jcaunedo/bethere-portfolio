@@ -19,23 +19,27 @@ Shared React component library for all BeThere frontend applications. Built with
 - **Styling:** Two CSS files:
   - `src/styles/theme.css` — design tokens, `@theme inline`, CSS variables. This is what consumers import (`dist/styles.css`)
   - `src/styles/globals.css` — imports Tailwind + tw-animate-css + theme.css. Used only by Storybook internally
-- **Components:** shadcn/ui primitives in `src/components/ui/`, custom components in `src/components/<name>/`
-- **Storybook:** `@storybook/react-vite` with `@tailwindcss/vite` plugin for Tailwind processing
+- **Components:** one folder per component, grouped by family under `src/components/<family>/<name>/`. Families: `forms/`, `buttons/`, `overlays/`, `data-display/`, `cards/`, plus `typography/`. Each folder holds `<name>.tsx`, `<name>.stories.tsx`, an `index.ts` barrel, and (later) `<name>.test.tsx`. Internal cross-component imports use the `@/components/<family>/<name>` alias (the folder `index.ts`), never a deep relative path.
+- **Forms & Formik:** primitives (`Input`, `Select`, …) stay Formik-agnostic. Formik-connected fields (`FormikInput`, `FormikSelect`, …) live beside their primitive in `forms/<name>/formik-<name>.tsx` and share `forms/field/` (`FormField` shell + internal `useFormikField` hook). `formik` is an **optional** peer dependency (see "Formik Fields" below).
+- **Storybook:** `@storybook/react-vite` with `@tailwindcss/vite` plugin for Tailwind processing. Story `title`s follow the family taxonomy (e.g. `Forms/Input`, `Buttons/Button`)
 
-## Adding a shadcn Primitive
+## Adding a shadcn Primitive (scaffold → relocate)
+
+The shadcn CLI writes a flat file into `src/components/ui/`, which is only a **staging** dir here. After scaffolding, relocate the component into its family folder:
 
 ```bash
 npx shadcn add <component>
 ```
 
-This scaffolds the component into `src/components/ui/`. Then:
-
-1. Create a story file: `src/components/ui/<component>.stories.tsx`
-2. Export from `src/index.ts`
+1. Move `src/components/ui/<component>.tsx` → `src/components/<family>/<component>/<component>.tsx` (choose the family: `forms`, `buttons`, `overlays`, `data-display`, `cards`).
+2. Rewrite its sibling-component imports to the `@/components/<family>/<name>` alias.
+3. Add `src/components/<family>/<component>/index.ts` re-exporting the component + variants + types.
+4. Create `<component>.stories.tsx` in the same folder with `title: "<Family>/<Component>"`.
+5. Export from `src/index.ts`, then delete the now-empty `src/components/ui/`.
 
 ## Creating a Custom Component
 
-Create a directory under `src/components/<name>/` with three files:
+Create a directory under `src/components/<family>/<name>/` with three files (see `forms/field/` or `typography/` as templates):
 
 ### `<name>.tsx` — Component file
 
@@ -46,7 +50,7 @@ Create a directory under `src/components/<name>/` with three files:
 
 ### `<name>.stories.tsx` — Storybook stories
 
-- Set `tags: ["autodocs"]` for auto-generated docs
+- Set `tags: ["autodocs"]` for auto-generated docs, and `title: "<Family>/<Component>"`
 - Create individual stories for each variant/state
 - Include an `AllVariants` story showing everything at once
 
@@ -55,6 +59,17 @@ Create a directory under `src/components/<name>/` with three files:
 - Re-export the component, variants, and types
 
 Then add the exports to `src/index.ts`.
+
+## Formik Fields
+
+Consumers build forms with **Formik + Yup**. UCL ships Formik-connected fields so they don't hand-roll `useField` wrappers.
+
+- **Primitives stay pure.** `Input`, `Textarea`, `NumericInput`, `SearchInput`, `Select`, `Combobox`, `DatePicker` never import `formik` — they work in Storybook, tests, and non-form contexts.
+- **`Formik*` fields** live next to their primitive (`forms/<name>/formik-<name>.tsx`), take a required `name` plus optional `label`/`description`/`required`, call `useFormikField(name)` internally, render the control inside `FormField` (label + error + description), and wire `aria-invalid`/`aria-describedby`.
+  - Native-value inputs bridge via `{...field}` spread.
+  - Custom-contract components (`Select`, `Combobox`, `DatePicker`) bridge via `helpers.setValue` / `helpers.setTouched` because they emit `onValueChange`, not a native `onChange`.
+- **`formik` is an optional peer dependency** (`peerDependenciesMeta.formik.optional`) and is externalized by tsup. Consumers importing only non-form components tree-shake it away. **Yup is a consumer concern** — validation schemas live in the apps, not here.
+- To add a field for a new input: create `forms/<name>/formik-<name>.tsx`, reuse `FormField` + `useFormikField` from `@/components/forms/field`, add a `formik-<name>.stories.tsx` (wrap stories in `<Formik>`), and export from the folder `index.ts` + `src/index.ts`.
 
 ## Updating an Existing Component
 
@@ -119,4 +134,38 @@ The `@source` directive tells Tailwind to scan UCL's bundled JS for utility clas
 
 ```tsx
 import { Button, Typography } from "@bethere-group/ucl";
+```
+
+**Forms** (requires `formik` installed in the consumer):
+
+```tsx
+import { Formik, Form } from "formik";
+import * as Yup from "yup";
+import { FormikInput, FormikSelect, Button } from "@bethere-group/ucl";
+
+const schema = Yup.object({
+  email: Yup.string().email().required("Email is required."),
+  country: Yup.string().required("Pick a country."),
+});
+
+<Formik
+  initialValues={{ email: "", country: "" }}
+  validationSchema={schema}
+  onSubmit={(values) => {
+    /* … */
+  }}
+>
+  <Form>
+    <FormikInput name="email" label="Email" placeholder="you@example.com" />
+    <FormikSelect
+      name="country"
+      label="Country"
+      options={[
+        { value: "us", label: "United States" },
+        { value: "br", label: "Brazil" },
+      ]}
+    />
+    <Button type="submit">Save</Button>
+  </Form>
+</Formik>;
 ```
