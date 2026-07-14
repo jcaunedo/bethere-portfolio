@@ -119,13 +119,6 @@ export {
 /* -------------------------------------------------------------------------- */
 
 export {
-  Alert,
-  AlertTitle,
-  AlertDescription,
-  alertVariants,
-} from "./components/data-display/alert";
-
-export {
   Table,
   TableHeader,
   TableBody,
@@ -142,6 +135,17 @@ export {
   type DataTableProps,
   type DataTableColumnHeaderProps,
 } from "./components/data-display/data-table";
+
+/* -------------------------------------------------------------------------- */
+/* Feedback                                                                   */
+/* -------------------------------------------------------------------------- */
+
+export {
+  Alert,
+  AlertTitle,
+  AlertDescription,
+  alertVariants,
+} from "./components/feedback/alert";
 
 /* -------------------------------------------------------------------------- */
 /* Overlays                                                                   */

@@ -19,7 +19,7 @@ Shared React component library for all BeThere frontend applications. Built with
 - **Styling:** Two CSS files:
   - `src/styles/theme.css` — design tokens, `@theme inline`, CSS variables. This is what consumers import (`dist/styles.css`)
   - `src/styles/globals.css` — imports Tailwind + tw-animate-css + theme.css. Used only by Storybook internally
-- **Components:** one folder per component, grouped by family under `src/components/<family>/<name>/`. Families: `forms/`, `buttons/`, `overlays/`, `data-display/`, `cards/`, plus `typography/`. Each folder holds `<name>.tsx`, `<name>.stories.tsx`, an `index.ts` barrel, and (later) `<name>.test.tsx`. Internal cross-component imports use the `@/components/<family>/<name>` alias (the folder `index.ts`), never a deep relative path.
+- **Components:** one folder per component, grouped by family under `src/components/<family>/<name>/`. Families: `forms/`, `buttons/`, `overlays/`, `data-display/`, `feedback/`, `cards/`, plus `typography/`. Each folder holds `<name>.tsx`, `<name>.stories.tsx`, an `index.ts` barrel, and (later) `<name>.test.tsx`. Internal cross-component imports use the `@/components/<family>/<name>` alias (the folder `index.ts`), never a deep relative path.
 - **Forms & Formik:** primitives (`Input`, `Select`, …) stay Formik-agnostic. Formik-connected fields (`FormikInput`, `FormikSelect`, …) live beside their primitive in `forms/<name>/formik-<name>.tsx` and share `forms/field/` (`FormField` shell + internal `useFormikField` hook). `formik` is an **optional** peer dependency (see "Formik Fields" below).
 - **Storybook:** `@storybook/react-vite` with `@tailwindcss/vite` plugin for Tailwind processing. Story `title`s follow the family taxonomy (e.g. `Forms/Input`, `Buttons/Button`)
 
