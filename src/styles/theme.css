@@ -303,7 +303,7 @@
 	--radius-badge: var(--radius-full);
 	--radius-input: var(--radius-xl); /* 12px */
 	--radius-menu: var(--radius-xl); /* 12px */
-	--radius-menu-option: var(--radius-xl); /* 12px */
+	--radius-menu-option: var(--radius-lg); /* 8px — Figma radius/menu-item (was 12px) */
 	--radius-button-xs: var(--radius-lg); /* 8px */
 	--radius-button-sm: var(--radius-xl); /* 12px */
 	--radius-button-md: var(--radius-xl); /* 12px */
@@ -479,7 +479,7 @@
 	--success-900: #00431c;
 	--success-950: #002911;
 
-	--warning-50: #fdf0e6;
+	--warning-50: #fef4ec;
 	--warning-100: #f9dcc1;
 	--warning-200: #f6c69e;
 	--warning-300: #f0ad6c;
@@ -487,11 +487,11 @@
 	--warning-500: #e68014;
 	--warning-600: #e07400;
 	--warning-700: #b45c00;
-	--warning-800: #874500;
+	--warning-800: #7d370b;
 	--warning-900: #5a2e00;
 	--warning-950: #3a1e00;
 
-	--destructive-50: #fbe6e6;
+	--destructive-50: #fce9e9;
 	--destructive-100: #f5cccc;
 	--destructive-200: #e69999;
 	--destructive-300: #d66666;
@@ -539,7 +539,7 @@
 	--input-fill-read-only: #fcfcfd; /* Figma color/input/fill-read-only — no matching primitive */
 
 	/* Interaction states (color/states/*) */
-	--state-hover: #0b12220a;
+	--state-hover: #3a342808; /* Figma color/states/hover — sand-900 @ ~3% alpha (was neutral-950-based) */
 	--state-active: #f0f2f599;
 	--state-highlight: #fff9e114;
 	--state-disabled: var(--neutral-100);
