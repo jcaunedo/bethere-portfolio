@@ -63,6 +63,15 @@ export {
 export { Calendar } from "./components/forms/calendar";
 
 export {
+  OtpInput,
+  OtpInputGroup,
+  OtpInputSlot,
+  OtpInputSeparator,
+  otpInputSlotVariants,
+  type OtpInputProps,
+} from "./components/forms/otp-input";
+
+export {
   Select,
   SelectContent,
   SelectGroup,
@@ -103,6 +112,11 @@ export {
   type FormikSelectProps,
   type FormikSelectOption,
 } from "./components/forms/select";
+
+export {
+  FormikOtpInput,
+  type FormikOtpInputProps,
+} from "./components/forms/otp-input";
 
 export {
   FormikCombobox,
