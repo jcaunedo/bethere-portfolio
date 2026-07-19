@@ -132,7 +132,11 @@ function SelectContent({
       <SelectPrimitive.Content
         data-slot="select-content"
         className={cn(
-          "relative z-50 max-h-(--radix-select-content-available-height) w-(--radix-select-trigger-width) origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-xl border border-border bg-popover text-popover-foreground shadow-[var(--shadow-popover)] data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
+          "relative z-50 max-h-(--radix-select-content-available-height) w-(--radix-select-trigger-width) overflow-x-hidden overflow-y-auto rounded-xl border border-border bg-popover text-popover-foreground shadow-[var(--shadow-popover)] data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
+          // Horizontal origin fixed to center (align="start" would otherwise put
+          // Radix's computed transform-origin at the left edge, so the zoom
+          // animation scaled from top-left instead of top-center).
+          "[transform-origin:50%_top]",
           position === "popper" &&
             "data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1",
           // Shifts the panel's TOP edge up to the trigger's TOP edge (Radix's
@@ -240,7 +244,10 @@ function SelectItem({
         // text-foreground overrides the popover-foreground inherited from
         // SelectContent. Disabled dims only the text (data-[disabled]:text-muted-foreground),
         // not the whole item — icons/chevron/shortcut keep their normal color.
-        "relative flex h-9 w-full cursor-pointer items-center gap-2 rounded-lg py-[7px] pr-8 pl-2 text-sm text-foreground outline-hidden select-none hover:bg-state-hover focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:cursor-not-allowed data-[disabled]:text-muted-foreground data-[state=checked]:bg-state-active [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
+        // Radix auto-focuses an item on pointer move, so hover and focus fire
+        // together — both must use the same subtle state-hover tint (matching
+        // Combobox's CommandItem) or the opaque focus:bg-accent paints over it.
+        "relative flex h-9 w-full cursor-pointer items-center gap-2 rounded-lg py-[7px] pr-8 pl-2 text-sm text-foreground outline-hidden select-none hover:bg-state-hover focus:bg-state-hover data-[disabled]:pointer-events-none data-[disabled]:cursor-not-allowed data-[disabled]:text-muted-foreground data-[state=checked]:bg-state-active [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
         isTiered && "border-l border-border pl-3.5",
         className
       )}
