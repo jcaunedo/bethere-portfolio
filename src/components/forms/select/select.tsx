@@ -1,19 +1,53 @@
 import * as React from "react"
-import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react"
+import {
+  CheckIcon,
+  ChevronDownIcon,
+  ChevronRightIcon,
+  ChevronUpIcon,
+  UserRoundIcon,
+} from "lucide-react"
 import { Select as SelectPrimitive } from "radix-ui"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * Tracks whether the trigger's last open/close interaction was pointer-driven
+ * vs keyboard. Used by SelectContent's onCloseAutoFocus to skip Radix's
+ * auto-refocus on pointer closes — otherwise the browser's `:focus-visible`
+ * heuristic treats that programmatic refocus as keyboard-like and the
+ * focus ring masks `hover:` until the user clicks elsewhere.
+ */
+const SelectPointerContext = React.createContext<React.RefObject<boolean> | null>(
+  null
+)
+
 function Select({
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Root>) {
-  return <SelectPrimitive.Root data-slot="select" {...props} />
+  const isPointerRef = React.useRef(false)
+  return (
+    <SelectPointerContext.Provider value={isPointerRef}>
+      <SelectPrimitive.Root data-slot="select" {...props} />
+    </SelectPointerContext.Provider>
+  )
 }
 
 function SelectGroup({
+  className,
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Group>) {
-  return <SelectPrimitive.Group data-slot="select-group" {...props} />
+  return (
+    <SelectPrimitive.Group
+      data-slot="select-group"
+      // gap lives here (not just on Viewport) since items render as
+      // SelectGroup's children, and flex `gap` only applies between a
+      // container's direct children. No horizontal padding here — that
+      // stays on Viewport only, since SelectGroup nests inside it and
+      // padding on both would compound into double the gutter.
+      className={cn("flex flex-col gap-0.5", className)}
+      {...props}
+    />
+  )
 }
 
 function SelectValue({
@@ -26,17 +60,52 @@ function SelectTrigger({
   className,
   size = "lg",
   children,
+  readOnly,
+  onPointerDown,
+  onKeyDown,
+  onClick,
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Trigger> & {
   // Shared control height scale — xs·24 / sm·28 / md·32 / lg·36★ / xl·40
   size?: "xs" | "sm" | "md" | "lg" | "xl"
+  // Focusable and shows the value, but can't be opened — distinct from
+  // `disabled` (50% opacity, not focusable). No native HTML equivalent on
+  // a button, so open attempts are blocked directly.
+  readOnly?: boolean
 }) {
+  const isPointerRef = React.useContext(SelectPointerContext)
   return (
     <SelectPrimitive.Trigger
       data-slot="select-trigger"
       data-size={size}
+      data-readonly={readOnly ? "" : undefined}
+      aria-readonly={readOnly}
+      onPointerDown={(e) => {
+        if (readOnly) {
+          e.preventDefault()
+          return
+        }
+        if (isPointerRef) isPointerRef.current = true
+        onPointerDown?.(e)
+      }}
+      onClick={(e) => {
+        // Radix's onClick can open the menu independently of onPointerDown,
+        // so both need the same guard.
+        if (readOnly) {
+          e.preventDefault()
+          return
+        }
+        onClick?.(e)
+      }}
+      onKeyDown={(e) => {
+        if (readOnly && (e.key === "Enter" || e.key === " " || e.key === "ArrowDown" || e.key === "ArrowUp")) {
+          e.preventDefault()
+          return
+        }
+        onKeyDown?.(e)
+      }}
       className={cn(
-        "flex w-full items-center justify-between gap-2 rounded-xl border border-input bg-card px-3 py-2 text-sm text-foreground whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none hover:border-neutral-400 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-[placeholder]:text-muted-foreground data-[size=xs]:h-6 data-[size=xs]:text-xs data-[size=sm]:h-7 data-[size=sm]:text-xs data-[size=md]:h-8 data-[size=lg]:h-9 data-[size=xl]:h-10 data-[size=xl]:text-base *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 dark:bg-input/30 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground",
+        "flex w-full items-center justify-between gap-2 rounded-xl border border-input bg-card px-3 py-2 text-sm text-foreground whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none hover:border-neutral-400 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-[placeholder]:text-muted-foreground data-[size=xs]:h-6 data-[size=xs]:text-xs data-[size=sm]:h-7 data-[size=sm]:text-xs data-[size=md]:h-8 data-[size=lg]:h-9 data-[size=xl]:h-10 data-[size=xl]:text-base *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 dark:bg-input/30 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground data-[readonly]:cursor-default data-[readonly]:border-input-border-disabled data-[readonly]:bg-input-fill-read-only data-[readonly]:hover:border-input-border-disabled",
         className
       )}
       {...props}
@@ -52,30 +121,44 @@ function SelectTrigger({
 function SelectContent({
   className,
   children,
-  position = "item-aligned",
-  align = "center",
+  position = "popper",
+  align = "start",
+  onCloseAutoFocus,
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Content>) {
+  const isPointerRef = React.useContext(SelectPointerContext)
   return (
     <SelectPrimitive.Portal>
       <SelectPrimitive.Content
         data-slot="select-content"
         className={cn(
-          "relative z-50 max-h-(--radix-select-content-available-height) min-w-[8rem] origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-xl border bg-popover text-popover-foreground shadow-md data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
+          "relative z-50 max-h-(--radix-select-content-available-height) w-(--radix-select-trigger-width) origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-xl border border-border bg-popover text-popover-foreground shadow-[var(--shadow-popover)] data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
           position === "popper" &&
-            "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
+            "data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1",
+          // Shifts the panel's TOP edge up to the trigger's TOP edge (Radix's
+          // default side="bottom" would put it at the trigger's bottom edge)
+          // so it grows downward, covering the trigger.
+          "data-[side=bottom]:-translate-y-[var(--radix-select-trigger-height)]",
           className
         )}
         position={position}
         align={align}
+        sideOffset={0}
+        onCloseAutoFocus={(e) => {
+          if (isPointerRef?.current) {
+            e.preventDefault()
+            isPointerRef.current = false
+          }
+          onCloseAutoFocus?.(e)
+        }}
         {...props}
       >
         <SelectScrollUpButton />
         <SelectPrimitive.Viewport
           className={cn(
-            "p-1",
+            "flex flex-col gap-0.5 px-2 py-2",
             position === "popper" &&
-              "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)] scroll-my-1"
+              "w-full min-w-[var(--radix-select-trigger-width)] scroll-my-1"
           )}
         >
           {children}
@@ -88,40 +171,123 @@ function SelectContent({
 
 function SelectLabel({
   className,
+  shortcut,
+  showChevron = false,
+  children,
   ...props
-}: React.ComponentProps<typeof SelectPrimitive.Label>) {
+}: React.ComponentProps<typeof SelectPrimitive.Label> & {
+  shortcut?: string
+  showChevron?: boolean
+}) {
   return (
     <SelectPrimitive.Label
       data-slot="select-label"
-      className={cn("px-2 py-1.5 text-xs text-muted-foreground", className)}
+      className={cn(
+        "flex items-center gap-2 px-2 py-1.5 text-xs text-muted-foreground",
+        className
+      )}
       {...props}
-    />
+    >
+      <span className="flex-1">{children}</span>
+      {shortcut && (
+        <span className="shrink-0 text-right text-xs text-muted-foreground">
+          {shortcut}
+        </span>
+      )}
+      {showChevron && <ChevronRightIcon className="size-4 shrink-0" />}
+    </SelectPrimitive.Label>
   )
 }
 
 function SelectItem({
   className,
   children,
+  icon,
+  showIcon = false,
+  showCheckbox = false,
+  showCircleColor = false,
+  circleColor,
+  shortcut,
+  showChevron = false,
+  // Radix's data-[state=checked] marks the item as selected; this only
+  // controls which token the checkmark uses once checked.
+  checkColor = "default",
+  // Visual only — no expand/collapse behavior wired up. Radix's Select.Item
+  // has no native parent/child concept, so a consuming app would
+  // conditionally render nested items itself.
+  tier,
+  tierState,
   ...props
-}: React.ComponentProps<typeof SelectPrimitive.Item>) {
+}: React.ComponentProps<typeof SelectPrimitive.Item> & {
+  icon?: React.ReactNode
+  showIcon?: boolean
+  showCheckbox?: boolean
+  showCircleColor?: boolean
+  circleColor?: string
+  shortcut?: string
+  showChevron?: boolean
+  checkColor?: "default" | "primary"
+  tier?: 1
+  tierState?: "active" | "collapsed" | "expanded"
+}) {
+  const isTiered = tier === 1
   return (
     <SelectPrimitive.Item
       data-slot="select-item"
+      data-tier={tier}
+      data-check-color={checkColor}
       className={cn(
-        "relative flex w-full cursor-default items-center gap-2 rounded-lg py-1.5 pr-8 pl-2 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
+        // text-foreground overrides the popover-foreground inherited from
+        // SelectContent. Disabled dims only the text (data-[disabled]:text-muted-foreground),
+        // not the whole item — icons/chevron/shortcut keep their normal color.
+        "relative flex h-9 w-full cursor-pointer items-center gap-2 rounded-lg py-[7px] pr-8 pl-2 text-sm text-foreground outline-hidden select-none hover:bg-state-hover focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:cursor-not-allowed data-[disabled]:text-muted-foreground data-[state=checked]:bg-state-active [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
+        isTiered && "border-l border-border pl-3.5",
         className
       )}
       {...props}
     >
+      {showIcon && (icon ?? <UserRoundIcon className="size-4" />)}
+      {showCheckbox && (
+        <span
+          aria-hidden
+          className="box-content size-4 shrink-0 rounded-[4px] border border-foreground bg-background shadow-[0_1px_3px_0_rgba(0,0,0,0.1),0_1px_2px_-1px_rgba(0,0,0,0.1)]"
+        />
+      )}
+      {showCircleColor && (
+        <span
+          aria-hidden
+          className="size-2 shrink-0 rounded-full"
+          style={circleColor ? { backgroundColor: circleColor } : undefined}
+        />
+      )}
+      {isTiered && tierState !== "active" && (
+        <ChevronRightIcon
+          className={cn("size-4", tierState === "expanded" && "rotate-90")}
+        />
+      )}
+      <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+      {shortcut && (
+        <span className="shrink-0 text-right text-xs text-muted-foreground">
+          {shortcut}
+        </span>
+      )}
+      {showChevron && <ChevronRightIcon className="size-4" />}
       <span
         data-slot="select-item-indicator"
         className="absolute right-2 flex size-3.5 items-center justify-center"
       >
         <SelectPrimitive.ItemIndicator>
-          <CheckIcon className="size-4" />
+          <CheckIcon
+            className={cn(
+              "size-4",
+              // Must set text-icon explicitly even for "default" — the base
+              // item className has a fallback ([&_svg:not([class*='text-'])])
+              // that overrides any svg with no text-* class to text-muted-foreground.
+              checkColor === "primary" ? "text-icon-primary" : "text-icon"
+            )}
+          />
         </SelectPrimitive.ItemIndicator>
       </span>
-      <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
     </SelectPrimitive.Item>
   )
 }

@@ -303,16 +303,20 @@
 	--radius-badge: var(--radius-full);
 	--radius-input: var(--radius-xl); /* 12px */
 	--radius-menu: var(--radius-xl); /* 12px */
+	--radius-popover: var(--radius-xl); /* 12px */
 	--radius-menu-option: var(--radius-lg); /* 8px — Figma radius/menu-item (was 12px) */
 	--radius-button-xs: var(--radius-lg); /* 8px */
 	--radius-button-sm: var(--radius-xl); /* 12px */
 	--radius-button-md: var(--radius-xl); /* 12px */
 	--radius-button-lg: var(--radius-xl); /* 12px */
 	--radius-button-xl: var(--radius-xl); /* 12px */
-	--radius-pill-xs: var(--radius-sm); /* 4px */
-	--radius-pill-sm: var(--radius-sm); /* 4px */
-	--radius-pill-md: var(--radius-lg); /* 8px */
-	--radius-pill-lg: var(--radius-xl); /* 12px */
+	--radius-pill: var(--radius-lg); /* 8px — Figma radius/pill */
+	--radius-chip: var(--radius-lg); /* 8px — Figma radius/chip */
+
+	/* ---------- Shadow roles (Figma `effect` styles) ----------
+	   Figma's `shadow 5` primitive is a flat rgba(0,0,0,0.05) used at multiple
+	   offsets/blurs depending on role — not a single Tailwind shadow-* step. */
+	--shadow-popover: 0px 3px 8px 0px rgba(0, 0, 0, 0.05), 0px 10px 16px 0px rgba(0, 0, 0, 0.05); /* Figma `shadow-lg` effect, bound on Select/Popover content */
 
 	/* ---------- Control heights ----------
 	   Shared 5-step height scale for all interactive form controls:
@@ -534,10 +538,10 @@
 	--card-subtle: var(--neutral-50);
 
 	/* Brand/role tints (color/primary|secondary|terciary/*) */
-	--primary-muted: #ff642c26;
-	--primary-subtle: #ff642c1a;
+	--primary-muted: #ff642c26; /* hand-authored, no Figma source */
+	--primary-subtle: var(--sunset-50); /* Figma color/tone/brand/subtle — corrected 2026-07-15 from stale #ff642c1a alpha tint (wrong hue, wrong construction) */
 	--primary-soft: #31373f0d;
-	--secondary-subtle: #c87d5f1a;
+	--secondary-subtle: #c87d5f1a; /* hand-authored, no Figma source */
 	--tertiary-subtle: #ecdecf80;
 
 	/* Icon roles (color/icon/*) */
@@ -551,7 +555,7 @@
 	--input-border-disabled: var(--border-soft);
 	--input-ring: var(--neutral-400);
 	--input-ring-focus: var(--primary); /* Figma color/input/ring-focus */
-	--input-ring-outside: #ff782c33;
+	--input-ring-outside: var(--sunset-100); /* Figma color/input/ring-outside */
 	--input-fill: var(--white);
 	--input-fill-read-only: #fcfcfd; /* Figma color/input/fill-read-only — no matching primitive */
 
@@ -648,4 +652,32 @@
 	--sidebar-accent-foreground: var(--neutral-50);
 	--sidebar-border: var(--sand-800);
 	--sidebar-ring: var(--sunset-500);
+}
+
+/* ---------- Global interaction affordance ----------
+   Tailwind v4's preflight sets `cursor: default` on <button> (a deliberate
+   change from v3's `cursor: pointer`). UCL restores the pointer cursor on
+   every clickable control so hovering anything actionable always shows the
+   pointer, and swaps to not-allowed for disabled controls — matching the
+   `disabled:cursor-not-allowed` pattern already hand-rolled on individual
+   components (Input, Select, Combobox, etc.), but applied once, globally,
+   so new components get it for free. */
+@layer base {
+	button:not(:disabled),
+	[role="button"]:not([aria-disabled="true"]),
+	a[href],
+	label[for],
+	summary,
+	select,
+	[data-slot][role="checkbox"]:not([data-disabled]),
+	[data-slot][role="radio"]:not([data-disabled]),
+	[data-slot][role="switch"]:not([data-disabled]) {
+		cursor: pointer;
+	}
+
+	button:disabled,
+	[role="button"][aria-disabled="true"],
+	select:disabled {
+		cursor: not-allowed;
+	}
 }

@@ -205,3 +205,16 @@ export {
   type TypographySize,
   type TypographyWeight,
 } from "./components/typography";
+
+/* -------------------------------------------------------------------------- */
+/* Stepper                                                                    */
+/* -------------------------------------------------------------------------- */
+
+export {
+  StepIndicator,
+  stepIndicatorVariants,
+} from "./components/stepper/step-indicator";
+
+export { StepperOnboarding } from "./components/stepper/stepper-onboarding";
+
+export { StepperExperience } from "./components/stepper/stepper-experience";

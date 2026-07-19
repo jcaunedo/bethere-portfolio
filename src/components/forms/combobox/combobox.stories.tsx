@@ -19,15 +19,20 @@ const meta: Meta<typeof Combobox> = {
 export default meta;
 type Story = StoryObj<typeof Combobox>;
 
-function Demo(args: Partial<React.ComponentProps<typeof Combobox>>) {
-  const [value, setValue] = useState<string>();
+function Demo(
+  args: Partial<React.ComponentProps<typeof Combobox>> & {
+    initialValue?: string;
+  },
+) {
+  const { initialValue, ...rest } = args;
+  const [value, setValue] = useState<string | undefined>(initialValue);
   return (
     <div className="w-64">
       <Combobox
         options={frameworks}
         value={value}
         onValueChange={setValue}
-        {...args}
+        {...rest}
       />
     </div>
   );
@@ -36,3 +41,22 @@ function Demo(args: Partial<React.ComponentProps<typeof Combobox>>) {
 export const Default: Story = { render: () => <Demo /> };
 export const ExtraLarge: Story = { render: () => <Demo size="xl" /> };
 export const Disabled: Story = { render: () => <Demo disabled /> };
+export const ReadOnly: Story = {
+  render: () => <Demo readOnly initialValue="next" />,
+};
+export const Clearable: Story = {
+  render: () => <Demo showClear initialValue="next" />,
+};
+
+export const AllVariants: Story = {
+  render: () => (
+    <div className="flex w-64 flex-col gap-3">
+      <Demo />
+      <Demo initialValue="next" />
+      <Demo size="xl" />
+      <Demo disabled />
+      <Demo readOnly initialValue="next" />
+      <Demo showClear initialValue="next" />
+    </div>
+  ),
+};

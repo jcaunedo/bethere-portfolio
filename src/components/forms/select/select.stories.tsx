@@ -5,7 +5,6 @@ import {
   SelectGroup,
   SelectItem,
   SelectLabel,
-  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "./select";
@@ -19,10 +18,18 @@ const meta: Meta<typeof Select> = {
 export default meta;
 type Story = StoryObj<typeof Select>;
 
-function Demo({ size }: { size?: "lg" | "xl" }) {
+function Demo({
+  triggerSize,
+  readOnly,
+  defaultValue,
+}: {
+  triggerSize?: "xs" | "sm" | "md" | "lg" | "xl";
+  readOnly?: boolean;
+  defaultValue?: string;
+}) {
   return (
-    <Select>
-      <SelectTrigger size={size} className="w-64">
+    <Select defaultValue={defaultValue}>
+      <SelectTrigger size={triggerSize} readOnly={readOnly} className="w-64">
         <SelectValue placeholder="Select a fruit" />
       </SelectTrigger>
       <SelectContent>
@@ -31,10 +38,6 @@ function Demo({ size }: { size?: "lg" | "xl" }) {
           <SelectItem value="apple">Apple</SelectItem>
           <SelectItem value="banana">Banana</SelectItem>
           <SelectItem value="blueberry">Blueberry</SelectItem>
-          <SelectSeparator />
-          <SelectItem value="grapes" disabled>
-            Grapes (out of stock)
-          </SelectItem>
         </SelectGroup>
       </SelectContent>
     </Select>
@@ -42,8 +45,8 @@ function Demo({ size }: { size?: "lg" | "xl" }) {
 }
 
 export const Default: Story = { render: () => <Demo /> };
-export const Large: Story = { render: () => <Demo size="lg" /> };
-export const ExtraLarge: Story = { render: () => <Demo size="xl" /> };
+export const Large: Story = { render: () => <Demo triggerSize="lg" /> };
+export const ExtraLarge: Story = { render: () => <Demo triggerSize="xl" /> };
 
 export const Disabled: Story = {
   render: () => (
@@ -58,11 +61,92 @@ export const Disabled: Story = {
   ),
 };
 
+export const ReadOnly: Story = {
+  render: () => <Demo readOnly defaultValue="apple" />,
+};
+
+export const ManyItems: Story = {
+  render: () => (
+    <Select>
+      <SelectTrigger className="w-64">
+        <SelectValue placeholder="Select a fruit" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          {[
+            "Apple",
+            "Banana",
+            "Blueberry",
+            "Cherry",
+            "Date",
+            "Elderberry",
+            "Fig",
+            "Grape",
+            "Honeydew",
+            "Kiwi",
+            "Lemon",
+            "Mango",
+          ].map((fruit) => (
+            <SelectItem key={fruit} value={fruit.toLowerCase()}>
+              {fruit}
+            </SelectItem>
+          ))}
+        </SelectGroup>
+      </SelectContent>
+    </Select>
+  ),
+};
+
 export const AllVariants: Story = {
   render: () => (
     <div className="flex w-64 flex-col gap-3">
-      <Demo size="lg" />
-      <Demo size="xl" />
+      <Demo triggerSize="lg" />
+      <Demo triggerSize="xl" />
+      <Demo readOnly defaultValue="apple" />
     </div>
+  ),
+};
+
+export const ItemSlots: Story = {
+  render: () => (
+    <Select defaultValue="orange">
+      <SelectTrigger className="w-64">
+        <SelectValue placeholder="Select a fruit" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          <SelectLabel>Fruits</SelectLabel>
+          <SelectItem value="apple" showIcon>
+            Apple
+          </SelectItem>
+          <SelectItem value="banana" showCircleColor circleColor="#f26740">
+            Banana
+          </SelectItem>
+          <SelectItem value="cherry" shortcut="⇧⌘S">
+            Cherry
+          </SelectItem>
+          <SelectItem value="orange">Orange (checked — default color)</SelectItem>
+          <SelectItem value="grape" checkColor="primary">
+            Grape (checkColor=&quot;primary&quot;)
+          </SelectItem>
+          <SelectItem value="mango" showChevron>
+            Mango
+          </SelectItem>
+          <SelectItem value="tier-active" tier={1} tierState="active">
+            Tier 1 · Active
+          </SelectItem>
+          <SelectItem value="tier-collapsed" tier={1} tierState="collapsed">
+            Tier 1 · Collapsed
+          </SelectItem>
+          <SelectItem value="tier-expanded" tier={1} tierState="expanded">
+            Tier 1 · Expanded
+          </SelectItem>
+          <SelectItem value="kiwi" disabled>
+            Kiwi (disabled)
+          </SelectItem>
+          <SelectLabel>Title Small</SelectLabel>
+        </SelectGroup>
+      </SelectContent>
+    </Select>
   ),
 };
