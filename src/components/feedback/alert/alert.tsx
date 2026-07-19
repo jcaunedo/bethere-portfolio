@@ -1,8 +1,8 @@
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import {
+  CircleAlertIcon,
   CircleCheckIcon,
-  CircleXIcon,
   InfoIcon,
   TriangleAlertIcon,
 } from "lucide-react";
@@ -16,9 +16,9 @@ const alertVariants = cva(
       // Figma: Property 1
       variant: {
         warning: "bg-warning-subtle text-warning-800 [&>svg]:text-warning",
-        destructive: "bg-destructive-subtle text-destructive-700 [&>svg]:text-destructive",
-        info: "bg-info-subtle text-info-700 [&>svg]:text-info-500",
-        success: "bg-success-subtle text-success-800 [&>svg]:text-success",
+        destructive: "bg-destructive-subtle text-destructive-500 [&>svg]:text-destructive",
+        info: "bg-info-subtle text-info-600 [&>svg]:text-info-500",
+        success: "bg-success-subtle text-success-700 [&>svg]:text-success",
       },
     },
     defaultVariants: { variant: "warning" },
@@ -28,7 +28,7 @@ const alertVariants = cva(
 /** Icon per tone, matching the Figma design. */
 const alertIcons = {
   warning: TriangleAlertIcon,
-  destructive: CircleXIcon,
+  destructive: CircleAlertIcon,
   info: InfoIcon,
   success: CircleCheckIcon,
 } as const;

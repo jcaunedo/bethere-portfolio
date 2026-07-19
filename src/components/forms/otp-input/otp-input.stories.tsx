@@ -29,7 +29,7 @@ export const Large: Story = {
   args: { size: "lg" },
 };
 
-// Figma "Size=6xl" (56px slots)
+// Figma "Size=6xl" (56×48px slots)
 export const ExtraLarge: Story = {
   args: { size: "6xl" },
 };

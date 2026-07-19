@@ -16,8 +16,8 @@ const otpInputSlotVariants = cva(
   {
     variants: {
       size: {
-        lg: "h-9 w-9 text-sm", // 36px — default ★, Figma Size=Default
-        "6xl": "h-16 w-14 text-3xl", // 56×64px, Figma Size=6xl
+        lg: "h-9 w-9 text-base", // 36px — default ★, Figma Size=Default
+        "6xl": "h-12 w-14 text-xl", // 56×48px, Figma Size=6xl
       },
     },
     defaultVariants: { size: "lg" },
