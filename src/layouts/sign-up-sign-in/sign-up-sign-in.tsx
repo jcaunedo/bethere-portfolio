@@ -556,7 +556,7 @@ function SignUpSignInOtp() {
               onSubmit={(e) => e.preventDefault()}
             >
               <div className="flex w-full flex-col items-center gap-2">
-                <Typography size="sm" weight="medium" className="w-full">
+                <Typography size="sm" weight="medium" className="w-[368px]">
                   Verification code
                 </Typography>
                 <OtpInput
@@ -564,7 +564,6 @@ function SignUpSignInOtp() {
                   maxLength={6}
                   value={code}
                   onChange={setCode}
-                  containerClassName="w-full [&_[data-slot=otp-input-group]]:flex-1 [&_[data-slot=otp-input-slot]]:w-full"
                 />
               </div>
               <Button type="button" variant="link" size="lg" className="font-normal">
@@ -634,7 +633,7 @@ function SignUpSignInOtpInvalid() {
               onSubmit={(e) => e.preventDefault()}
             >
               <div className="flex w-full flex-col items-center gap-2">
-                <Typography size="sm" weight="medium" className="w-full">
+                <Typography size="sm" weight="medium" className="w-[368px]">
                   Verification code
                 </Typography>
                 <OtpInput
@@ -643,7 +642,6 @@ function SignUpSignInOtpInvalid() {
                   value={code}
                   onChange={setCode}
                   aria-invalid
-                  containerClassName="w-full [&_[data-slot=otp-input-group]]:flex-1 [&_[data-slot=otp-input-slot]]:w-full"
                 />
               </div>
 
