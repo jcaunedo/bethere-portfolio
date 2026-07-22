@@ -133,6 +133,19 @@ export {
 /* -------------------------------------------------------------------------- */
 
 export {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+  AvatarBadge,
+  AvatarGroup,
+  AvatarGroupCount,
+} from "./components/data-display/avatar";
+
+export { SelectBusinessSwitcher } from "./components/data-display/select-business-switcher";
+
+export { SelectAccountInfo } from "./components/data-display/select-account-info";
+
+export {
   Table,
   TableHeader,
   TableBody,
@@ -183,6 +196,20 @@ export {
   PopoverContent,
   PopoverTrigger,
 } from "./components/overlays/popover";
+
+/* -------------------------------------------------------------------------- */
+/* Navigation                                                                 */
+/* -------------------------------------------------------------------------- */
+
+export {
+  Sidebar,
+  SidebarMenuItem,
+  SidebarDivider,
+  SidebarPromotion,
+  type SidebarProps,
+  type SidebarBusiness,
+  type SidebarAccountInfo,
+} from "./components/navigation/sidebar";
 
 /* -------------------------------------------------------------------------- */
 /* Cards                                                                      */
