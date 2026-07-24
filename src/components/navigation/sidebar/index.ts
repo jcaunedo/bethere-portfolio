@@ -2,8 +2,8 @@ export {
   Sidebar,
   SidebarMenuItem,
   SidebarDivider,
-  SidebarPromotion,
   type SidebarProps,
   type SidebarBusiness,
   type SidebarAccountInfo,
+  type SidebarAccountMenuItem,
 } from "./sidebar";

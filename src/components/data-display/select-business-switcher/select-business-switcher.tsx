@@ -35,7 +35,7 @@ function SelectBusinessSwitcher({
       aria-label={collapsed ? name : undefined}
       title={collapsed ? name : undefined}
       className={cn(
-        "flex w-full items-center gap-2 rounded-xl px-1 outline-none transition-colors",
+        "flex h-10 w-full items-center gap-2 rounded-xl px-1 outline-none transition-colors",
         "hover:bg-card hover:ring-4 hover:ring-card focus-visible:ring-[3px] focus-visible:ring-ring/50",
         collapsed && "justify-center px-0",
         className,

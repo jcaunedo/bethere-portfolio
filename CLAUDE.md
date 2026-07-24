@@ -60,6 +60,762 @@ Create a directory under `src/components/<family>/<name>/` with three files (see
 
 Then add the exports to `src/index.ts`.
 
+## Motion System
+
+Use Motion for React from `motion/react`.
+
+Motion is part of the product design system and brand language. It should provide clear feedback, preserve spatial relationships, and make interactions feel responsive without distracting from the user's task.
+
+### Core Principles
+
+Every animation should:
+
+- Explain a change in state.
+- Preserve spatial continuity.
+- Reinforce interaction hierarchy.
+- Reduce cognitive load.
+- Feel immediate and responsive.
+- Support the user's task instead of delaying it.
+
+Do not add animation only for decoration. If an animation does not improve clarity, feedback, orientation, or perceived responsiveness, do not implement it.
+
+When uncertain, choose the more subtle option.
+
+### Brand Motion Personality
+
+The product's motion should feel:
+
+- Calm
+- Refined
+- Natural
+- Fluid
+- Human
+- Confident
+- Premium
+- Responsive
+
+Avoid motion that feels:
+
+- Bouncy
+- Cartoonish
+- Hyperactive
+- Mechanical
+- Aggressive
+- Game-like
+- Excessively elastic
+- Visually distracting
+
+Motion should feel polished and approachable, not playful or theatrical.
+
+### Motion Language
+
+Prefer these movement patterns:
+
+- Fade
+- Soft scale
+- Gentle elevation
+- Short directional slide
+- Crossfade
+- Shared-element transition
+- Smooth layout transition
+- Subtle stagger
+- Progressive reveal
+
+Use sparingly:
+
+- Rotation under 2 degrees
+- Background parallax
+- Scroll-linked movement
+- Decorative sequencing
+- Expressive spring motion
+
+Avoid unless explicitly required:
+
+- Bounce
+- Shake
+- Spin
+- Large rotation
+- Elastic overshoot
+- Full-screen wipes
+- Dramatic zoom transitions
+- Long travel distances
+
+### Motion Tokens
+
+All motion values must be centralized and reusable.
+
+Create or reuse motion tokens for:
+
+- Duration
+- Easing
+- Spring behavior
+- Movement distance
+- Scale
+- Stagger
+- Delay
+
+Do not introduce arbitrary timing or easing values directly inside components unless there is a documented exception.
+
+Recommended timing ranges:
+
+- Instant feedback: 100–150 ms
+- Hover and press feedback: 120–180 ms
+- Standard UI transitions: 180–240 ms
+- Panels and overlays: 220–300 ms
+- Page-level transitions: 250–350 ms
+- Storytelling transitions: up to 450 ms
+
+Avoid transitions longer than 450 ms unless the experience is intentionally cinematic or narrative-driven.
+
+### Easing
+
+Use easing based on interaction intent.
+
+#### Standard
+
+Use for common UI transitions.
+
+- Smooth acceleration
+- Controlled deceleration
+- No visible overshoot
+
+#### Enter
+
+Use for elements entering the interface.
+
+- Start quickly
+- Finish gently
+- Emphasize arrival without feeling slow
+
+#### Exit
+
+Use for elements leaving the interface.
+
+- Shorter than enter transitions
+- Minimal delay
+- Clear and decisive
+
+#### Spring
+
+Use springs for:
+
+- Direct manipulation
+- Drag interactions
+- Press feedback
+- Shared-element movement
+- Responsive layout changes
+
+Avoid expressive or high-bounce springs unless explicitly required by the product experience.
+
+### Spatial Rules
+
+Keep movement distances proportional to the interaction.
+
+Recommended ranges:
+
+- Hover movement: 2–4 px
+- Small element reveal: 4–8 px
+- Component transition: 8–16 px
+- Panel transition: 16–32 px
+- Page transition: 24–48 px
+
+Avoid moving interface elements over large distances when opacity, scale, or layout animation would communicate the change more clearly.
+
+Movement should follow the spatial direction of the interaction.
+
+Examples:
+
+- A panel opening from the right should move from the right.
+- A dropdown should originate near its trigger.
+- Expanded content should grow from its existing position.
+- A selected card transitioning to detail should preserve the card's visual origin.
+
+### Motion Vocabulary
+
+Use these named patterns consistently across the product.
+
+#### Lift
+
+Use for hoverable cards and interactive surfaces.
+
+Behavior:
+
+- Translate upward by 2 px.
+- Optionally increase elevation.
+- Optionally scale media slightly.
+- Use a subtle spring or short ease-out transition.
+
+Do not apply strong scaling or exaggerated shadows.
+
+#### Press
+
+Use for buttons, cards, and direct interactions.
+
+Behavior:
+
+- Scale between 0.98 and 0.99 while pressed.
+- Return immediately on release.
+- Use a responsive spring.
+
+Press feedback must not affect surrounding layout.
+
+#### Reveal
+
+Use when content appears in context.
+
+Behavior:
+
+- Fade from 0 to 1.
+- Move vertically by approximately 8 px.
+- Use a short enter transition.
+
+Avoid using Reveal for every element on a page.
+
+#### Expand
+
+Use when an existing component changes size.
+
+Behavior:
+
+- Use Motion layout animation.
+- Preserve the component's visual origin.
+- Fade secondary content when necessary.
+- Avoid manually animating width or height when `layout` can handle the transition.
+
+#### Connect
+
+Use for shared-element transitions.
+
+Behavior:
+
+- Use `layoutId`.
+- Preserve continuity between list, card, gallery, and detail states.
+- Keep duration controlled and avoid large scale distortion.
+
+#### Flow
+
+Use for small groups of related items entering together.
+
+Behavior:
+
+- Use subtle staggering.
+- Keep stagger intervals short.
+- Use only when sequencing improves readability.
+
+Do not stagger long lists or frequently updated content.
+
+#### Glide
+
+Use for directional navigation.
+
+Behavior:
+
+- Apply a short horizontal or vertical movement.
+- Match the direction of navigation.
+- Combine with opacity when needed.
+
+Avoid full-page sliding unless the spatial model clearly supports it.
+
+#### Dismiss
+
+Use when content is removed or closed.
+
+Behavior:
+
+- Fade out.
+- Optionally move downward or toward its origin.
+- Use a shorter transition than the corresponding entrance.
+
+#### Confirm
+
+Use for lightweight success feedback.
+
+Behavior:
+
+- Use a subtle scale or opacity change.
+- Keep the feedback brief.
+- Do not create celebratory animation unless explicitly required.
+
+#### Focus
+
+Use to draw attention to a newly active or selected element.
+
+Behavior:
+
+- Use a subtle scale, highlight, or layout transition.
+- Do not pulse continuously.
+- Do not compete with primary content.
+
+### Component Guidance
+
+#### Buttons
+
+Use:
+
+- Press scale between 0.98 and 0.99.
+- Fast release.
+- Subtle hover feedback where appropriate.
+- Immediate visual response.
+
+Do not:
+
+- Bounce buttons.
+- Delay the action until the animation completes.
+- Animate dimensions.
+- Add decorative loops.
+
+#### Cards
+
+Use:
+
+- Lift on hover.
+- Subtle image scaling between 1.01 and 1.03.
+- Press feedback.
+- Shared-element transitions when opening detail views.
+
+Do not:
+
+- Apply large card scaling.
+- Continuously animate shadows.
+- Add motion to non-interactive cards.
+- Combine multiple competing effects.
+
+#### Inputs
+
+Use motion to clarify:
+
+- Focus
+- Validation
+- Errors
+- Helper text
+- Success states
+- Conditional fields
+
+Preserve layout stability when helper or validation content appears.
+
+Do not shake inputs for validation errors unless explicitly required.
+
+#### Menus and Dropdowns
+
+Use:
+
+- Short fade.
+- Small directional movement from the trigger.
+- Controlled scale from approximately 0.98 to 1 when appropriate.
+
+Maintain correct focus management and keyboard behavior.
+
+#### Dialogs and Overlays
+
+Use:
+
+- `AnimatePresence` for enter and exit.
+- Overlay fade.
+- Small scale or vertical movement for the dialog surface.
+- Shorter exit timing than entrance timing.
+
+Do not delay dialog usability while the entrance animation completes.
+
+#### Drawers and Panels
+
+Use:
+
+- Directional motion from the panel's origin.
+- Overlay fade.
+- Controlled duration between 220 and 300 ms.
+- Layout animation for internal content changes.
+
+#### Tabs
+
+Use:
+
+- Shared layout animation for the active indicator.
+- Crossfade or small directional transition for tab content when useful.
+- Immediate keyboard response.
+
+Do not animate the active indicator independently from the selected tab state.
+
+#### Accordions
+
+Use:
+
+- Motion layout animation.
+- Optional content fade.
+- Preserved spatial continuity.
+
+Avoid manually animating fixed heights.
+
+#### Lists
+
+Use:
+
+- Layout animation for reorder and removal.
+- `AnimatePresence` for mounted and unmounted items.
+- Stable unique keys.
+- Subtle stagger only for short initial lists.
+
+Do not replay entrance animations during routine data updates.
+
+#### Toasts and Notifications
+
+Use:
+
+- Short directional entrance.
+- Controlled exit.
+- Layout animation when multiple notifications stack.
+- Immediate interaction availability.
+
+#### Skeletons and Loading States
+
+Prefer:
+
+- Subtle opacity pulse.
+- Lightweight shimmer.
+- Progress indicators for longer processes.
+
+Avoid aggressive or high-contrast loading animation.
+
+### Layout Animation
+
+Prefer Motion layout animation when elements change position or size.
+
+Use `layout` for:
+
+- Expanding sections
+- Accordions
+- Reordered cards
+- Filter changes
+- Responsive component changes
+- Dynamic content updates
+
+Use `layoutId` for:
+
+- Active tab indicators
+- Selected filters
+- Shared card-to-detail transitions
+- Gallery thumbnails
+- Navigation indicators
+- Persistent media
+
+Use `layoutScroll` when layout animation occurs inside a scrollable container.
+
+Use `layoutRoot` when layout animation occurs inside a fixed-position container.
+
+Do not recreate layout animation using manual position calculations when Motion can manage it.
+
+### Enter and Exit Animation
+
+Use `AnimatePresence` when elements mount or unmount.
+
+Requirements:
+
+- Direct children must have stable, unique keys.
+- Exit animation must complete before the element is removed.
+- Rapid repeated interactions must not leave stale or duplicated elements.
+- Do not use array indexes as keys for dynamic animated lists.
+
+Do not use `AnimatePresence` for elements that remain mounted and only change state.
+
+### Page Transitions
+
+Page transitions should reinforce continuity between destinations.
+
+Prefer:
+
+- Crossfade
+- Small vertical movement
+- Shared-element transition
+- Persistent layout regions
+- Consistent content entrance
+
+Avoid:
+
+- Large horizontal page slides without a clear spatial model
+- Full-screen wipes
+- Dramatic zoom
+- Excessive sequencing
+- Blocking navigation during transitions
+
+Page transitions should not replay unnecessarily when only query parameters or minor content states change.
+
+### Scroll Motion
+
+Use scroll-triggered and scroll-linked motion selectively.
+
+Use `whileInView` for:
+
+- Editorial content
+- Marketing sections
+- Discovery pages
+- One-time content reveals
+
+Use:
+
+```tsx
+viewport={{ once: true, amount: 0.25 }}
+```
+
+as a reasonable default when the animation should only play once.
+
+Use `useScroll` and `useTransform` for:
+
+- Progress indicators
+- Controlled parallax
+- Sticky storytelling sections
+- Media transformations tied directly to scroll
+
+Use `useSpring` to smooth scroll-linked values when needed.
+
+Avoid scroll motion in dense operational workflows unless it improves orientation or feedback.
+
+Do not hijack native scrolling.
+
+### Gesture Motion
+
+Use Motion gestures for:
+
+- Hover
+- Press
+- Drag
+- Pan
+- Swipe
+- Direct manipulation
+
+Gesture feedback must:
+
+- Begin immediately.
+- Follow the user's input.
+- Remain interruptible.
+- Return to a stable state.
+- Preserve keyboard alternatives.
+- Avoid blocking scrolling unintentionally.
+
+Do not use drag behavior without clear affordances and constraints.
+
+### Accessibility
+
+Always respect reduced-motion preferences.
+
+Use Motion's reduced-motion utilities or `prefers-reduced-motion`.
+
+When reduced motion is enabled:
+
+- Remove nonessential transforms.
+- Disable parallax.
+- Disable decorative sequencing.
+- Disable large shared-element movement.
+- Replace directional transitions with opacity when appropriate.
+- Preserve state-change feedback.
+- Preserve loading and progress communication.
+- Avoid removing feedback required to understand the interface.
+
+Motion must never be the only way a state change is communicated.
+
+Maintain:
+
+- Keyboard navigation
+- Focus order
+- Visible focus states
+- Screen-reader semantics
+- Pointer and touch access
+- Sufficient contrast
+
+### Performance
+
+Prefer animating:
+
+- `opacity`
+- `transform`
+- `width`
+- `height`
+
+Use sparingly:
+
+- `filter`
+- `clip-path`
+- Large-scale SVG animation
+
+Avoid continuously animating:
+
+- `top`
+- `left`
+- `margin`
+- `padding`
+- `box-shadow`
+- Large blur effects
+
+Prefer layout animation over manually animating layout properties.
+
+Avoid simultaneous animation of large numbers of elements.
+
+Do not add continuous animation to background elements without a clear product purpose.
+
+### Implementation Rules
+
+When implementing motion:
+
+- Import Motion APIs from `motion/react`.
+- Reuse existing motion tokens and variants.
+- Reuse named motion patterns before creating new ones.
+- Keep motion configuration centralized.
+- Keep animations interruptible.
+- Preserve existing component behavior.
+- Preserve styling unless changes are explicitly requested.
+- Preserve accessibility and keyboard behavior.
+- Remove conflicting CSS transitions when Motion replaces them.
+- Do not animate the same property with CSS and Motion simultaneously.
+- Avoid creating one-off animation values inside components.
+- Avoid introducing a second animation library.
+- Avoid JavaScript-driven animation when CSS or Motion can handle it declaratively.
+- Use variants for repeated animation states.
+- Use semantic names such as `reveal`, `lift`, `dismiss`, and `expand`.
+- Do not use implementation names such as `animation1` or `variantA`.
+- Document exceptions when an interaction requires custom motion.
+
+### Recommended File Structure
+
+Use a centralized structure similar to:
+
+```text
+src/
+  motion/
+    tokens.ts
+    transitions.ts
+    variants.ts
+    patterns.ts
+    reduced-motion.ts
+```
+
+Possible responsibilities:
+
+```text
+tokens.ts
+- durations
+- distances
+- scales
+- stagger values
+
+transitions.ts
+- standard easing
+- enter easing
+- exit easing
+- spring presets
+
+variants.ts
+- fade
+- reveal
+- dismiss
+- expand
+- overlay
+- panel
+- stagger container
+
+patterns.ts
+- lift
+- press
+- connect
+- flow
+- glide
+- confirm
+
+reduced-motion.ts
+- reduced-motion helpers
+- alternative transitions
+```
+
+Adapt the structure to the existing repository conventions. Do not create unnecessary abstraction for a small codebase.
+
+### Example Token Direction
+
+```ts
+export const motionDuration = {
+	instant: 0.1,
+	fast: 0.16,
+	normal: 0.24,
+	slow: 0.32,
+	deliberate: 0.4,
+};
+
+export const motionDistance = {
+	subtle: 4,
+	small: 8,
+	medium: 16,
+	large: 32,
+};
+
+export const motionScale = {
+	press: 0.98,
+	hover: 1.01,
+	mediaHover: 1.03,
+};
+
+export const motionSpring = {
+	subtle: {
+		type: "spring",
+		stiffness: 400,
+		damping: 32,
+	},
+	responsive: {
+		type: "spring",
+		stiffness: 500,
+		damping: 30,
+	},
+	layout: {
+		type: "spring",
+		stiffness: 350,
+		damping: 35,
+	},
+};
+```
+
+These are baseline values. Reuse existing design-system values when they already exist.
+
+### Implementation Workflow
+
+Before adding motion to an existing feature:
+
+1. Inspect the current component boundaries.
+2. Identify where state is owned.
+3. Identify mount and unmount behavior.
+4. Identify existing CSS transitions.
+5. Identify layout and overflow constraints.
+6. Identify keyboard and focus behavior.
+7. Determine whether the interaction requires state animation, layout animation, presence animation, or gesture animation.
+8. Reuse the existing motion vocabulary and tokens.
+9. Implement the smallest effective motion treatment.
+10. Validate behavior under rapid interaction and reduced motion.
+
+For complex animation work, provide a concise implementation plan before modifying files.
+
+### Validation Requirements
+
+After implementing motion, verify:
+
+- The project builds successfully.
+- TypeScript checks pass.
+- Existing tests pass.
+- There are no hydration warnings.
+- There is no flash before the initial animation.
+- There is no unintended layout shift.
+- Exit animations complete correctly.
+- Rapid repeated interactions do not break state.
+- Animations remain interruptible.
+- Keyboard behavior remains intact.
+- Focus is preserved or intentionally reassigned.
+- Reduced-motion behavior works.
+- Animation does not block clicks, scrolling, or navigation.
+- Mobile and touch interactions remain usable.
+- No duplicate animation systems were introduced.
+- Only relevant files were changed.
+
+When reporting completed work, summarize:
+
+- The interaction implemented
+- The motion pattern used
+- The tokens or variants reused
+- The files changed
+- The validation performed
+
 ## Formik Fields
 
 Consumers build forms with **Formik + Yup**. UCL ships Formik-connected fields so they don't hand-roll `useField` wrappers.
@@ -144,28 +900,28 @@ import * as Yup from "yup";
 import { FormikInput, FormikSelect, Button } from "@bethere-group/ucl";
 
 const schema = Yup.object({
-  email: Yup.string().email().required("Email is required."),
-  country: Yup.string().required("Pick a country."),
+	email: Yup.string().email().required("Email is required."),
+	country: Yup.string().required("Pick a country."),
 });
 
 <Formik
-  initialValues={{ email: "", country: "" }}
-  validationSchema={schema}
-  onSubmit={(values) => {
-    /* … */
-  }}
+	initialValues={{ email: "", country: "" }}
+	validationSchema={schema}
+	onSubmit={(values) => {
+		/* … */
+	}}
 >
-  <Form>
-    <FormikInput name="email" label="Email" placeholder="you@example.com" />
-    <FormikSelect
-      name="country"
-      label="Country"
-      options={[
-        { value: "us", label: "United States" },
-        { value: "br", label: "Brazil" },
-      ]}
-    />
-    <Button type="submit">Save</Button>
-  </Form>
+	<Form>
+		<FormikInput name='email' label='Email' placeholder='you@example.com' />
+		<FormikSelect
+			name='country'
+			label='Country'
+			options={[
+				{ value: "us", label: "United States" },
+				{ value: "br", label: "Brazil" },
+			]}
+		/>
+		<Button type='submit'>Save</Button>
+	</Form>
 </Formik>;
 ```

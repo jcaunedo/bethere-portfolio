@@ -1,10 +1,10 @@
 import * as React from "react";
+import { AnimatePresence, motion } from "motion/react";
 import {
   CalendarIcon,
   ChartColumnIcon,
   FileTextIcon,
   GalleryHorizontalEndIcon,
-  GiftIcon,
   HouseIcon,
   InboxIcon,
   PanelLeftIcon,
@@ -12,8 +12,17 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { enterTransition, motionDuration, useMotionPreference } from "@/lib/motion";
 import { SelectBusinessSwitcher } from "@/components/data-display/select-business-switcher";
 import { SelectAccountInfo } from "@/components/data-display/select-account-info";
+import { Promotion } from "@/components/data-display/promotion";
+import {
+  AccountMenu,
+  AccountMenuContent,
+  AccountMenuItem,
+  AccountMenuSeparator,
+  AccountMenuTrigger,
+} from "@/components/overlays/account-menu";
 
 /** BeThere icon mark (the "→" glyph from the BE→THERE wordmark). Figma: `Sidebar Logo Container` → `Logo Collapsed`. */
 function LogoMarkIcon(props: React.ComponentProps<"svg">) {
@@ -102,31 +111,6 @@ function SidebarDivider({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-/** Promo callout above the account footer. Figma "Promotion". */
-function SidebarPromotion({
-  title,
-  description,
-  className,
-  ...props
-}: React.ComponentProps<"div"> & { title: string; description: string }) {
-  return (
-    <div
-      data-slot="sidebar-promotion"
-      className={cn(
-        "flex w-full flex-col gap-2 rounded-lg border border-border bg-background p-4",
-        className,
-      )}
-      {...props}
-    >
-      <div className="flex w-full items-center gap-2">
-        <GiftIcon className="size-[18px] shrink-0 text-foreground" />
-        <span className="text-sm font-medium text-foreground">{title}</span>
-      </div>
-      <p className="w-full text-xs text-foreground">{description}</p>
-    </div>
-  );
-}
-
 const primaryMenuItems = [
   { icon: HouseIcon, label: "Home" },
   { icon: InboxIcon, label: "Inbox" },
@@ -152,7 +136,23 @@ interface SidebarAccountInfo {
   avatarUrl?: string;
 }
 
-interface SidebarProps extends React.ComponentProps<"div"> {
+/** One row in the account menu opened from the footer's SelectAccountInfo. */
+interface SidebarAccountMenuItem {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  /** Trailing secondary text, e.g. a current setting value (Figma "Auto"/"English"). */
+  shortcut?: string;
+  /** Figma "Log Out" row: destructive-tinted text/icon. */
+  variant?: "default" | "destructive";
+  /** Renders a divider above this item instead of a menu row. */
+  separator?: boolean;
+}
+
+interface SidebarProps
+  extends Omit<
+    React.ComponentProps<"div">,
+    "onDrag" | "onDragStart" | "onDragEnd" | "onAnimationStart" | "onAnimationEnd"
+  > {
   /**
    * Whether the signed-in user belongs to a single business or can switch
    * between multiple (Figma variants "Single Business" / "Multiple
@@ -166,6 +166,14 @@ interface SidebarProps extends React.ComponentProps<"div"> {
   inboxCount?: number;
   /** Signed-in user summary shown in the footer. */
   account: SidebarAccountInfo;
+  /**
+   * Items for the popover menu opened by clicking the footer's
+   * SelectAccountInfo (Figma "Account Menu"). Omit to render
+   * SelectAccountInfo without a menu (not clickable).
+   */
+  accountMenuItems?: SidebarAccountMenuItem[];
+  /** Called with an account menu item's label when it's clicked. */
+  onAccountMenuAction?: (label: string) => void;
   /** Promo callout above the account footer; omit to hide it. Never shown while collapsed. */
   promotion?: { title: string; description: string };
   /** Called when the collapse ("panel-left") icon is activated. */
@@ -196,6 +204,8 @@ function Sidebar({
   business,
   inboxCount,
   account,
+  accountMenuItems,
+  onAccountMenuAction,
   promotion,
   onCollapse,
   defaultActiveItem = "Home",
@@ -208,6 +218,7 @@ function Sidebar({
   const [activeItem, setActiveItem] = React.useState(defaultActiveItem);
   const [collapsed, setCollapsed] = React.useState(defaultCollapsed);
   const [isRailHovered, setIsRailHovered] = React.useState(false);
+  const { resolve } = useMotionPreference();
 
   const handleNavigate = (label: string) => {
     setActiveItem(label);
@@ -255,13 +266,15 @@ function Sidebar({
   );
 
   return (
-    <div
+    <motion.div
       data-slot="sidebar"
       data-business-mode={businessMode}
       data-collapsed={collapsed}
+      animate={{ width: collapsed ? 64 : 296 }}
+      transition={resolve(enterTransition)}
       className={cn(
-        "relative flex h-screen flex-col items-start justify-between bg-background",
-        collapsed ? "w-16 px-2 py-6" : "w-[296px] p-6",
+        "relative flex h-screen shrink-0 flex-col items-start justify-between overflow-hidden bg-background",
+        collapsed ? "px-2 py-6" : "p-6",
         className,
       )}
       {...props}
@@ -283,7 +296,7 @@ function Sidebar({
         data-slot="sidebar-content-top"
         className={cn(
           "relative z-10 flex w-full flex-col items-center",
-          collapsed ? "gap-6" : businessMode === "multiple" ? "gap-4" : "gap-6",
+          businessMode === "multiple" ? "gap-4" : "gap-6",
         )}
       >
         {collapsed ? (
@@ -339,22 +352,82 @@ function Sidebar({
         data-slot="sidebar-content-bottom"
         className="relative z-10 flex w-full flex-col items-center justify-end gap-6"
       >
-        {promotion && !collapsed ? (
-          <SidebarPromotion
-            title={promotion.title}
-            description={promotion.description}
+        <AnimatePresence>
+          {promotion && !collapsed ? (
+            <motion.div
+              key="promotion"
+              className="w-full"
+              initial={{ opacity: 0 }}
+              animate={{
+                opacity: 1,
+                // Waits out the rail's own width animation (enterTransition,
+                // same duration) before the dissolve starts, so Promotion
+                // doesn't pop in at full opacity while the rail is still
+                // resizing — CLAUDE.md "Reveal": fade only, no movement,
+                // since this is content settling into an already-placed
+                // layout slot, not entering from off-position.
+                transition: resolve({
+                  duration: motionDuration.fast,
+                  delay: 0.2,
+                }),
+              }}
+              // No exit animation — collapsing hides Promotion instantly
+              // rather than dissolving it out.
+              exit={{ opacity: 0, transition: { duration: 0 } }}
+            >
+              <Promotion
+                title={promotion.title}
+                description={promotion.description}
+              />
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+        {accountMenuItems && accountMenuItems.length > 0 ? (
+          <AccountMenu>
+            <AccountMenuTrigger asChild>
+              <SelectAccountInfo
+                name={account.name}
+                email={account.email}
+                avatarUrl={account.avatarUrl}
+                collapsed={collapsed}
+              />
+            </AccountMenuTrigger>
+            <AccountMenuContent align="start">
+              {accountMenuItems.map(
+                ({ icon: Icon, label, shortcut, variant, separator }) => (
+                  <React.Fragment key={label}>
+                    {separator ? <AccountMenuSeparator /> : null}
+                    <AccountMenuItem
+                      showIcon
+                      icon={<Icon />}
+                      shortcut={shortcut}
+                      variant={variant}
+                      onClick={() => onAccountMenuAction?.(label)}
+                    >
+                      {label}
+                    </AccountMenuItem>
+                  </React.Fragment>
+                ),
+              )}
+            </AccountMenuContent>
+          </AccountMenu>
+        ) : (
+          <SelectAccountInfo
+            name={account.name}
+            email={account.email}
+            avatarUrl={account.avatarUrl}
+            collapsed={collapsed}
           />
-        ) : null}
-        <SelectAccountInfo
-          name={account.name}
-          email={account.email}
-          avatarUrl={account.avatarUrl}
-          collapsed={collapsed}
-        />
+        )}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
-export { Sidebar, SidebarMenuItem, SidebarDivider, SidebarPromotion };
-export type { SidebarProps, SidebarBusiness, SidebarAccountInfo };
+export { Sidebar, SidebarMenuItem, SidebarDivider };
+export type {
+  SidebarProps,
+  SidebarBusiness,
+  SidebarAccountInfo,
+  SidebarAccountMenuItem,
+};

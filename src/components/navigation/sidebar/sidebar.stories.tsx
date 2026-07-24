@@ -1,5 +1,13 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Sidebar } from "./sidebar";
+import {
+  CircleUserIcon,
+  GlobeIcon,
+  LogOutIcon,
+  SettingsIcon,
+  SunMoonIcon,
+} from "lucide-react";
+
+import { Sidebar, type SidebarAccountMenuItem } from "./sidebar";
 
 const meta: Meta<typeof Sidebar> = {
   title: "Navigation/Sidebar",
@@ -26,10 +34,20 @@ const promotion = {
   description: "Lorem ipsum",
 };
 
+/** Figma "Account Menu": items for the footer's SelectAccountInfo popover. */
+const accountMenuItems: SidebarAccountMenuItem[] = [
+  { icon: CircleUserIcon, label: "My profile" },
+  { icon: SunMoonIcon, label: "Theme", shortcut: "Auto" },
+  { icon: GlobeIcon, label: "Language", shortcut: "English" },
+  { icon: SettingsIcon, label: "Account settings" },
+  { icon: LogOutIcon, label: "Log Out", variant: "destructive", separator: true },
+];
+
 export const SingleBusiness: Story = {
   args: {
     businessMode: "single",
     account,
+    accountMenuItems,
     promotion,
   },
 };

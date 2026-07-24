@@ -1,5 +1,32 @@
 export { cn } from "./lib/utils";
 
+export {
+  motionDuration,
+  motionDistance,
+  motionScale,
+  motionStagger,
+  standardTransition,
+  enterTransition,
+  exitTransition,
+  subtleSpring,
+  responsiveSpring,
+  layoutSpring,
+  fadeVariants,
+  revealVariants,
+  dismissVariants,
+  overlayVariants,
+  panelVariants,
+  staggerContainerVariants,
+  liftPattern,
+  pressPattern,
+  mediaHoverPattern,
+  glidePattern,
+  confirmPattern,
+  reducedMotionTransition,
+  resolveTransition,
+  useMotionPreference,
+} from "./lib/motion";
+
 /* -------------------------------------------------------------------------- */
 /* Buttons                                                                    */
 /* -------------------------------------------------------------------------- */
@@ -145,6 +172,8 @@ export { SelectBusinessSwitcher } from "./components/data-display/select-busines
 
 export { SelectAccountInfo } from "./components/data-display/select-account-info";
 
+export { Promotion } from "./components/data-display/promotion";
+
 export {
   Table,
   TableHeader,
@@ -197,6 +226,17 @@ export {
   PopoverTrigger,
 } from "./components/overlays/popover";
 
+export {
+  AccountMenu,
+  AccountMenuContent,
+  AccountMenuGroup,
+  AccountMenuItem,
+  AccountMenuLabel,
+  AccountMenuPortal,
+  AccountMenuSeparator,
+  AccountMenuTrigger,
+} from "./components/overlays/account-menu";
+
 /* -------------------------------------------------------------------------- */
 /* Navigation                                                                 */
 /* -------------------------------------------------------------------------- */
@@ -205,10 +245,10 @@ export {
   Sidebar,
   SidebarMenuItem,
   SidebarDivider,
-  SidebarPromotion,
   type SidebarProps,
   type SidebarBusiness,
   type SidebarAccountInfo,
+  type SidebarAccountMenuItem,
 } from "./components/navigation/sidebar";
 
 /* -------------------------------------------------------------------------- */

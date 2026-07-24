@@ -26,6 +26,12 @@ function SelectAccountInfo({
   avatarUrl,
   collapsed = false,
   className,
+  // Destructured (not left in `...props`) so this component's own
+  // `data-slot` always wins — e.g. when composed via `AccountMenuTrigger
+  // asChild`, the trigger's own `data-slot="account-menu-trigger"` would
+  // otherwise silently overwrite this one through plain prop-spread
+  // ordering, since `{...props}` is spread after the JSX literal below.
+  "data-slot": _dataSlot,
   ...props
 }: React.ComponentProps<"button"> & {
   name: string;
@@ -33,6 +39,7 @@ function SelectAccountInfo({
   avatarUrl?: string;
   /** Avatar-only layout for the collapsed Sidebar (Figma "Collapsed"). */
   collapsed?: boolean;
+  "data-slot"?: string;
 }) {
   return (
     <button
@@ -41,7 +48,7 @@ function SelectAccountInfo({
       aria-label={collapsed ? name : undefined}
       title={collapsed ? name : undefined}
       className={cn(
-        "flex w-full items-center justify-between rounded-xl px-1 outline-none transition-colors",
+        "flex h-10 w-full items-center justify-between rounded-xl px-1 outline-none transition-colors",
         "hover:bg-card hover:ring-4 hover:ring-card focus-visible:ring-[3px] focus-visible:ring-ring/50",
         collapsed && "justify-center px-0",
         className,
