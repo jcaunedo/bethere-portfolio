@@ -7,11 +7,11 @@ import { Input } from "@/components/forms/input";
 import { OtpInput } from "@/components/forms/otp-input";
 import { SocialLoginOptions } from "@/components/buttons/social-login-options";
 import { Typography } from "@/components/typography";
+import { Logo } from "@/components/data-display/logo";
 import hero01 from "./images/hero-01.webp";
 import hero02 from "./images/hero-02.webp";
 import hero03 from "./images/hero-03.webp";
 import hero04 from "./images/hero-04.webp";
-import logo from "./images/logo.png";
 
 const heroImages = [hero01, hero02, hero03, hero04];
 // Picked once per module load (i.e. once per page load), not per screen
@@ -35,11 +35,11 @@ function SignUpSignIn() {
         <div className="flex w-full min-w-0 max-w-[500px] flex-1 flex-col items-center justify-between">
           <div className="flex w-full flex-1 flex-col items-center justify-center gap-6">
             <div className="flex items-center justify-center py-6.5">
-              <img src={logo} alt="BeThere" className="h-16 w-auto" />
+              <Logo className="h-10 w-auto" />
             </div>
 
             <div className="flex w-full flex-col gap-1.5">
-              <Typography as="h1" size="2xl" weight="medium">
+              <Typography as="h1" size="2xl" weight="semibold">
                 Provider Portal
               </Typography>
               <Typography size="base" className="text-muted-foreground">
@@ -126,11 +126,11 @@ function SignUpSignInPassword() {
         <div className="flex w-full min-w-0 max-w-[500px] flex-1 flex-col items-center justify-between">
           <div className="flex w-full flex-1 flex-col items-center justify-center gap-6">
             <div className="flex items-center justify-center py-6.5">
-              <img src={logo} alt="BeThere" className="h-16 w-auto" />
+              <Logo className="h-10 w-auto" />
             </div>
 
             <div className="flex w-full flex-col gap-1.5">
-              <Typography as="h1" size="2xl" weight="medium">
+              <Typography as="h1" size="2xl" weight="semibold">
                 Provider Portal
               </Typography>
               <Typography size="base" className="text-muted-foreground">
@@ -254,11 +254,11 @@ function SignUpSignInPasswordError() {
         <div className="flex w-full min-w-0 max-w-[500px] flex-1 flex-col items-center justify-between">
           <div className="flex w-full flex-1 flex-col items-center justify-center gap-6">
             <div className="flex items-center justify-center py-6.5">
-              <img src={logo} alt="BeThere" className="h-16 w-auto" />
+              <Logo className="h-10 w-auto" />
             </div>
 
             <div className="flex w-full flex-col gap-1.5">
-              <Typography as="h1" size="2xl" weight="medium">
+              <Typography as="h1" size="2xl" weight="semibold">
                 Provider Portal
               </Typography>
               <Typography size="base" className="text-muted-foreground">
@@ -392,11 +392,11 @@ function SignUpSignInCompleteProfile() {
         <div className="flex w-full min-w-0 max-w-[500px] flex-1 flex-col items-center justify-between">
           <div className="flex w-full flex-1 flex-col items-center justify-center gap-6">
             <div className="flex items-center justify-center py-6.5">
-              <img src={logo} alt="BeThere" className="h-16 w-auto" />
+              <Logo className="h-10 w-auto" />
             </div>
 
             <div className="flex w-full flex-col gap-1.5">
-              <Typography as="h1" size="2xl" weight="medium">
+              <Typography as="h1" size="2xl" weight="semibold">
                 Complete your profile
               </Typography>
               <Typography size="base" className="text-muted-foreground">
@@ -535,11 +535,11 @@ function SignUpSignInOtp() {
         <div className="flex w-full min-w-0 max-w-[500px] flex-1 flex-col items-center justify-between">
           <div className="flex w-full flex-1 flex-col items-center justify-center gap-6">
             <div className="flex items-center justify-center py-6.5">
-              <img src={logo} alt="BeThere" className="h-16 w-auto" />
+              <Logo className="h-10 w-auto" />
             </div>
 
             <div className="flex w-full flex-col gap-1.5">
-              <Typography as="h1" size="2xl" weight="medium">
+              <Typography as="h1" size="2xl" weight="semibold">
                 Check your email
               </Typography>
               <Typography size="base" className="text-muted-foreground">
@@ -612,11 +612,11 @@ function SignUpSignInOtpInvalid() {
         <div className="flex w-full min-w-0 max-w-[500px] flex-1 flex-col items-center justify-between">
           <div className="flex w-full flex-1 flex-col items-center justify-center gap-6">
             <div className="flex items-center justify-center py-6.5">
-              <img src={logo} alt="BeThere" className="h-16 w-auto" />
+              <Logo className="h-10 w-auto" />
             </div>
 
             <div className="flex w-full flex-col gap-1.5">
-              <Typography as="h1" size="2xl" weight="medium">
+              <Typography as="h1" size="2xl" weight="semibold">
                 Check your email
               </Typography>
               <Typography size="base" className="text-muted-foreground">
@@ -695,7 +695,7 @@ function SignUpSignInLoading() {
       </div>
 
       <div className="flex flex-col items-center gap-11 pb-24">
-        <img src={logo} alt="BeThere" className="h-16 w-auto" />
+        <Logo className="h-10 w-auto" />
         <div className="flex flex-col items-center gap-2">
           <LoaderCircle className="size-6 animate-spin text-primary" />
           <Typography size="base" className="text-muted-foreground">

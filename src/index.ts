@@ -192,6 +192,18 @@ export {
   type DataTableColumnHeaderProps,
 } from "./components/data-display/data-table";
 
+export {
+  Symbol,
+  symbolVariants,
+  type SymbolProps,
+} from "./components/data-display/symbol";
+
+export {
+  Logo,
+  logoVariants,
+  type LogoProps,
+} from "./components/data-display/logo";
+
 /* -------------------------------------------------------------------------- */
 /* Feedback                                                                   */
 /* -------------------------------------------------------------------------- */

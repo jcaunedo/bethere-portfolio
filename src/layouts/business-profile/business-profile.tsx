@@ -6,7 +6,7 @@ import { FormikInput } from "@/components/forms/input";
 import { FormikSelect } from "@/components/forms/select";
 import { Typography } from "@/components/typography";
 import { StepperOnboarding } from "@/components/stepper/stepper-onboarding";
-import logo from "./images/logo.png";
+import { Logo } from "@/components/data-display/logo";
 
 const PROVIDER_TYPE_OPTIONS = [
   { value: "experience-company", label: "Experience Company" },
@@ -56,12 +56,12 @@ function BusinessProfile() {
 
         <div className="flex w-full max-w-[464px] flex-1 flex-col items-center justify-center gap-6">
           <div className="flex items-center justify-center py-6.5">
-            <img src={logo} alt="BeThere" className="h-16 w-auto" />
+            <Logo className="h-10 w-auto" />
           </div>
 
           <div className="flex w-full flex-col gap-6">
             <div className="flex w-full flex-col gap-1.5">
-              <Typography as="h1" size="3xl" weight="medium">
+              <Typography as="h1" size="2xl" weight="semibold">
                 Tell us about your business
               </Typography>
               <Typography size="base" className="text-muted-foreground">

@@ -13,6 +13,8 @@ import {
 
 import { cn } from "@/lib/utils";
 import { enterTransition, motionDuration, useMotionPreference } from "@/lib/motion";
+import { Logo } from "@/components/data-display/logo";
+import { Symbol } from "@/components/data-display/symbol";
 import { SelectBusinessSwitcher } from "@/components/data-display/select-business-switcher";
 import { SelectAccountInfo } from "@/components/data-display/select-account-info";
 import { Promotion } from "@/components/data-display/promotion";
@@ -23,18 +25,6 @@ import {
   AccountMenuSeparator,
   AccountMenuTrigger,
 } from "@/components/overlays/account-menu";
-
-/** BeThere icon mark (the "→" glyph from the BE→THERE wordmark). Figma: `Sidebar Logo Container` → `Logo Collapsed`. */
-function LogoMarkIcon(props: React.ComponentProps<"svg">) {
-  return (
-    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
-      <path
-        d="M26.2205 16.7743L16.8001 26.2C16.3535 26.2 16.1023 26.2 15.6557 26.2L14.0368 24.5802C14.0368 24.1333 14.0368 23.882 14.0368 23.4351L18.8377 18.6315C18.7679 18.4657 18.7644 18.4517 18.6946 18.2859H6.98725L6.1778 17.476V14.9223C6.49355 14.6064 6.67149 14.4283 6.98725 14.1124H18.6946L18.8377 13.7668L14.0385 8.96488V7.81983L15.6575 6.2C16.104 6.2 16.3553 6.2 16.8019 6.2L26.2222 15.6257C26.2222 16.0726 26.2222 16.3239 26.2222 16.7708L26.2205 16.7743Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
 
 /** One row in the primary nav list. Figma "Menu Item". */
 function SidebarMenuItem({
@@ -307,10 +297,10 @@ function Sidebar({
             onClick={handleToggleCollapsed}
             onMouseEnter={() => setIsRailHovered(true)}
             onMouseLeave={() => setIsRailHovered(false)}
-            className="flex h-10 w-9 shrink-0 cursor-e-resize items-center justify-center rounded-full outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-sidebar-ring/50"
+            className="flex size-9 shrink-0 cursor-e-resize items-center justify-center rounded-full outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-sidebar-ring/50"
           >
-            <LogoMarkIcon
-              className={cn("size-8 text-foreground", isRailHovered && "hidden")}
+            <Symbol
+              className={cn("h-[30px]", isRailHovered && "hidden")}
             />
             <PanelLeftIcon
               className={cn(
@@ -321,9 +311,7 @@ function Sidebar({
           </button>
         ) : (
           <div className="flex h-10 w-full items-center justify-between py-2 pr-1 pl-1.5">
-            <span className="text-lg font-semibold text-foreground">
-              BeThere
-            </span>
+            <Logo className="h-6" />
             <button
               type="button"
               data-slot="sidebar-collapse"

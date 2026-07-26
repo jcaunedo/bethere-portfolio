@@ -58,6 +58,7 @@ export const MultipleBusinesses: Story = {
     business,
     inboxCount: 12,
     account,
+    accountMenuItems,
     promotion,
   },
 };
@@ -77,6 +78,7 @@ export const MultipleBusinessesCollapsed: Story = {
     business,
     inboxCount: 12,
     account,
+    accountMenuItems,
     promotion,
     defaultCollapsed: true,
   },
@@ -91,6 +93,7 @@ export const AllVariants: Story = {
         business={business}
         inboxCount={12}
         account={account}
+        accountMenuItems={accountMenuItems}
         promotion={promotion}
       />
       <Sidebar
@@ -104,6 +107,7 @@ export const AllVariants: Story = {
         business={business}
         inboxCount={12}
         account={account}
+        accountMenuItems={accountMenuItems}
         promotion={promotion}
         defaultCollapsed
       />
