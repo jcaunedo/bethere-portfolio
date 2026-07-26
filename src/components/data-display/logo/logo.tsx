@@ -30,7 +30,7 @@ type LogoProps = React.ComponentProps<"svg"> & VariantProps<typeof logoVariants>
  * BeThere full lockup (wordmark + mark), a single fixed composition per
  * Figma's `Bethere Logo` — the mark sits lower and further right of the
  * wordmark than a simple centered flex row (not vertically centered on the
- * same baseline), with a fixed 8.658px gap at native size. Baked into one
+ * same baseline), with a fixed 6.158px gap at native size. Baked into one
  * SVG (both wordmark and mark paths at their absolute Figma coordinates)
  * rather than composed from separate flex-positioned children, so this
  * exact geometry scales correctly at any size (e.g. the sidebar's shrunk
@@ -48,7 +48,7 @@ function Logo({ className, variant = "gradient", ...props }: LogoProps) {
     <svg
       data-slot="logo"
       data-variant={variant}
-      viewBox="0 0 197.1177 38.6318"
+      viewBox="0 0 194.6177 38.6318"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={cn(logoVariants({ variant }), "h-11 w-auto shrink-0", className)}
@@ -58,9 +58,9 @@ function Logo({ className, variant = "gradient", ...props }: LogoProps) {
         <defs>
           <linearGradient
             id={gradientId}
-            x1="172.933"
+            x1="170.433"
             y1="20.6318"
-            x2="197.118"
+            x2="194.618"
             y2="20.6318"
             gradientUnits="userSpaceOnUse"
           >
@@ -80,11 +80,11 @@ function Logo({ className, variant = "gradient", ...props }: LogoProps) {
         fill={wordmarkFill}
       />
       <path
-        d="M172.933 5.79449C172.933 4.0478 174.478 2.63184 176.383 2.63184C178.289 2.63184 179.833 4.0478 179.833 5.79449C179.833 11.9816 186.336 17.4691 193.668 17.4691V23.7944C183.12 23.7944 172.933 15.9963 172.933 5.79449Z"
+        d="M170.433 5.79449C170.433 4.0478 171.978 2.63184 173.883 2.63184C175.789 2.63184 177.333 4.0478 177.333 5.79449C177.333 11.9816 183.836 17.4691 191.168 17.4691V23.7944C180.62 23.7944 170.433 15.9963 170.433 5.79449Z"
         fill={isGradient ? `url(#${gradientId})` : markFill}
       />
       <path
-        d="M172.933 35.4692C172.933 37.2159 174.478 38.6318 176.383 38.6318C178.288 38.6318 179.833 37.2159 179.833 35.4692C179.833 29.2821 186.336 23.7944 193.668 23.7944C195.573 23.7942 197.118 22.3784 197.118 20.6319C197.118 18.8853 195.573 17.4693 193.668 17.4691C183.12 17.4691 172.933 25.2674 172.933 35.4692Z"
+        d="M170.433 35.4692C170.433 37.2159 171.978 38.6318 173.883 38.6318C175.788 38.6318 177.333 37.2159 177.333 35.4692C177.333 29.2821 183.836 23.7944 191.168 23.7944C193.073 23.7942 194.618 22.3784 194.618 20.6319C194.618 18.8853 193.073 17.4693 191.168 17.4691C180.62 17.4691 170.433 25.2674 170.433 35.4692Z"
         fill={markFill}
       />
     </svg>
