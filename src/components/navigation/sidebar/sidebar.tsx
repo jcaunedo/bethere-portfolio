@@ -310,8 +310,8 @@ function Sidebar({
             />
           </button>
         ) : (
-          <div className="flex h-10 w-full items-center justify-between py-2 pr-1 pl-1.5">
-            <Logo className="h-6" />
+          <div className="flex h-9 w-full items-center justify-between py-2 pr-1 pl-1.5">
+            <Logo className="h-[23.179px]" />
             <button
               type="button"
               data-slot="sidebar-collapse"
