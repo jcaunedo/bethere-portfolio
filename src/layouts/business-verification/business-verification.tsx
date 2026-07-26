@@ -76,7 +76,7 @@ function BusinessVerification() {
 
           <div className="flex w-full flex-col gap-6">
             <div className="flex w-full flex-col gap-1.5">
-              <Typography as="h1" size="2xl" weight="semibold">
+              <Typography as="h1" size="2xl" weight="medium">
                 Business verification
               </Typography>
               <Typography size="base" className="text-muted-foreground">

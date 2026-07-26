@@ -61,7 +61,7 @@ function BusinessProfile() {
 
           <div className="flex w-full flex-col gap-6">
             <div className="flex w-full flex-col gap-1.5">
-              <Typography as="h1" size="2xl" weight="semibold">
+              <Typography as="h1" size="2xl" weight="medium">
                 Tell us about your business
               </Typography>
               <Typography size="base" className="text-muted-foreground">

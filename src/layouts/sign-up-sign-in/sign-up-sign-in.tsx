@@ -39,7 +39,7 @@ function SignUpSignIn() {
             </div>
 
             <div className="flex w-full flex-col gap-1.5">
-              <Typography as="h1" size="2xl" weight="semibold">
+              <Typography as="h1" size="2xl" weight="medium">
                 Provider Portal
               </Typography>
               <Typography size="base" className="text-muted-foreground">
@@ -130,7 +130,7 @@ function SignUpSignInPassword() {
             </div>
 
             <div className="flex w-full flex-col gap-1.5">
-              <Typography as="h1" size="2xl" weight="semibold">
+              <Typography as="h1" size="2xl" weight="medium">
                 Provider Portal
               </Typography>
               <Typography size="base" className="text-muted-foreground">
@@ -258,7 +258,7 @@ function SignUpSignInPasswordError() {
             </div>
 
             <div className="flex w-full flex-col gap-1.5">
-              <Typography as="h1" size="2xl" weight="semibold">
+              <Typography as="h1" size="2xl" weight="medium">
                 Provider Portal
               </Typography>
               <Typography size="base" className="text-muted-foreground">
@@ -396,7 +396,7 @@ function SignUpSignInCompleteProfile() {
             </div>
 
             <div className="flex w-full flex-col gap-1.5">
-              <Typography as="h1" size="2xl" weight="semibold">
+              <Typography as="h1" size="2xl" weight="medium">
                 Complete your profile
               </Typography>
               <Typography size="base" className="text-muted-foreground">
@@ -539,7 +539,7 @@ function SignUpSignInOtp() {
             </div>
 
             <div className="flex w-full flex-col gap-1.5">
-              <Typography as="h1" size="2xl" weight="semibold">
+              <Typography as="h1" size="2xl" weight="medium">
                 Check your email
               </Typography>
               <Typography size="base" className="text-muted-foreground">
@@ -616,7 +616,7 @@ function SignUpSignInOtpInvalid() {
             </div>
 
             <div className="flex w-full flex-col gap-1.5">
-              <Typography as="h1" size="2xl" weight="semibold">
+              <Typography as="h1" size="2xl" weight="medium">
                 Check your email
               </Typography>
               <Typography size="base" className="text-muted-foreground">
