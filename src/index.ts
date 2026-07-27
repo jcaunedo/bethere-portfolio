@@ -261,6 +261,7 @@ export {
   type SidebarBusiness,
   type SidebarAccountInfo,
   type SidebarAccountMenuItem,
+  type SidebarNavItem,
 } from "./components/navigation/sidebar";
 
 /* -------------------------------------------------------------------------- */

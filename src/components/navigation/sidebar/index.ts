@@ -6,4 +6,5 @@ export {
   type SidebarBusiness,
   type SidebarAccountInfo,
   type SidebarAccountMenuItem,
+  type SidebarNavItem,
 } from "./sidebar";

@@ -101,18 +101,36 @@ function SidebarDivider({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-const primaryMenuItems = [
+/** One row in the primary/secondary nav lists, as configured by the consumer. */
+interface SidebarNavItem {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  /** Optional trailing numeric badge (Figma "Counter", seen on Inbox). */
+  count?: number;
+  /**
+   * Action callback for non-routing items. Takes precedence over
+   * `navigateTo` when both are set.
+   */
+  onClick?: () => void;
+  /**
+   * Route this item points at. Clicking forwards it to `onNavigate` so the
+   * consumer can run its router's navigation call.
+   */
+  navigateTo?: string;
+}
+
+const defaultPrimaryMenuItems: SidebarNavItem[] = [
   { icon: HouseIcon, label: "Home" },
   { icon: InboxIcon, label: "Inbox" },
-] as const;
+];
 
-const secondaryMenuItems = [
+const defaultSecondaryMenuItems: SidebarNavItem[] = [
   { icon: GalleryHorizontalEndIcon, label: "Listings" },
   { icon: CalendarIcon, label: "Calendar" },
   { icon: WalletIcon, label: "Transactions" },
   { icon: FileTextIcon, label: "Documents" },
   { icon: ChartColumnIcon, label: "Analytics" },
-] as const;
+];
 
 interface SidebarBusiness {
   name: string;
@@ -136,6 +154,13 @@ interface SidebarAccountMenuItem {
   variant?: "default" | "destructive";
   /** Renders a divider above this item instead of a menu row. */
   separator?: boolean;
+  /**
+   * Action callback, e.g. sign-out. Takes precedence over `navigateTo`
+   * when both are set.
+   */
+  onClick?: () => void;
+  /** Route this item points at — clicking forwards it to `onNavigate`. */
+  navigateTo?: string;
 }
 
 interface SidebarProps
@@ -152,14 +177,31 @@ interface SidebarProps
   businessMode?: "single" | "multiple";
   /** Active business summary, shown only when `businessMode="multiple"`. */
   business?: SidebarBusiness;
-  /** Inbox unread count (Figma "Counter"), shown only when > 0. */
+  /**
+   * Inbox unread count (Figma "Counter"). Convenience applied to the nav
+   * item labelled `"Inbox"` when that item doesn't set its own `count`.
+   */
   inboxCount?: number;
+  /**
+   * Nav items above the divider. Defaults to the Figma set (Home, Inbox).
+   * Each item may carry an `onClick` action or a `navigateTo` route that is
+   * forwarded to `onNavigate`.
+   */
+  primaryMenuItems?: SidebarNavItem[];
+  /**
+   * Nav items below the divider. Defaults to the Figma set (Listings,
+   * Calendar, Transactions, Documents, Analytics). Same per-item
+   * `onClick`/`navigateTo` behavior as `primaryMenuItems`.
+   */
+  secondaryMenuItems?: SidebarNavItem[];
   /** Signed-in user summary shown in the footer. */
   account: SidebarAccountInfo;
   /**
    * Items for the popover menu opened by clicking the footer's
    * SelectAccountInfo (Figma "Account Menu"). Omit to render
-   * SelectAccountInfo without a menu (not clickable).
+   * SelectAccountInfo without a menu (not clickable). Items may carry an
+   * `onClick` action (e.g. sign-out) or a `navigateTo` route forwarded to
+   * `onNavigate`.
    */
   accountMenuItems?: SidebarAccountMenuItem[];
   /** Called with an account menu item's label when it's clicked. */
@@ -175,8 +217,12 @@ interface SidebarProps
    * clicks, e.g. to drive actual routing.
    */
   defaultActiveItem?: string;
-  /** Called with a menu item's label when it's clicked. */
-  onNavigate?: (label: string) => void;
+  /**
+   * Called with a clicked item's `navigateTo` route (nav or account menu)
+   * so the consumer can trigger the actual navigation call. Items without
+   * `navigateTo` never fire it.
+   */
+  onNavigate?: (navigateTo: string) => void;
   /**
    * Whether the Sidebar starts collapsed (icon rail, no labels — Figma
    * "Single/Multiple Collapsed"). Defaults to expanded. The Sidebar owns
@@ -193,6 +239,8 @@ function Sidebar({
   businessMode = "single",
   business,
   inboxCount,
+  primaryMenuItems = defaultPrimaryMenuItems,
+  secondaryMenuItems = defaultSecondaryMenuItems,
   account,
   accountMenuItems,
   onAccountMenuAction,
@@ -210,9 +258,22 @@ function Sidebar({
   const [isRailHovered, setIsRailHovered] = React.useState(false);
   const { resolve } = useMotionPreference();
 
-  const handleNavigate = (label: string) => {
-    setActiveItem(label);
-    onNavigate?.(label);
+  const handleNavItemClick = (item: SidebarNavItem) => {
+    setActiveItem(item.label);
+    if (item.onClick) {
+      item.onClick();
+    } else if (item.navigateTo) {
+      onNavigate?.(item.navigateTo);
+    }
+  };
+
+  const handleAccountMenuItemClick = (item: SidebarAccountMenuItem) => {
+    onAccountMenuAction?.(item.label);
+    if (item.onClick) {
+      item.onClick();
+    } else if (item.navigateTo) {
+      onNavigate?.(item.navigateTo);
+    }
   };
 
   const handleToggleCollapsed = () => {
@@ -230,26 +291,29 @@ function Sidebar({
         collapsed ? "items-center" : "items-start",
       )}
     >
-      {primaryMenuItems.map(({ icon, label }) => (
+      {primaryMenuItems.map((item) => (
         <SidebarMenuItem
-          key={label}
-          icon={icon}
-          label={label}
-          count={label === "Inbox" ? inboxCount : undefined}
-          active={activeItem === label}
+          key={item.label}
+          icon={item.icon}
+          label={item.label}
+          count={
+            item.count ?? (item.label === "Inbox" ? inboxCount : undefined)
+          }
+          active={activeItem === item.label}
           collapsed={collapsed}
-          onClick={() => handleNavigate(label)}
+          onClick={() => handleNavItemClick(item)}
         />
       ))}
       <SidebarDivider />
-      {secondaryMenuItems.map(({ icon, label }) => (
+      {secondaryMenuItems.map((item) => (
         <SidebarMenuItem
-          key={label}
-          icon={icon}
-          label={label}
-          active={activeItem === label}
+          key={item.label}
+          icon={item.icon}
+          label={item.label}
+          count={item.count}
+          active={activeItem === item.label}
           collapsed={collapsed}
-          onClick={() => handleNavigate(label)}
+          onClick={() => handleNavItemClick(item)}
         />
       ))}
     </div>
@@ -381,22 +445,20 @@ function Sidebar({
               />
             </AccountMenuTrigger>
             <AccountMenuContent align="start">
-              {accountMenuItems.map(
-                ({ icon: Icon, label, shortcut, variant, separator }) => (
-                  <React.Fragment key={label}>
-                    {separator ? <AccountMenuSeparator /> : null}
-                    <AccountMenuItem
-                      showIcon
-                      icon={<Icon />}
-                      shortcut={shortcut}
-                      variant={variant}
-                      onClick={() => onAccountMenuAction?.(label)}
-                    >
-                      {label}
-                    </AccountMenuItem>
-                  </React.Fragment>
-                ),
-              )}
+              {accountMenuItems.map((item) => (
+                <React.Fragment key={item.label}>
+                  {item.separator ? <AccountMenuSeparator /> : null}
+                  <AccountMenuItem
+                    showIcon
+                    icon={<item.icon />}
+                    shortcut={item.shortcut}
+                    variant={item.variant}
+                    onClick={() => handleAccountMenuItemClick(item)}
+                  >
+                    {item.label}
+                  </AccountMenuItem>
+                </React.Fragment>
+              ))}
             </AccountMenuContent>
           </AccountMenu>
         ) : (
@@ -418,4 +480,5 @@ export type {
   SidebarBusiness,
   SidebarAccountInfo,
   SidebarAccountMenuItem,
+  SidebarNavItem,
 };
