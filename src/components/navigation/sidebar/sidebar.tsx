@@ -32,6 +32,7 @@ function SidebarMenuItem({
   label,
   count,
   active = false,
+  activeVariant = "default",
   collapsed = false,
   className,
   ...props
@@ -41,8 +42,15 @@ function SidebarMenuItem({
   label: string;
   /** Optional trailing numeric badge (Figma "Counter", seen on Inbox). */
   count?: number;
-  /** Marks the item as the current route (Figma State=Active). */
+  /** Marks the item as the current route (Figma State=Active/Active-alt). */
   active?: boolean;
+  /**
+   * Active fill treatment when `active` is true — `"default"` (Figma
+   * State=Active, solid `bg-card`) or `"alt"` (Figma State=Active-alt, tinted
+   * `bg-primary-subtle`, reserved for the Sidebar Settings context). Ignored
+   * when `active` is false.
+   */
+  activeVariant?: "default" | "alt";
   /**
    * Icon-only layout for the collapsed Sidebar (Figma "Single/Multiple
    * Collapsed") — the label stays for accessibility (`aria-label`) but is
@@ -54,6 +62,7 @@ function SidebarMenuItem({
     <button
       type="button"
       data-slot="sidebar-menu-item"
+      data-active-variant={active ? activeVariant : undefined}
       aria-current={active ? "page" : undefined}
       aria-label={collapsed ? label : undefined}
       title={collapsed ? label : undefined}
@@ -62,7 +71,9 @@ function SidebarMenuItem({
         "focus-visible:ring-[3px] focus-visible:ring-sidebar-ring/50",
         "[&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-sidebar-icon-foreground",
         active
-          ? "bg-card text-brand-500 [&_svg]:text-brand-500"
+          ? activeVariant === "alt"
+            ? "bg-primary-subtle text-brand-500 [&_svg]:text-brand-500"
+            : "bg-card text-brand-500 [&_svg]:text-brand-500"
           : "hover:bg-state-hover",
         collapsed ? "size-9 shrink-0 justify-center px-0" : "w-full",
         className,

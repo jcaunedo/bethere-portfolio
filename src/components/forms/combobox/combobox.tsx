@@ -24,7 +24,7 @@ import {
 // of opening a separate search box inside the popover.
 const comboboxTrigger =
   "flex w-full items-center justify-between gap-2 rounded-xl border border-input bg-card px-3 py-2 text-left text-sm text-foreground whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none " +
-  "hover:border-neutral-400 " +
+  "hover:border-input-ring " + // Figma State=Hover → color/input/ring (#c6cbd2, neutral-300)
   "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 " +
   // Figma State=Focus: border uses color/input/ring-focus (sunset-500), outer
   // halo is a separate fully-opaque color/input/ring-outside (sunset-100) —

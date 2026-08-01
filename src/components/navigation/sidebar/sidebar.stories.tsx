@@ -17,6 +17,7 @@ import {
 
 import {
   Sidebar,
+  SidebarMenuItem,
   type SidebarAccountMenuItem,
   type SidebarNavItem,
 } from "./sidebar";
@@ -83,6 +84,25 @@ const accountMenuItems: SidebarAccountMenuItem[] = [
 
 const onNavigate = (navigateTo: string) =>
   console.log(`[Sidebar story] navigate to ${navigateTo}`);
+
+/** Figma "Sidebar Menu Item" state set: Default, Hover (`:hover` in the
+ * browser), Active, and Active-alt (tinted fill, reserved for the upcoming
+ * Sidebar Settings context). */
+export const MenuItemStates: Story = {
+  render: () => (
+    <div className="flex w-[294px] flex-col gap-2 bg-background p-4">
+      <SidebarMenuItem icon={HouseIcon} label="Default" />
+      <SidebarMenuItem icon={HouseIcon} label="Hover me" />
+      <SidebarMenuItem icon={HouseIcon} label="Active" active />
+      <SidebarMenuItem
+        icon={HouseIcon}
+        label="Active-alt"
+        active
+        activeVariant="alt"
+      />
+    </div>
+  ),
+};
 
 export const SingleBusiness: Story = {
   args: {

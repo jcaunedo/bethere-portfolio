@@ -538,7 +538,7 @@
 	--card-subtle: var(--neutral-50);
 
 	/* Brand/role tints (color/primary|secondary|terciary/*) */
-	--primary-muted: #ff642c26; /* hand-authored, no Figma source */
+	--primary-muted: var(--sunset-100); /* Figma color/tone/brand/muted — adopted 2026-08-01, previously hand-authored #ff642c26 (wrong hue + alpha, no Figma source at the time) */
 	--primary-subtle: var(--sunset-50); /* Figma color/tone/brand/subtle — corrected 2026-07-15 from stale #ff642c1a alpha tint (wrong hue, wrong construction) */
 	--primary-soft: #31373f0d;
 	--secondary-subtle: #c87d5f1a; /* hand-authored, no Figma source */
@@ -553,7 +553,7 @@
 
 	/* Input extras (color/input/*) */
 	--input-border-disabled: var(--border-soft);
-	--input-ring: var(--neutral-400);
+	--input-ring: var(--neutral-300); /* Figma color/input/ring — updated 2026-08-01 in Figma from neutral-200 to neutral-300 (distinct from --border, so hover is visible) */
 	--input-ring-focus: var(--primary); /* Figma color/input/ring-focus */
 	--input-ring-outside: var(--sunset-100); /* Figma color/input/ring-outside */
 	--input-fill: var(--white);

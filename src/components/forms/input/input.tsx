@@ -11,7 +11,7 @@ const inputVariants = cva(
     "selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground " +
     "file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground " +
     "read-only:text-muted-foreground read-only:cursor-default " +
-    "hover:border-neutral-400 " + // Figma State=Hover → color/input/ring (#9aa1ac, neutral-400)
+    "hover:border-input-ring " + // Figma State=Hover → color/input/ring (#c6cbd2, neutral-300)
     "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 " +
     // Figma State=Focus: border uses color/input/ring-focus (sunset-500), outer
     // halo is a separate fully-opaque color/input/ring-outside (sunset-100) —

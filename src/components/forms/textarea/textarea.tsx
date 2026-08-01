@@ -9,7 +9,7 @@ const textareaVariants = cva(
   "field-sizing-content flex w-full rounded-xl border border-input bg-card px-3 py-2 text-sm text-foreground shadow-xs transition-[color,box-shadow] outline-none " +
     "placeholder:text-muted-foreground " +
     "read-only:text-muted-foreground read-only:cursor-default " +
-    "hover:border-neutral-400 " + // Figma State=Hover (color/input/ring #9aa1ac)
+    "hover:border-input-ring " + // Figma State=Hover (color/input/ring #c6cbd2, neutral-300)
     "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 " +
     "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 " +
     "aria-invalid:border-destructive aria-invalid:ring-destructive/20 " +

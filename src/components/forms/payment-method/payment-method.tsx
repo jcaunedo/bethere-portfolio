@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 // the Textfield field look; not a real <input>, so it's a custom component.
 const paymentMethodVariants = cva(
   "inline-flex w-full items-center gap-2 rounded-xl border border-input bg-card px-3 text-left text-sm text-foreground shadow-xs transition-[color,box-shadow] outline-none " +
-    "hover:border-neutral-400 " +
+    "hover:border-input-ring " + // Figma State=Hover → color/input/ring (#c6cbd2, neutral-300)
     "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 " +
     "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 " +
     "aria-invalid:border-destructive aria-invalid:ring-destructive/20 " +

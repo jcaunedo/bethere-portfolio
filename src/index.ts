@@ -111,6 +111,11 @@ export {
   SelectValue,
 } from "./components/forms/select";
 
+export {
+  SettingsDetailRow,
+  type SettingsDetailRowProps,
+} from "./components/forms/settings-detail-row";
+
 /* -------------------------------------------------------------------------- */
 /* Forms — Formik-connected fields (require the optional `formik` peer)        */
 /* -------------------------------------------------------------------------- */
@@ -263,6 +268,21 @@ export {
   type SidebarAccountMenuItem,
   type SidebarNavItem,
 } from "./components/navigation/sidebar";
+
+export {
+  SettingsHeader,
+  type SettingsHeaderProps,
+} from "./components/navigation/settings-header";
+
+export {
+  ProfileHeader,
+  type ProfileHeaderProps,
+} from "./components/navigation/profile-header";
+
+export {
+  SidebarSettings,
+  type SidebarSettingsProps,
+} from "./components/navigation/sidebar-settings";
 
 /* -------------------------------------------------------------------------- */
 /* Cards                                                                      */

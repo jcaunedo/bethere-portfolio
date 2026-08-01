@@ -19,16 +19,17 @@ function Avatar({
 }: React.ComponentProps<typeof AvatarPrimitive.Root> & {
   /**
    * `lg` is 36px (`size-9`) — Figma's actual avatar size — not shadcn's own
-   * 40px default; every BeThere avatar spec seen so far is 36px.
+   * 40px default; every BeThere avatar spec seen so far is 36px. `xl` is
+   * 72px (`size-18`), the large avatar used in `ProfileHeader`.
    */
-  size?: "default" | "sm" | "lg";
+  size?: "default" | "sm" | "lg" | "xl";
 }) {
   return (
     <AvatarPrimitive.Root
       data-slot="avatar"
       data-size={size}
       className={cn(
-        "group/avatar relative flex size-8 shrink-0 rounded-full select-none data-[size=lg]:size-9 data-[size=sm]:size-6",
+        "group/avatar relative flex size-8 shrink-0 rounded-full select-none data-[size=lg]:size-9 data-[size=sm]:size-6 data-[size=xl]:size-18",
         className,
       )}
       {...props}
@@ -133,7 +134,7 @@ function AvatarFallback({
           : style
       }
       className={cn(
-        "flex size-full items-center justify-center rounded-full text-sm font-medium text-muted-foreground group-data-[size=sm]/avatar:text-xs [&_svg]:size-4 group-data-[size=sm]/avatar:[&_svg]:size-3 group-data-[size=lg]/avatar:[&_svg]:size-5",
+        "flex size-full items-center justify-center rounded-full text-sm font-medium text-muted-foreground group-data-[size=sm]/avatar:text-xs [&_svg]:size-4 group-data-[size=sm]/avatar:[&_svg]:size-3 group-data-[size=lg]/avatar:[&_svg]:size-5 group-data-[size=xl]/avatar:text-2xl group-data-[size=xl]/avatar:font-bold group-data-[size=xl]/avatar:[&_svg]:size-8",
         hasColorBackground ? "text-white" : "bg-muted",
         className,
       )}
@@ -152,6 +153,7 @@ function AvatarBadge({ className, ...props }: React.ComponentProps<"span">) {
         "group-data-[size=sm]/avatar:size-2 group-data-[size=sm]/avatar:[&>svg]:hidden",
         "group-data-[size=default]/avatar:size-2.5 group-data-[size=default]/avatar:[&>svg]:size-2",
         "group-data-[size=lg]/avatar:size-3 group-data-[size=lg]/avatar:[&>svg]:size-2",
+        "group-data-[size=xl]/avatar:size-4 group-data-[size=xl]/avatar:[&>svg]:size-3",
         className,
       )}
       {...props}
