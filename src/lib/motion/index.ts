@@ -15,6 +15,7 @@ export {
   dismissVariants,
   overlayVariants,
   panelVariants,
+  slideVariants,
   staggerContainerVariants,
 } from "./variants";
 

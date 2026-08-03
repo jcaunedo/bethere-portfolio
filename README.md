@@ -132,3 +132,14 @@ npm run release:patch
 # Push the code changes and tag
 git push && git push --tags
 ```
+
+## Practical guidance for your motion instructions:
+
+Lead with variants for describing the animation itself; mention transitions only when tuning timing/easing on top of an already-correct motion.
+
+Use variant:
+If what you want matches an existing pattern, name the variant: "use revealVariants for this dropdown," "make the drawer use panelVariants," "this screen swap should use slideVariants." This is exactly how last turn's request worked — you didn't need to know enterTransition even existed to get the right feel.
+
+Use transition:
+Reference a transition by name only when the motion itself is fine but the feel of the timing is wrong — e.g. "make it use subtleSpring instead" or "this should feel snappier, use responsiveSpring."
+If neither matches, describe it like a person, not a codebase: "slide left," "this should feel like a panel," "make it bouncier" — I'll map that to the closest existing pattern (or tell you if nothing fits and a new one is warranted, same as slideVariants didn't exist until you asked for it).

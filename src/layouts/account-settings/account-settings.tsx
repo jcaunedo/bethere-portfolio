@@ -17,6 +17,12 @@ import type { SidebarNavItem } from "@/components/navigation/sidebar";
 /** `SidebarSettings`' fixed rail width (Figma `Sidebar Settings`, 296px). */
 const SIDEBAR_WIDTH = 296;
 
+/**
+ * The 8 Provider Portal settings sections (Figma `Sidebar Settings` /
+ * `Account Settings Menu`). Exported so other layouts — e.g.
+ * `AccountSettingsMenuLayout`, the mobile screen reached from the settings
+ * back arrow — render the same list instead of maintaining a second copy.
+ */
 const settingsMenuItems: SidebarNavItem[] = [
   { icon: CircleUserIcon, label: "My profile", navigateTo: "/settings/profile" },
   { icon: BuildingIcon, label: "Business profiles", navigateTo: "/settings/business-profiles" },
@@ -28,7 +34,7 @@ const settingsMenuItems: SidebarNavItem[] = [
   { icon: BlocksIcon, label: "Integrations", navigateTo: "/settings/integrations" },
 ];
 
-interface SettingsLayoutProps {
+interface AccountSettingsLayoutProps {
   /** Page content rendered in the Content area, to the right of the menu. */
   children?: React.ReactNode;
   /** Which settings menu item is active. Defaults to the first item. */
@@ -40,17 +46,18 @@ interface SettingsLayoutProps {
 }
 
 /**
- * Provider Portal settings shell. Figma origin: Provider-Portal → "Settings
- * Layout" frame. Header + a settings sub-nav rail on the left, with the
- * Content area (right) rendering whatever settings sub-page the consumer
- * passes as `children`.
+ * Provider Portal "Account Settings" shell. Figma origin: Provider-Portal →
+ * "Settings Layout" frame. Header + a settings sub-nav rail on the left,
+ * with the Content area (right) rendering whichever page under
+ * `src/layouts/account-settings/pages/` the consumer passes as `children`
+ * (e.g. `MyProfileLayout`).
  */
-function SettingsLayout({
+function AccountSettingsLayout({
   children,
   activeItem,
   onClose,
   onNavigate,
-}: SettingsLayoutProps) {
+}: AccountSettingsLayoutProps) {
   const mobileTitle = activeItem ?? settingsMenuItems[0]?.label;
 
   return (
@@ -99,5 +106,5 @@ function SettingsLayout({
   );
 }
 
-export { SettingsLayout };
-export type { SettingsLayoutProps };
+export { AccountSettingsLayout, settingsMenuItems };
+export type { AccountSettingsLayoutProps };

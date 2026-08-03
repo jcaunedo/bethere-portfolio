@@ -71,6 +71,13 @@ type SettingsDetailRowProps = Omit<
   cancelLabel?: string;
   /** Disables the Save action (e.g. while submitting or invalid). */
   saveDisabled?: boolean;
+  /**
+   * Hides the Save button footer entirely (e.g. a single-choice field like
+   * Time zone that saves immediately on selection instead of requiring an
+   * explicit confirm). The row still expands/collapses and Cancel still
+   * works — only the Save action goes away.
+   */
+  hideSaveButton?: boolean;
 };
 
 /**
@@ -98,6 +105,7 @@ function SettingsDetailRow({
   saveLabel = "Save",
   cancelLabel = "Cancel",
   saveDisabled = false,
+  hideSaveButton = false,
   ...props
 }: SettingsDetailRowProps) {
   const hasValue = value !== undefined && value !== null && value !== "";
@@ -138,7 +146,7 @@ function SettingsDetailRow({
         </p>
       ) : null}
       {!editing && note ? (
-        <p className="text-sm text-muted-foreground">{note}</p>
+        <p className="mt-3 text-sm text-muted-foreground">{note}</p>
       ) : null}
     </motion.div>
   );
@@ -202,17 +210,19 @@ function SettingsDetailRow({
           >
             {children}
 
-            <div className="flex items-start gap-2">
-              <Button
-                type="button"
-                size="lg"
-                className="min-w-24 justify-center"
-                onClick={onSave}
-                disabled={saveDisabled}
-              >
-                {saveLabel}
-              </Button>
-            </div>
+            {!hideSaveButton ? (
+              <div className="flex items-start gap-2">
+                <Button
+                  type="button"
+                  size="lg"
+                  className="w-22 justify-center"
+                  onClick={onSave}
+                  disabled={saveDisabled}
+                >
+                  {saveLabel}
+                </Button>
+              </div>
+            ) : null}
           </motion.div>
         ) : null}
       </AnimatePresence>

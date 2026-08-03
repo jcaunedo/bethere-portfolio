@@ -304,7 +304,7 @@
 	--radius-input: var(--radius-xl); /* 12px */
 	--radius-menu: var(--radius-xl); /* 12px */
 	--radius-popover: var(--radius-xl); /* 12px */
-	--radius-menu-option: var(--radius-lg); /* 8px — Figma radius/menu-item (was 12px) */
+	--radius-menu-option: var(--radius-xl); /* 12px — Figma radius/menu-option, corrected 2026-08-01: a fresh get_variable_defs pull on SettingsNavigationItem confirmed radius/menu-option is 12px; the prior 8px value (dated note: "was 12px") appears to have conflated it with the distinct radius/menu-item variable */
 	--radius-button-xs: var(--radius-lg); /* 8px */
 	--radius-button-sm: var(--radius-xl); /* 12px */
 	--radius-button-md: var(--radius-xl); /* 12px */

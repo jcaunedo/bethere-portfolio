@@ -54,6 +54,38 @@ const panelVariants: Variants = {
 };
 
 /**
+ * Directional screen/section transition. CLAUDE.md "Glide" — match the
+ * direction of navigation: pass `custom={1}` to slide in from the right
+ * (the "forward"/push case, e.g. navigating into a sub-page) or
+ * `custom={-1}` to slide in from the left ("back"/pop, e.g. returning to a
+ * parent screen). The outgoing screen continues in the *same* direction
+ * the incoming screen is heading, so the pair reads as one continuous
+ * strip sliding through rather than converging on the same side.
+ *
+ * Unlike `glidePattern` (a gesture-prop bundle with no transition of its
+ * own), this is `Variants`-shaped for `AnimatePresence` mount/unmount and
+ * uses `enterTransition`/`exitTransition` like the rest of this file. Each
+ * key is a function of Motion's `custom` prop (not a `direction` argument
+ * called ahead of time) — this matters for `AnimatePresence`: an exiting
+ * element's `custom` is snapshotted at the moment it's removed, so its
+ * `exit` animation stays correct even if the direction state driving new
+ * renders has already changed by the time the exit plays out. Usage:
+ * `<motion.div custom={direction} variants={slideVariants} ... />`.
+ */
+const slideVariants: Variants = {
+  initial: (direction: 1 | -1 = 1) => ({
+    opacity: 0,
+    x: direction * motionDistance.medium,
+  }),
+  animate: { opacity: 1, x: 0, transition: enterTransition },
+  exit: (direction: 1 | -1 = 1) => ({
+    opacity: 0,
+    x: -direction * motionDistance.medium,
+    transition: exitTransition,
+  }),
+};
+
+/**
  * Stagger container for the Flow pattern — small groups of related items
  * entering together. Apply to the parent; children should use
  * `revealVariants` (or similar) and inherit timing via variant propagation.
@@ -74,5 +106,6 @@ export {
   dismissVariants,
   overlayVariants,
   panelVariants,
+  slideVariants,
   staggerContainerVariants,
 };

@@ -143,6 +143,13 @@ function SelectContent({
           // default side="bottom" would put it at the trigger's bottom edge)
           // so it grows downward, covering the trigger.
           "data-[side=bottom]:-translate-y-[var(--radix-select-trigger-height)]",
+          // Mirrors the above for Radix's collision-driven side="top" flip
+          // (e.g. a trigger near the bottom of the viewport): shifts the
+          // panel's BOTTOM edge down to the trigger's BOTTOM edge (Radix's
+          // side="top" would otherwise put it flush above, at the trigger's
+          // top edge) so it grows upward, covering the trigger instead of
+          // floating disconnected above it.
+          "data-[side=top]:translate-y-[var(--radix-select-trigger-height)]",
           className
         )}
         position={position}

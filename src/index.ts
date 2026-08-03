@@ -16,6 +16,7 @@ export {
   dismissVariants,
   overlayVariants,
   panelVariants,
+  slideVariants,
   staggerContainerVariants,
   liftPattern,
   pressPattern,
@@ -283,6 +284,11 @@ export {
   SidebarSettings,
   type SidebarSettingsProps,
 } from "./components/navigation/sidebar-settings";
+
+export {
+  NavigationListItem,
+  type NavigationListItemProps,
+} from "./components/navigation/navigation-list-item";
 
 /* -------------------------------------------------------------------------- */
 /* Cards                                                                      */

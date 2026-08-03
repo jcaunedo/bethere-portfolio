@@ -1,27 +1,27 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { Typography } from "@/components/typography";
-import { SettingsLayout } from "./settings";
+import { AccountSettingsLayout } from "./account-settings";
 
-const meta: Meta<typeof SettingsLayout> = {
-  title: "Layouts/Settings",
-  component: SettingsLayout,
+const meta: Meta<typeof AccountSettingsLayout> = {
+  title: "Layouts/AccountSettings/Shell",
+  component: AccountSettingsLayout,
   tags: ["autodocs"],
   parameters: {
     layout: "fullscreen",
   },
 };
 export default meta;
-type Story = StoryObj<typeof SettingsLayout>;
+type Story = StoryObj<typeof AccountSettingsLayout>;
 
 export const Default: Story = {
   args: {
-    onClose: () => console.log("[SettingsLayout story] close"),
+    onClose: () => console.log("[AccountSettingsLayout story] close"),
     onNavigate: (navigateTo) =>
-      console.log(`[SettingsLayout story] navigate to ${navigateTo}`),
+      console.log(`[AccountSettingsLayout story] navigate to ${navigateTo}`),
   },
   render: (args) => (
-    <SettingsLayout {...args}>
+    <AccountSettingsLayout {...args}>
       <div className="flex flex-col gap-1.5 p-8">
         <Typography as="h1" size="2xl" weight="medium">
           My profile
@@ -30,6 +30,6 @@ export const Default: Story = {
           Settings sub-page content renders here.
         </Typography>
       </div>
-    </SettingsLayout>
+    </AccountSettingsLayout>
   ),
 };
