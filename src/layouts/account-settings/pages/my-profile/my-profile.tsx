@@ -87,6 +87,15 @@ function whatsAppNationalNumber(e164Value: string): string {
   return e164Value.replace(/^\+1/, "");
 }
 
+// WhatsApp's draft is stored in E.164 with "+1" already prepended (see
+// `toWhatsAppE164`), so validating it with `isValidPhone` directly counts
+// that prefixed "1" as a digit of the national number — the field would
+// pass at 9 entered digits instead of 10. Strip the "+1" back off first so
+// validation runs against the national number, same as Phone number.
+function isValidWhatsApp(e164Value: string): boolean {
+  return isValidPhone(whatsAppNationalNumber(e164Value));
+}
+
 // Renders a stored "+1XXXXXXXXXX" value back into "+1 (305) 555-0123" for
 // display in the row's collapsed state.
 function formatWhatsAppForDisplay(e164Value: string): string {
@@ -410,9 +419,10 @@ function MyProfileLayout() {
             <SettingsDetailRow
               title="Title"
               value={fields.title.value}
-              emptyPlaceholder="No title yet"
+              emptyPlaceholder="No job title added"
               addLabel="Add Title"
-              editDescription="Placeholder copy — update with real guidance."
+              addDescription="Your role or position within the business."
+              editDescription="Your role or position within the business."
               editing={fields.title.editing}
               onEditStart={() => startEditing("title")}
               onCancel={() => cancelEditing("title")}
@@ -421,6 +431,7 @@ function MyProfileLayout() {
             >
               <Input
                 value={drafts.title}
+                placeholder="Enter your job title"
                 onChange={(e) =>
                   setDrafts((prev) => ({ ...prev, title: e.target.value }))
                 }
@@ -433,7 +444,7 @@ function MyProfileLayout() {
               title="Email"
               value={fields.email.value}
               emptyPlaceholder="No email yet"
-              editDescription="Placeholder copy — update with real guidance."
+              editDescription="Used for account updates, notifications, and important communications."
               editing={fields.email.editing}
               onEditStart={() => startEditing("email")}
               onCancel={() => cancelEditing("email")}
@@ -467,7 +478,7 @@ function MyProfileLayout() {
               title="Phone number"
               value={fields.phone.value}
               emptyPlaceholder="No phone number yet"
-              editDescription="Placeholder copy — update with real guidance."
+              editDescription="Add the primary number where the Bethere team can reach you."
               editing={fields.phone.editing}
               onEditStart={() => startEditing("phone")}
               onCancel={() => cancelEditing("phone")}
@@ -501,13 +512,13 @@ function MyProfileLayout() {
               value={formatWhatsAppForDisplay(fields.whatsapp.value)}
               emptyPlaceholder="No WhatsApp number yet"
               addLabel="Add WhatsApp"
-              addDescription="Placeholder copy — update with real guidance."
-              editDescription="Placeholder copy — update with real guidance."
+              addDescription="Add a WhatsApp-enabled number for messages and service updates."
+              editDescription="Add a WhatsApp-enabled number for messages and service updates."
               editing={fields.whatsapp.editing}
               onEditStart={() => startEditing("whatsapp")}
               onCancel={() => cancelEditing("whatsapp")}
               onSave={() => save("whatsapp")}
-              saveDisabled={isUnchanged("whatsapp") || !isValidPhone(drafts.whatsapp)}
+              saveDisabled={isUnchanged("whatsapp") || !isValidWhatsApp(drafts.whatsapp)}
             >
               <div className="flex w-full flex-col gap-2">
                 {/* "+1" is a fixed, non-editable prefix (US-only for now) —
@@ -518,7 +529,7 @@ function MyProfileLayout() {
                 <div
                   className={cn(
                     "flex h-9 w-full items-center gap-1 rounded-xl border border-input bg-card pl-3 shadow-xs transition-[color,box-shadow] has-[input:focus-visible]:border-ring has-[input:focus-visible]:ring-[3px] has-[input:focus-visible]:ring-input-ring-outside",
-                    !isValidPhone(drafts.whatsapp) &&
+                    !isValidWhatsApp(drafts.whatsapp) &&
                       "border-destructive ring-destructive/20",
                   )}
                 >
@@ -528,7 +539,7 @@ function MyProfileLayout() {
                   <input
                     type="tel"
                     value={whatsappLocalDraft}
-                    aria-invalid={!isValidPhone(drafts.whatsapp)}
+                    aria-invalid={!isValidWhatsApp(drafts.whatsapp)}
                     onChange={(e) => {
                       const formatted = formatUsPhone(e.target.value);
                       setWhatsappLocalDraft(formatted);
@@ -540,7 +551,7 @@ function MyProfileLayout() {
                     className="h-full min-w-0 flex-1 border-0 bg-transparent px-0 pr-3 text-sm text-foreground outline-none placeholder:text-muted-foreground"
                   />
                 </div>
-                {!isValidPhone(drafts.whatsapp) ? (
+                {!isValidWhatsApp(drafts.whatsapp) ? (
                   <Typography size="xs" className="text-destructive">
                     Enter a valid phone number.
                   </Typography>
@@ -554,7 +565,7 @@ function MyProfileLayout() {
               title="Time zone"
               value={fields.timeZone.value}
               emptyPlaceholder="No time zone yet"
-              editDescription="Placeholder copy — update with real guidance."
+              editDescription="Select your local time zone to ensure accurate scheduling and notifications."
               editing={fields.timeZone.editing}
               onEditStart={() => startEditing("timeZone")}
               onCancel={() => cancelEditing("timeZone")}
