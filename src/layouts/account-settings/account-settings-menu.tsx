@@ -29,7 +29,7 @@ function AccountSettingsMenuLayout({
       <SettingsHeader
         className="shrink-0"
         onClose={onClose}
-        mobileTitle="Account Settings"
+        title="Account Settings"
       />
       <div className="flex w-full flex-1 flex-col overflow-y-auto px-4 pt-6">
         {settingsMenuItems.map((item) => (

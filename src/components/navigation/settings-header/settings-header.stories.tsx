@@ -14,7 +14,8 @@ type Story = StoryObj<typeof SettingsHeader>;
 
 export const Default: Story = {
   args: {
-    onClose: () => alert("Close settings"),
+    title: "Account Settings",
+    onClose: () => alert("Done"),
   },
 };
 
@@ -28,19 +29,20 @@ export const WithContent: Story = {
     </div>
   ),
   args: {
-    onClose: () => alert("Close settings"),
+    title: "Account Settings",
+    onClose: () => alert("Done"),
   },
 };
 
 /**
- * Below Tailwind's `md` breakpoint (< 768px), the logo/close pair is
- * replaced by a back chevron + centered `mobileTitle` (Figma `My Profile -
+ * Below Tailwind's `md` breakpoint (< 768px), the title/Done pair is
+ * replaced by a back chevron + centered `title` (Figma `My Profile -
  * Mobile`). Resize the preview or use Storybook's viewport toolbar to see
  * the swap.
  */
 export const MobileTitle: Story = {
   args: {
-    mobileTitle: "My profile",
+    title: "My profile",
     onClose: () => alert("Back"),
   },
   parameters: {

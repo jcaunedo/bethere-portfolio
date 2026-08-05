@@ -102,3 +102,53 @@ during a future refactor of this page), check both `formatUsPhone` and
 `isValidPhone` together — they're meant to stay identical in shape across
 Phone number and WhatsApp, with WhatsApp only differing by its fixed `+1`
 prefix and E.164 storage.
+
+---
+
+## Multi-row keyboard shortcuts: focus-aware, LIFO fallback (`src/layouts/account-settings/pages/my-profile/my-profile.tsx`)
+
+**Rule:** On a page where several independent expandable rows/sections can
+be open (editing) at once, a single shared Escape/Enter handler must:
+
+1. **Prefer whichever open row currently contains focus**, if any does.
+2. **Fall back to the most-recently-opened row** (LIFO) only when focus
+   isn't inside any open row (e.g. focus is on the page body, or nothing
+   in the DOM is focused).
+
+```ts
+// rowRefs: FieldKey -> that row's wrapper DOM node (one ref per row)
+function focusedRowKey(openKeys: FieldKey[]): FieldKey | undefined {
+  const active = document.activeElement;
+  if (!active) return undefined;
+  return openKeys.find((key) => rowRefs.current[key]?.contains(active));
+}
+
+// In the keydown handler:
+const activeKey = focusedRowKey(openOrder) ?? openOrder[openOrder.length - 1];
+```
+
+**Why:** `openOrder` (a stack of the keys of every currently-open row, in
+open order) is what makes "multiple rows open simultaneously" possible in
+the first place — it's tempting to simplify this down to a single
+`activeKey: FieldKey | null` the moment only one row is ever open in
+testing, but that silently breaks the multi-open case (a second row
+opening has nowhere to be tracked, and Escape/Enter stop working for
+whichever row isn't the lone tracked one).
+
+Even with `openOrder` intact, **LIFO alone is not sufficient** once more
+than one row is open: opening Name, then Email, then clicking back into
+Name to keep typing, and pressing Escape must cancel **Name** (where the
+user is actually focused), not Email (merely the most-recently-*opened*
+row). Acting on "last opened" instead of "currently focused" reads as a
+bug to the user ("Escape closed the wrong field") even though the LIFO
+logic itself is working exactly as written — the fix is checking focus
+first, with LIFO only as the fallback for when nothing in an open row is
+focused.
+
+**How to apply:** Any future page with the same shape (several
+independently-collapsible/expandable sections, each ownable via its own
+Save/Cancel, with a shared Escape/Enter shortcut) should reuse this same
+two-tier lookup — a per-row DOM ref map + `document.activeElement`
+containment check, falling back to an open-order stack — rather than
+either a single `activeKey` (breaks multi-open) or pure LIFO (ignores
+focus). Don't drop the focus check to "simplify" this back to LIFO-only.

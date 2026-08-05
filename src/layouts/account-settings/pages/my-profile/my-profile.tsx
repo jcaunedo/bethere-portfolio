@@ -184,8 +184,10 @@ function MyProfileLayout() {
   // the name First/Last fields above.
   const [whatsappLocalDraft, setWhatsappLocalDraft] = React.useState("");
   // Rows can be opened in any order and several can be open at once;
-  // this tracks that order so Escape/Enter act on the most recently opened
-  // one first (LIFO), rather than an arbitrary or every open row.
+  // this tracks that order so Escape/Enter fall back to the most recently
+  // opened one (LIFO) when focus isn't inside any open row — see
+  // `rowRefs`/`focusedRowKey` below for the focus-aware case that takes
+  // priority over this fallback.
   const [openOrder, setOpenOrder] = React.useState<FieldKey[]>([]);
 
   // The keydown handler below is only re-bound when `openOrder` changes, so
@@ -193,6 +195,25 @@ function MyProfileLayout() {
   // was opened — a ref keeps `save` reading the latest keystroke instead.
   const draftsRef = React.useRef(drafts);
   draftsRef.current = drafts;
+
+  // Maps each FieldKey to its row's wrapper DOM node, so the shared
+  // Escape/Enter handler can tell which row (if any) currently contains
+  // focus — e.g. the user opened Name, then Email, then clicked back into
+  // Name to keep typing. Without this, Escape/Enter would always act on
+  // whichever row opened last (openOrder's LIFO fallback), even while the
+  // user is actively focused inside an earlier-opened row.
+  const rowRefs = React.useRef<Partial<Record<FieldKey, HTMLDivElement | null>>>(
+    {},
+  );
+
+  // Finds which open row (if any) currently contains focus, by walking
+  // `rowRefs` — only rows present in `openOrder` are checked, since a
+  // collapsed row has no focusable form content to hold focus anyway.
+  function focusedRowKey(openKeys: FieldKey[]): FieldKey | undefined {
+    const active = document.activeElement;
+    if (!active) return undefined;
+    return openKeys.find((key) => rowRefs.current[key]?.contains(active));
+  }
 
   // Most rows edit a single FieldKey, but "Preferred language" expands into
   // two independent inputs (Preferred Language, Additional Languages)
@@ -291,15 +312,20 @@ function MyProfileLayout() {
     return keys.every((k) => drafts[k] === fields[k].value);
   }
 
-  // Esc cancels / Enter saves the most recently opened row — same as
-  // clicking that row's own Cancel/Save. Repeated presses walk the stack
-  // backwards. Enter is skipped while focus is on a button (native
-  // click-activation already handles it there) so it doesn't double-fire.
+  // Esc cancels / Enter saves whichever open row currently has focus inside
+  // it (e.g. several rows are open and the user clicked back into an
+  // earlier one to keep editing) — same as clicking that row's own
+  // Cancel/Save. When focus isn't inside any open row (e.g. it's on the
+  // page body), falls back to the most recently opened row (LIFO), same as
+  // before. Repeated presses on the fallback path walk the stack backwards.
+  // Enter is skipped while focus is on a button (native click-activation
+  // already handles it there) so it doesn't double-fire.
   React.useEffect(() => {
     if (openOrder.length === 0) return;
 
     function handleKeyDown(event: KeyboardEvent) {
-      const activeKey = openOrder[openOrder.length - 1];
+      const activeKey =
+        focusedRowKey(openOrder) ?? openOrder[openOrder.length - 1];
       if (event.key === "Escape") {
         cancelEditing(fieldGroup(activeKey));
       } else if (
@@ -366,7 +392,7 @@ function MyProfileLayout() {
         />
 
         <div className="flex flex-col divide-y divide-border">
-          <div className="py-6">
+          <div className="py-6" ref={(el) => { rowRefs.current.name = el; }}>
             <SettingsDetailRow
               title="Your Name"
               value={fields.name.value}
@@ -415,7 +441,7 @@ function MyProfileLayout() {
             </SettingsDetailRow>
           </div>
 
-          <div className="py-6">
+          <div className="py-6" ref={(el) => { rowRefs.current.title = el; }}>
             <SettingsDetailRow
               title="Title"
               value={fields.title.value}
@@ -439,7 +465,7 @@ function MyProfileLayout() {
             </SettingsDetailRow>
           </div>
 
-          <div className="py-6">
+          <div className="py-6" ref={(el) => { rowRefs.current.email = el; }}>
             <SettingsDetailRow
               title="Email"
               value={fields.email.value}
@@ -473,7 +499,7 @@ function MyProfileLayout() {
             </SettingsDetailRow>
           </div>
 
-          <div className="py-6">
+          <div className="py-6" ref={(el) => { rowRefs.current.phone = el; }}>
             <SettingsDetailRow
               title="Phone number"
               value={fields.phone.value}
@@ -506,7 +532,7 @@ function MyProfileLayout() {
             </SettingsDetailRow>
           </div>
 
-          <div className="py-6">
+          <div className="py-6" ref={(el) => { rowRefs.current.whatsapp = el; }}>
             <SettingsDetailRow
               title="WhatsApp number"
               value={formatWhatsAppForDisplay(fields.whatsapp.value)}
@@ -560,7 +586,7 @@ function MyProfileLayout() {
             </SettingsDetailRow>
           </div>
 
-          <div className="py-6">
+          <div className="py-6" ref={(el) => { rowRefs.current.timeZone = el; }}>
             <SettingsDetailRow
               title="Time zone"
               value={fields.timeZone.value}
@@ -589,7 +615,7 @@ function MyProfileLayout() {
             </SettingsDetailRow>
           </div>
 
-          <div className="py-6">
+          <div className="py-6" ref={(el) => { rowRefs.current.language = el; }}>
             <SettingsDetailRow
               title="Preferred language"
               value={fields.language.value}

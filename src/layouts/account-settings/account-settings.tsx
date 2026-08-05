@@ -65,6 +65,7 @@ function AccountSettingsLayout({
       <SettingsHeader
         className="shrink-0"
         onClose={onClose}
+        title="Account Settings"
         mobileTitle={mobileTitle}
       />
       <div className="flex w-full flex-1 items-start overflow-y-auto">
