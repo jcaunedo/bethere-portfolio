@@ -8,11 +8,10 @@ type SidebarSettingsProps = React.ComponentProps<"nav"> & {
    * members, Billing, Notifications, Promo codes, Security, Integrations). */
   items: SidebarNavItem[];
   /**
-   * Controlled active item. When set, the rail always mirrors this value and
-   * never marks an item active on its own — for a routed consumer that derives
-   * it from the current path, so the highlight can't drift from the URL by
-   * clicking an item that doesn't navigate. Omit for the uncontrolled
-   * behavior below.
+   * Controlled active item. When set, the rail mirrors this value and never
+   * marks an item active on its own — so a consumer driving it from the current
+   * route can't have the highlight drift by clicking an item that doesn't
+   * navigate. Omit for the uncontrolled behavior below.
    */
   activeItem?: string;
   /**

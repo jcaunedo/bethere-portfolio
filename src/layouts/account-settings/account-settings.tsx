@@ -40,9 +40,8 @@ interface AccountSettingsLayoutProps {
   children?: React.ReactNode;
   /**
    * Settings sections to render in the rail. Defaults to `settingsMenuItems`.
-   * Each item carries either a `navigateTo` (forwarded to `onNavigate`) or its
-   * own `onClick`, so the consuming app owns routing and any other per-item
-   * action rather than inheriting this file's hardcoded routes.
+   * Each item carries a `navigateTo` (forwarded to `onNavigate`) or its own
+   * `onClick`, so the consuming app owns routing and any per-item action.
    */
   items?: SidebarNavItem[];
   /**
