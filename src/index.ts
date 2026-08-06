@@ -351,3 +351,28 @@ export {
 export { StepperOnboarding } from "./components/stepper/stepper-onboarding";
 
 export { StepperExperience } from "./components/stepper/stepper-experience";
+
+/* -------------------------------------------------------------------------- */
+/* Layouts                                                                    */
+/* -------------------------------------------------------------------------- */
+
+/*
+  Most `src/layouts/` compositions stay internal — they are structural
+  references for consumers to mirror. The Account Settings shells are the
+  exception: the settings section's chrome (header + rail, and its mobile menu
+  counterpart) is identical in every consuming app, so shipping it keeps one
+  implementation instead of a re-creation per app. Their nav is fully
+  parent-driven via `items`/`activeItem`/`onNavigate`, so nothing about the
+  consumer's routing is baked in here.
+*/
+
+export {
+  AccountSettingsLayout,
+  settingsMenuItems,
+  type AccountSettingsLayoutProps,
+} from "./layouts/account-settings/account-settings";
+
+export {
+  AccountSettingsMenuLayout,
+  type AccountSettingsMenuLayoutProps,
+} from "./layouts/account-settings/account-settings-menu";

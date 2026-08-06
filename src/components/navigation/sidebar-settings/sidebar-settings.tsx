@@ -8,10 +8,18 @@ type SidebarSettingsProps = React.ComponentProps<"nav"> & {
    * members, Billing, Notifications, Promo codes, Security, Integrations). */
   items: SidebarNavItem[];
   /**
+   * Controlled active item. When set, the rail always mirrors this value and
+   * never marks an item active on its own — for a routed consumer that derives
+   * it from the current path, so the highlight can't drift from the URL by
+   * clicking an item that doesn't navigate. Omit for the uncontrolled
+   * behavior below.
+   */
+  activeItem?: string;
+  /**
    * Which item is active on first render. Defaults to the first item, as in
    * Figma. The component owns the active state internally after that
    * (clicking a different item marks it active) — use `onNavigate` to react
-   * to clicks, e.g. to drive actual routing.
+   * to clicks, e.g. to drive actual routing. Ignored when `activeItem` is set.
    */
   defaultActiveItem?: string;
   /**
@@ -29,17 +37,24 @@ type SidebarSettingsProps = React.ComponentProps<"nav"> & {
  */
 function SidebarSettings({
   items,
+  activeItem,
   defaultActiveItem,
   onNavigate,
   className,
   ...props
 }: SidebarSettingsProps) {
-  const [activeItem, setActiveItem] = React.useState(
+  const [uncontrolledActiveItem, setUncontrolledActiveItem] = React.useState(
     defaultActiveItem ?? items[0]?.label,
   );
+  const isControlled = activeItem !== undefined;
+  const currentActiveItem = isControlled ? activeItem : uncontrolledActiveItem;
 
   const handleItemClick = (item: SidebarNavItem) => {
-    setActiveItem(item.label);
+    // Controlled: the consumer's value is the only source of truth, so a click
+    // that doesn't navigate must not move the highlight.
+    if (!isControlled) {
+      setUncontrolledActiveItem(item.label);
+    }
     if (item.onClick) {
       item.onClick();
     } else if (item.navigateTo) {
@@ -59,7 +74,7 @@ function SidebarSettings({
           icon={item.icon}
           label={item.label}
           count={item.count}
-          active={activeItem === item.label}
+          active={currentActiveItem === item.label}
           activeVariant="alt"
           onClick={() => handleItemClick(item)}
         />

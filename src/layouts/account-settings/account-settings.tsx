@@ -19,9 +19,10 @@ const SIDEBAR_WIDTH = 296;
 
 /**
  * The 8 Provider Portal settings sections (Figma `Sidebar Settings` /
- * `Account Settings Menu`). Exported so other layouts — e.g.
- * `AccountSettingsMenuLayout`, the mobile screen reached from the settings
- * back arrow — render the same list instead of maintaining a second copy.
+ * `Account Settings Menu`), used as the default for both settings layouts'
+ * `items` prop and exported so a consumer can start from it. Apps that own
+ * their own routing should pass their own list instead — these `navigateTo`
+ * values are the reference routes, not a contract.
  */
 const settingsMenuItems: SidebarNavItem[] = [
   { icon: CircleUserIcon, label: "My profile", navigateTo: "/settings/profile" },
@@ -37,7 +38,19 @@ const settingsMenuItems: SidebarNavItem[] = [
 interface AccountSettingsLayoutProps {
   /** Page content rendered in the Content area, to the right of the menu. */
   children?: React.ReactNode;
-  /** Which settings menu item is active. Defaults to the first item. */
+  /**
+   * Settings sections to render in the rail. Defaults to `settingsMenuItems`.
+   * Each item carries either a `navigateTo` (forwarded to `onNavigate`) or its
+   * own `onClick`, so the consuming app owns routing and any other per-item
+   * action rather than inheriting this file's hardcoded routes.
+   */
+  items?: SidebarNavItem[];
+  /**
+   * Which settings menu item is active, by label. Drives the rail's highlight
+   * as a *controlled* value — pass the section matching the current route and
+   * the highlight can never drift from it. Omit to let the rail track its own
+   * clicks (defaulting to the first item).
+   */
   activeItem?: string;
   /** Called when the header's close button is activated. */
   onClose?: () => void;
@@ -54,11 +67,12 @@ interface AccountSettingsLayoutProps {
  */
 function AccountSettingsLayout({
   children,
+  items = settingsMenuItems,
   activeItem,
   onClose,
   onNavigate,
 }: AccountSettingsLayoutProps) {
-  const mobileTitle = activeItem ?? settingsMenuItems[0]?.label;
+  const mobileTitle = activeItem ?? items[0]?.label;
 
   return (
     <div className="flex h-screen flex-col items-start overflow-hidden bg-card">
@@ -70,8 +84,8 @@ function AccountSettingsLayout({
       />
       <div className="flex w-full flex-1 items-start overflow-y-auto">
         <SidebarSettings
-          items={settingsMenuItems}
-          defaultActiveItem={activeItem}
+          items={items}
+          activeItem={activeItem}
           onNavigate={onNavigate}
           className="sticky top-0 hidden shrink-0 self-start md:flex"
           style={{ width: SIDEBAR_WIDTH }}

@@ -3,8 +3,15 @@ import * as React from "react";
 import { SettingsHeader } from "@/components/navigation/settings-header";
 import { NavigationListItem } from "@/components/navigation/navigation-list-item";
 import { settingsMenuItems } from "@/layouts/account-settings/account-settings";
+import type { SidebarNavItem } from "@/components/navigation/sidebar";
 
 interface AccountSettingsMenuLayoutProps {
+  /**
+   * Settings sections to list. Defaults to `settingsMenuItems`. Pass the same
+   * list given to `AccountSettingsLayout` so the mobile menu and the desktop
+   * rail can't diverge.
+   */
+  items?: SidebarNavItem[];
   /** Called when the header's back action is activated. */
   onClose?: () => void;
   /** Called with a settings menu item's `navigateTo` route when tapped. */
@@ -16,11 +23,11 @@ interface AccountSettingsMenuLayoutProps {
  * Menu`). The screen a mobile user lands on after tapping the settings
  * back arrow from a sub-page (e.g. `MyProfileLayout`) — the mobile
  * equivalent of the desktop `SidebarSettings` rail, which
- * `AccountSettingsLayout` hides below `md`. Renders the same
- * `settingsMenuItems` list as `SidebarSettings`, one `NavigationListItem`
- * row per section.
+ * `AccountSettingsLayout` hides below `md`. Renders one `NavigationListItem`
+ * row per section in `items`.
  */
 function AccountSettingsMenuLayout({
+  items = settingsMenuItems,
   onClose,
   onNavigate,
 }: AccountSettingsMenuLayoutProps) {
@@ -32,7 +39,7 @@ function AccountSettingsMenuLayout({
         title="Account Settings"
       />
       <div className="flex w-full flex-1 flex-col overflow-y-auto px-4 pt-6">
-        {settingsMenuItems.map((item) => (
+        {items.map((item) => (
           <NavigationListItem
             key={item.label}
             icon={item.icon}
