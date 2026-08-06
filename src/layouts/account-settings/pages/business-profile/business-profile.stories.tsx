@@ -1,0 +1,24 @@
+import type { Meta, StoryObj } from "@storybook/react-vite";
+
+import { BusinessProfileLayout } from "./business-profile";
+
+const meta: Meta<typeof BusinessProfileLayout> = {
+  title: "Layouts/AccountSettings/BusinessProfile",
+  component: BusinessProfileLayout,
+  tags: ["autodocs"],
+  parameters: {
+    layout: "fullscreen",
+  },
+};
+export default meta;
+type Story = StoryObj<typeof BusinessProfileLayout>;
+
+export const Default: Story = {};
+
+export const Pending: Story = {
+  args: {
+    name: "Brickell Bay Cafe",
+    badgeLabel: "Pending approval",
+    badgeColor: "yellow",
+  },
+};

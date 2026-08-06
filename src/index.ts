@@ -174,6 +174,19 @@ export {
   AvatarGroupCount,
 } from "./components/data-display/avatar";
 
+export {
+  AvatarFiles,
+  avatarFilesVariants,
+} from "./components/data-display/avatar-files";
+
+export { Badge, badgeVariants } from "./components/data-display/badge";
+
+export {
+  RowDocuments,
+  rowDocumentsVariants,
+  type RowDocumentsProps,
+} from "./components/data-display/row-documents";
+
 export { SelectBusinessSwitcher } from "./components/data-display/select-business-switcher";
 
 export { SelectAccountInfo } from "./components/data-display/select-account-info";
@@ -290,6 +303,14 @@ export {
   type NavigationListItemProps,
 } from "./components/navigation/navigation-list-item";
 
+export {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+  tabsTriggerVariants,
+} from "./components/navigation/tabs";
+
 /* -------------------------------------------------------------------------- */
 /* Cards                                                                      */
 /* -------------------------------------------------------------------------- */
@@ -299,6 +320,12 @@ export {
   cardAddListingCategoryVariants,
   type CardAddListingCategoryProps,
 } from "./components/cards/card-add-listing-category";
+
+export {
+  CardBusiness,
+  cardBusinessVariants,
+  type CardBusinessProps,
+} from "./components/cards/card-business";
 
 /* -------------------------------------------------------------------------- */
 /* Typography                                                                 */

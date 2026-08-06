@@ -18,6 +18,143 @@ self-evident from reading the code.
 
 ---
 
+## Global `cursor: pointer` on every clickable element (`src/styles/theme.css`)
+
+**Rule:** Every clickable/interactive element in UCL must show `cursor: pointer`
+on hover (and `cursor: not-allowed` when disabled) — this is enforced **once,
+globally**, not per-component. Don't add `cursor-pointer`/`hover:cursor-pointer`
+utility classes to individual components; the global `@layer base` rule
+already covers any real interactive element for free.
+
+```css
+@layer base {
+	button:not(:disabled),
+	[role="button"]:not([aria-disabled="true"]),
+	a[href],
+	label[for],
+	summary,
+	select,
+	[data-slot][role="checkbox"]:not([data-disabled]),
+	[data-slot][role="radio"]:not([data-disabled]),
+	[data-slot][role="switch"]:not([data-disabled]) {
+		cursor: pointer;
+	}
+
+	button:disabled,
+	[role="button"][aria-disabled="true"],
+	select:disabled {
+		cursor: not-allowed;
+	}
+}
+```
+
+**Why:** Tailwind v4's preflight sets `cursor: default` on `<button>` — a
+deliberate change from v3's `cursor: pointer` default. Left alone, every new
+component built against v4 would render non-pointer cursors on obviously
+clickable controls unless someone remembered to hand-roll `cursor-pointer` on
+each one (which is exactly what several individual components — `Input`,
+`Select`, `Combobox` — did before this rule existed, each with slightly
+different disabled-state handling). Centralizing it once removes that
+per-component guesswork and keeps the affordance consistent app-wide.
+
+**How to apply:**
+
+- **New components using a real interactive element or role** (`<button>`,
+  `<a href>`, `<select>`, `role="button"`/`"checkbox"`/`"radio"`/`"switch"`)
+  get the pointer cursor automatically — do not add a redundant
+  `cursor-pointer` class.
+- **Custom non-native interactive elements** (a `<div>` acting as a button,
+  for instance) must carry `role="button"` (and `aria-disabled="true"` when
+  disabled) to match the selector list above — a bare clickable `<div>` with
+  only an `onClick` handler and no role will NOT get the pointer cursor from
+  this rule.
+- **If a new interactive role/pattern is added to the library** (e.g. a new
+  Radix primitive with its own trigger role) and it doesn't match any
+  selector above, extend the shared selector list in `theme.css` rather than
+  patching `cursor-pointer` onto that one new component.
+
+---
+
+## Heading element → `Typography` `size` pairing (`src/components/typography/typography.tsx`)
+
+**Rule:** `Typography`'s `as` (semantic element) and `size` (visual scale)
+are independent props — `as="h1"` alone does not imply any particular
+`size`. When a page heading uses a semantic heading element, pair it with
+the matching `size`/`weight` below rather than picking a size by eye:
+
+- `h1` → `size="2xl" weight="semibold"` (24px/32px line-height, `font-display`).
+  Confirmed against Figma (`get_variable_defs` on the Business Profile page's
+  business-name header, bethere.ds `font-size/2xl` + `font-weight/semibold`,
+  no letter-spacing override). Also the size used for plain page titles
+  (e.g. `BusinessProfilesLayout`'s "Business profiles" heading) — both a
+  page title and an entity-name header (like the business-name case above)
+  are `h1`-level and share this pairing.
+- `h2` → `size="lg" weight="semibold"`. Not yet independently confirmed
+  against a Figma binding in this codebase — re-verify with
+  `get_variable_defs` on an actual `h2`-level Figma node before treating
+  this as load-bearing the way the `h1` pairing is.
+
+**Why:** `src/layouts/account-settings/pages/business-profile/
+business-profile.tsx`'s business-name header was first built against a
+stale Figma pull as `as="h1" size="3xl"` with a `tracking-[0.3px]`
+override. A later Figma revision moved the bound style to `font-size/2xl`
+(no letter-spacing), and the component was corrected to `size="2xl"` with
+the tracking override removed. `3xl` is a plausible-looking size for an
+`<h1>` in isolation — this pairing exists so the next `h1` doesn't
+re-introduce that same "reasonable-looking but not what Figma actually
+binds" guess.
+
+**How to apply:** Any new page-level `h1`/`h2` in `src/layouts/**` should
+default to this pairing. If a specific Figma frame binds a heading node to
+a different size/weight, that Figma value wins for that instance — but
+don't invent a size for a heading element without checking, since `3xl`
+looked equally plausible here and was wrong.
+
+---
+
+## `SettingsDetailRow` reuse across account-settings pages (`src/components/forms/settings-detail-row/settings-detail-row.tsx`)
+
+**Rule:** `SettingsDetailRow` (title + value/placeholder + trailing text
+action that expands into an inline edit form) is the one reusable row
+component for **every** field-like row across `src/layouts/account-settings/
+pages/*` — not just `my-profile`. When a new settings page (e.g. Business
+Profile) shows a row shaped like "bold title, value below, trailing text
+action," reuse `SettingsDetailRow` rather than building a page-specific row
+component, even if that page's Figma frame doesn't show an explicit
+`Property 1=Edit` state to design the expanded form against.
+
+- `editLabel`/`addLabel` are per-row, not fixed to "Edit"/"Add" — e.g.
+  Business Profile's "Owner" row uses `editLabel="Transfer ownership"`, its
+  "Primary contact" row uses `addLabel="Add primary contact"`.
+- **Not every row needs an expand-to-edit-form.** Rows whose action clearly
+  starts a *different* flow rather than editing a scalar value in place —
+  Business Profile's Owner ("Transfer ownership"), Primary contact ("Add
+  primary contact"), Phone numbers ("Add phone number", plural → a list, not
+  a single value) — should NOT be forced into `SettingsDetailRow`'s
+  expand/edit-form shape. Render those as a plain row with an `onClick`
+  callback stub (same pattern as `BusinessProfilesLayout`'s
+  `onAddBusiness`/`onSelectBusiness`) until the real flow (a modal, a picker,
+  a list manager) has its own Figma design to build against. Don't invent an
+  inline single-text-input edit form for these just to force-fit
+  `SettingsDetailRow` — that would be UI with no design source.
+
+**Why:** The alternative (building a new lightweight row component per page)
+was considered and rejected — `SettingsDetailRow`'s title/value/action shape
+already matches what every account-settings page's Figma frames show, so a
+second row component would just duplicate it with a slightly different prop
+API for no visual difference. But blindly reusing its expand/edit-form
+behavior for rows that are actually navigation-to-another-flow (not a scalar
+edit) would invent UI Figma never specified.
+
+**How to apply:** For any new `src/layouts/account-settings/pages/*` page,
+default to `SettingsDetailRow` for scalar-value rows (text, a single
+picked value) and a plain stubbed-`onClick` row for rows that read as
+"start a different flow" — check the row's Figma action label for a verb
+that implies navigation/a picker/a list (Transfer, Add X, Manage, Choose…)
+vs. a value-in-place edit (Edit, Save) as the signal for which shape to use.
+
+---
+
 ## `Select` — `SelectContent` positioning (`src/components/forms/select/select.tsx`)
 
 **Rule:** `SelectContent` must always render **covering** its `SelectTrigger`
@@ -57,6 +194,34 @@ Other load-bearing details on this same component:
   rather than using Radix's computed `origin-(--radix-select-content-transform-origin)`,
   which follows `align` and would scale the zoom animation from top-left
   instead of top-center when `align="start"`.
+
+---
+
+## `--state-hover` token (`src/styles/theme.css`)
+
+**Rule:** `--state-hover` (`#3a342808` — sand-900 at ~3% alpha, exposed as
+the `bg-state-hover` Tailwind utility) is the bethere.ds design-system token
+`color/states/hover`, pulled directly from Figma's `get_variable_defs` on a
+component with a defined `Property 1=Hover` variant. It is deliberately this
+subtle — don't swap it for a stronger/opaque tint (e.g. `bg-accent`,
+`bg-muted`) to make hover "more visible."
+
+**Why:** The first pass at `CardBusiness`'s hover state
+(`src/components/cards/card-business/card-business.tsx`) had no `Hover`
+variant to check against in Figma yet, so it borrowed `hover:bg-accent` from
+Button's outline-variant pattern as the closest existing precedent. Once
+Figma's `card-business` component gained a real `Property 1=Hover` variant,
+`get_variable_defs` showed the actual bound value is `color/states/hover`
+(`rgba(58,52,40,0.03)`) — much subtler than `--accent` (a flat
+`neutral-100`). The borrowed value was corrected to the real token.
+
+**How to apply:** Any component adding a background-tint hover state should
+reach for `bg-state-hover` by default rather than `bg-accent`/`bg-muted`,
+unless a specific Figma variant for that component binds to a different
+token. If a component's hover was implemented before its Figma source had a
+`Hover` variant (i.e. it was a reasonable guess at the time), re-check it
+against `get_variable_defs` once Figma adds one — don't assume the guess was
+already correct.
 
 ---
 

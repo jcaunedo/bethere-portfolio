@@ -136,6 +136,9 @@
 	--color-state-highlight: var(--state-highlight);
 	--color-state-disabled: var(--state-disabled);
 
+	/* ---------- Table colors ---------- */
+	--color-table-header: var(--table-header);
+
 	/* ---------- Sidebar colors ---------- */
 	--color-sidebar-background: var(--sidebar-background);
 	--color-sidebar-foreground: var(--sidebar-foreground);
@@ -246,6 +249,30 @@
 	--color-destructive-800: var(--destructive-800);
 	--color-destructive-900: var(--destructive-900);
 	--color-destructive-950: var(--destructive-950);
+
+	/* ---------- Badge tints (Figma `badge` component, color/badge/*) ----------
+	   Soft bg/fg pairs for the Badge component's `color` variant. gray/red alias
+	   the existing neutral/destructive roles; the other 8 have no prior token. */
+	--color-badge-gray-bg: var(--badge-gray-bg);
+	--color-badge-gray-fg: var(--badge-gray-fg);
+	--color-badge-red-bg: var(--badge-red-bg);
+	--color-badge-red-fg: var(--badge-red-fg);
+	--color-badge-yellow-bg: var(--badge-yellow-bg);
+	--color-badge-yellow-fg: var(--badge-yellow-fg);
+	--color-badge-green-bg: var(--badge-green-bg);
+	--color-badge-green-fg: var(--badge-green-fg);
+	--color-badge-blue-bg: var(--badge-blue-bg);
+	--color-badge-blue-fg: var(--badge-blue-fg);
+	--color-badge-purple-bg: var(--badge-purple-bg);
+	--color-badge-purple-fg: var(--badge-purple-fg);
+	--color-badge-violet-bg: var(--badge-violet-bg);
+	--color-badge-violet-fg: var(--badge-violet-fg);
+	--color-badge-pink-bg: var(--badge-pink-bg);
+	--color-badge-pink-fg: var(--badge-pink-fg);
+	--color-badge-orange-bg: var(--badge-orange-bg);
+	--color-badge-orange-fg: var(--badge-orange-fg);
+	--color-badge-amber-bg: var(--badge-amber-bg);
+	--color-badge-amber-fg: var(--badge-amber-fg);
 
 	/* ---------- Font sizes (paired line-heights) ---------- */
 	--text-xxs: 0.6875rem; /* 11px */
@@ -565,6 +592,14 @@
 	--state-highlight: #fff9e114;
 	--state-disabled: var(--neutral-100);
 
+	/* ---------- Table colors ----------
+	   table-header (Figma `table-card` header row fill) — unbound raw hex in
+	   Figma, no variable/token attached; doesn't match any existing neutral
+	   scale step exactly (neutral-50 #f5f6f7, sand-50 #f9f8f5 are close but
+	   not equal). Recorded as its own token since it's a real recurring
+	   surface (every document-group table's header row). */
+	--table-header: #f9fafa;
+
 	/* ---------- Gradients ----------
      gradient-1 (Figma paint style `gradient-1`): top→bottom brand coral.
      Stop 0 = --primary / sunset-500 (#f26740); stop 1 = #ffa47d, a light coral
@@ -573,6 +608,30 @@
      version is duplicated as an inline <linearGradient id="bethere-gradient-1">
      in card-add-listing-category.tsx; keep its stops in sync with these. */
 	--gradient-1: linear-gradient(180deg, var(--sunset-500) 0%, #ffa47d 100%);
+
+	/* ---------- Badge tints (Figma `badge` component, color/badge/*) ----------
+	   gray/red alias existing roles; the other 8 are raw hex — Figma binds no
+	   primitive/semantic variable to these fills, only the component-local paint. */
+	--badge-gray-bg: #f3f4f6; /* Figma component-local paint — no primitive scale step matches exactly (neutral-100 is #f0f2f5) */
+	--badge-gray-fg: var(--neutral-800); /* Figma binds text to neutral/neutral-800 (#222a34) */
+	--badge-red-bg: #fae3e3;
+	--badge-red-fg: var(--destructive-600); /* Figma binds text to colors/alerts/destructive (#cc0000) */
+	--badge-yellow-bg: #fff4c7;
+	--badge-yellow-fg: #9c452d;
+	--badge-green-bg: #e3fbe8;
+	--badge-green-fg: #37803f;
+	--badge-blue-bg: #deeafd;
+	--badge-blue-fg: #1175f0;
+	--badge-purple-bg: #e2e7fd;
+	--badge-purple-fg: #5448f3;
+	--badge-violet-bg: #f1e9fd;
+	--badge-violet-fg: #751ed2;
+	--badge-pink-bg: #f8e8f3;
+	--badge-pink-fg: #bb346e;
+	--badge-orange-bg: #ffe6db;
+	--badge-orange-fg: #f74b00;
+	--badge-amber-bg: #f7ead3;
+	--badge-amber-fg: #e07400;
 
 	/* Sidebar — background/primary/accent/border still derived from neutral/sand
 	   (not explicit DS tokens); foreground + icon-foreground are real DS values
@@ -643,6 +702,10 @@
 	--input-fill-read-only: var(--sand-800);
 	--state-disabled: var(--sand-800);
 
+	/* Not defined in Figma (single mode) — carried over unchanged from :root
+	   as a placeholder, same as other extended tokens above. */
+	--table-header: var(--sand-800);
+
 	--sidebar-background: var(--sand-900);
 	--sidebar-foreground: var(--neutral-50);
 	--sidebar-icon-foreground: var(--neutral-50);
@@ -652,6 +715,29 @@
 	--sidebar-accent-foreground: var(--neutral-50);
 	--sidebar-border: var(--sand-800);
 	--sidebar-ring: var(--sunset-500);
+
+	/* Badge tints — not defined in Figma (single mode); carried over unchanged
+	   from :root as a placeholder, same as other extended tokens above. */
+	--badge-gray-bg: #f3f4f6;
+	--badge-gray-fg: var(--neutral-800);
+	--badge-red-bg: #fae3e3;
+	--badge-red-fg: var(--destructive-600);
+	--badge-yellow-bg: #fff4c7;
+	--badge-yellow-fg: #9c452d;
+	--badge-green-bg: #e3fbe8;
+	--badge-green-fg: #37803f;
+	--badge-blue-bg: #deeafd;
+	--badge-blue-fg: #1175f0;
+	--badge-purple-bg: #e2e7fd;
+	--badge-purple-fg: #5448f3;
+	--badge-violet-bg: #f1e9fd;
+	--badge-violet-fg: #751ed2;
+	--badge-pink-bg: #f8e8f3;
+	--badge-pink-fg: #bb346e;
+	--badge-orange-bg: #ffe6db;
+	--badge-orange-fg: #f74b00;
+	--badge-amber-bg: #f7ead3;
+	--badge-amber-fg: #e07400;
 }
 
 /* ---------- Global interaction affordance ----------
