@@ -1,3 +1,9 @@
+<!--
+Created: Jun 19, 2026
+Created by: Julio Caunedo
+Last updated: Jul 02, 2026
+-->
+
 # Other — Experience Flow
 
 > See [master-flow.md](master-flow.md) for Step 2 (category picker) and [../master-flow.md](../master-flow.md) for Step 1 and structural principles. See [yacht-charter.md](yacht-charter.md) as the reference implementation for how a category flow should be structured.

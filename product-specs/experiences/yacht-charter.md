@@ -1,3 +1,9 @@
+<!--
+Created: Jun 19, 2026
+Created by: Julio Caunedo
+Last updated: Jul 02, 2026
+-->
+
 # Yacht Charter — Experience Flow
 
 > See [master-flow.md](master-flow.md) for Step 2 (Experience Category) and [../master-flow.md](../master-flow.md) for Step 1 (Listing Type) and the structural principles referenced below.

@@ -1,5 +1,7 @@
 <!--
-Created: 2026-08-07x
+Created: Aug 07, 2026
+Created by: Julio Caunedo
+Last updated: Aug 07, 2026
 -->
 
 # Required Documentation — Business & Listing Verification

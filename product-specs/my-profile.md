@@ -1,3 +1,9 @@
+<!--
+Created: Aug 04, 2026
+Created by: Julio Caunedo
+Last updated: Aug 09, 2026
+-->
+
 # My Profile — Provider Portal
 
 **Location:** Settings → My Profile (`AccountSettingsLayout`'s default/first content page)
@@ -12,7 +18,7 @@
 
 My Profile is a single-column stack of fields, each rendered as a `SettingsDetailRow`: a **collapsed** read-only line (title + current value, or an empty-state placeholder) that **expands in place** into an edit form when activated. This is an accordion-style "click a row, edit it, save it, it collapses back" pattern — not a single big form with one Save button for the whole page.
 
-A `ProfileHeader` sits above the field stack: avatar (with an edit-photo affordance), name, role badge, and email — a read-only summary, not itself editable from this component (avatar edit is a separate `onEditAvatar` callback, wired to nothing in this reference layout yet — ⚠️ gap, see [Implementation notes](#implementation-notes)).
+A `ProfileHeader` sits above the field stack: avatar (with an edit-photo affordance), name, role badge, and email — a read-only summary, not itself editable from this component (avatar edit is a separate `onEditAvatar` callback, wired to nothing in this reference layout yet — ⚠️ **Gap:** see [Implementation notes](#implementation-notes)).
 
 ---
 

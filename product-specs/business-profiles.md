@@ -1,9 +1,7 @@
 <!--
-Created: 2026-08-05
-Prompt: "Compile all the relevant design rational and decisions made here, building these setting pages
-as the starting point to generate a PRD, create a new specs files for this" — Julio asked for the
-Business Profiles / Business Profile pages (and the design-system components built to support them)
-to be written up as a product spec, following the product-specs/ convention established by my-profile.md.
+Created: Aug 05, 2026
+Created by: Julio Caunedo
+Last updated: Aug 06, 2026
 -->
 
 # Business Profiles — Provider Portal

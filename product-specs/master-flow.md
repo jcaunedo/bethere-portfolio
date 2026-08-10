@@ -1,3 +1,9 @@
+<!--
+Created: Jun 19, 2026
+Created by: Julio Caunedo
+Last updated: Jul 02, 2026
+-->
+
 # Master Flow — Provider Onboarding
 
 This reflects the current Figma design (Provider Portal, "New Experience" page, [link](https://www.figma.com/design/WcuVufMxyCvkEJ2BuxPpX6/Provider-Portal?node-id=72-832)), a linear wizard. It supersedes the original category-tree plan — see "Open Items" for what's changed and what's still missing.

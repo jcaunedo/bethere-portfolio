@@ -1,3 +1,9 @@
+<!--
+Created: Jun 26, 2026
+Created by: Julio Caunedo
+Last updated: Jul 07, 2026
+-->
+
 # Control Size Scale
 
 **Applies to:** buttons, inputs, selects, search inputs, numeric inputs — and future controls: pills, button groups, toggles, segmented controls.

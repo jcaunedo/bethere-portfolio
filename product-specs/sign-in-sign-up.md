@@ -1,3 +1,9 @@
+<!--
+Created: Jul 02, 2026
+Created by: Julio Caunedo
+Last updated: Aug 09, 2026
+-->
+
 # Sign In / Sign Up — Provider Portal
 
 **Location:** Entry point, unauthenticated (`/` before auth, replaces current `/login` + `/signup`)
@@ -128,5 +134,5 @@ An OTP code is more reliable because the email client can scan the message witho
 
 ## Implementation notes
 
-- ⚠️ The "check email" endpoint needs to return which provider (if any) a social-sign-in-linked account uses, so step 2b can show provider-specific copy instead of the generic fallback.
+- ⚠️ **Gap:** the "check email" endpoint needs to return which provider (if any) a social-sign-in-linked account uses, so step 2b can show provider-specific copy instead of the generic fallback.
 - ⚠️ **Gap vs. current implementation** — this flow is being built new in `provider-portal`, not adapted from `hotel-portal`'s auth. `hotel-portal` today has separate `/login` and `/signup` routes, no SSO, and signup collects first/last name + password + confirm-password up front (`SignupForm.tsx`, `GlobalUserLoginForm.tsx`) — useful as a reference for what to avoid, not a starting point. Building this flow in `provider-portal` means no standalone signup route, SSO provider integration, and the branching state machine described above — including collecting the password only _after_ OTP verification (`3E`) instead of up front.

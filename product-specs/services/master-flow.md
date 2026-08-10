@@ -1,3 +1,9 @@
+<!--
+Created: Jun 19, 2026
+Created by: Julio Caunedo
+Last updated: Jul 02, 2026
+-->
+
 # Service — Category Flow
 
 > See [../master-flow.md](../master-flow.md) for Step 1 (Listing Type) and the master flow principles. See [../experience/yacht-charter.md](../experience/yacht-charter.md) as a reference for how a fully-designed category flow is structured (the Service branch should follow an analogous pattern, adapted per the differences below).

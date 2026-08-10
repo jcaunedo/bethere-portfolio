@@ -1,14 +1,18 @@
 <!--
-Created: 2026-08-05
-Prompt: "where it can be locally on the repo, that is not DESIGN.md file, in case I work in another computer?" —
-Julio asked where the spec status-label convention (previously tracked only in Claude memory) should
-live in the repo so it's available on any machine, not just via local Claude memory.
-product-specs/CONVENTIONS.md
+Created: Aug 05, 2026
+Created by: Julio Caunedo
+Last updated: Aug 09, 2026
+
+Scope: Writing rules for every spec doc under product-specs/ — not a product spec itself, and no
+product content belongs here.
+
+Purpose: Keep spec docs consistent and scannable across the whole folder, regardless of which spec
+or which session wrote them, by defining shared conventions once instead of re-deriving them per file.
 -->
 
-# product-specs/ — Writing Conventions
+# product-specs/ — Conventions
 
-Conventions for how spec docs in this folder are written. Not a product spec itself — no product content belongs here.
+Writing conventions for every spec doc under `product-specs/`. Not a product spec itself — no product content belongs here.
 
 ## Status labels
 
@@ -30,6 +34,20 @@ Examples:
 
 **Why:** specs need to be scannable for status at a glance. The emoji alone isn't enough — the word names the status so a reader isn't relying on color/icon recognition alone, and isn't misled into treating framing text as an open risk (or vice versa).
 
-## Initial-prompt header
+## Creation header
 
-New documentation files in this folder should open with an HTML comment block recording the creation date and the prompt that triggered the file, in the format used at the top of this file.
+New documentation files in this folder should open with an HTML comment block recording the creation date, who created it, and the last-updated date — no prompt/source quote. Update `Last updated:` whenever the file's content changes:
+
+```html
+<!--
+Created: Aug 09, 2026
+Created by: Julio Caunedo
+Last updated: Aug 09, 2026
+
+Scope: one or two lines on which spec doc(s) this file governs.
+
+Purpose: one or two lines on why the file exists.
+-->
+```
+
+This file's own header (above) follows this exact pattern — use it as the reference example.

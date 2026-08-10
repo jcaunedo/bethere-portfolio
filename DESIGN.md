@@ -18,6 +18,145 @@ self-evident from reading the code.
 
 ---
 
+## Design quality bar — consumer and internal products are equal
+
+**Rule:** Every Bethere product is designed to be intuitive, efficient, and
+human by default. This standard applies equally to consumer experiences and
+internal operational tools. Internal systems are not treated as secondary
+products — they meet the same bar for clarity, usability, and design quality
+as customer-facing experiences.
+
+**Why:** The principle is simple: every Bethere product must be human, fast,
+and trustworthy. That applies equally to guests, providers, hotel teams, and
+internal operators. It's easy to unconsciously treat internal/operational
+tools as lower priority since they have no external audience — this rule
+exists so that assumption doesn't quietly lower the bar for account-settings,
+provider-portal, or other internal-facing UCL consumers.
+
+**How to apply:** Don't reach for a lower-effort pattern (skipping states,
+skipping motion, skipping copy quality) just because a screen is
+internal-only. See "Brand voice" below for how tone specifically — not the
+overall quality bar — differs between consumer and internal/transactional
+contexts.
+
+---
+
+## Brand voice — copy tone across UCL-consuming apps
+
+**Rule:** Bethere is a city planner, not a trip planner. Guest-facing,
+discovery-oriented copy across UCL-consuming apps should read like a close
+friend who lives in the city guiding the user through it — someone who knows
+the user and is choosing/suggesting things matched to their mood,
+personality, and the moment they're in — not a booking-engine or
+travel-platform voice. See [product-specs/concierge/homepage.md](product-specs/concierge/homepage.md)
+for this voice applied to a specific page.
+
+**Voice varies by degree of casualness, not by underlying personality.** The
+voice stays warm, personal, and conversational across all of Bethere — what
+changes across a user's journey is how casual it gets, driven by context and
+commitment (how close the moment is to money changing hands), not a switch
+between two unrelated voices. **The key rule: casual should never become
+careless.** Avoid slang, gimmicky phrasing, excessive enthusiasm, or language
+that makes a high-value purchase feel less credible.
+
+Four stages, one funnel:
+
+| Stage | Tone |
+| --- | --- |
+| **Discover** | Conversational — see discovery voice principles and "what to avoid" below. |
+| **Evaluate** | Informative — still warm, but the job is helping the user judge whether this is right for them (details, specifics, honest framing), not just charming them. |
+| **Book** | Confident and precise — trust and money are on the line; ambiguity here is a liability, not a personality trait. |
+| **Manage** (post-booking, account, settings) | Clear and reassuring — the user needs to know things are handled correctly. |
+
+This gives Bethere one recognizable personality end-to-end, while letting
+the experience feel appropriately premium exactly when trust and money
+matter most. Internal, transactional, financial, and operational flows (e.g.
+account settings, provider portal, payments, confirmations, error states)
+map onto the **Book**/**Manage** end of this same spectrum — they are not a
+separate, unrelated register, just the more precise/reassuring end of the
+same voice.
+
+Discovery voice principles:
+
+- **Approachable.** Reads like a text from a friend, not a notification from an app.
+- **Friendly.** Warm by default — never cold, clinical, or transactional.
+- **Close/personal.** Speaks as if it knows the user, not as if it's addressing a general audience.
+- **Conversational.** Sentences, not labels. Questions and offers, not category names.
+
+What to avoid in discovery copy — it must never fall back to standard/
+traditional UI-label language. Generic, category-style headings read as a
+booking platform, not a local friend:
+
+- "Most Popular"
+- "Top Rated"
+- "Recommended For You" (as a flat label)
+- "Categories"
+- "Explore"
+
+If a discovery heading or button label could be swapped onto any generic
+travel/booking site without sounding out of place, it's too generic —
+rewrite it as something only a person (not a system) would say. This
+"generic-swap" test does not apply to internal/transactional copy, which is
+expected to be plain and unambiguous rather than personality-forward.
+
+**Exception: evocative/descriptive copy is allowed when the card's job is to
+sell the feeling of an experience, not state a neutral fact.** The
+generic-swap test is aimed at *structural* UI language (section headings,
+button labels, category chips) reading like a booking platform. It is not a
+ban on any phrase a travel site might also plausibly use — a friend
+recommending a trip talks like this too. Example: a Concierge "Let's get out
+of town" day-trip card for Key West uses `A scenic 85-mile drive` rather
+than a flatter `85 miles away, along the coast`. The flatter version reads
+more neutral/technical; the chosen version describes the *experience* of the
+drive, which is what the card exists to sell — see
+[product-specs/concierge/card-content.md](product-specs/concierge/card-content.md)
+("Let's get out of town" distance copy) for the fuller reasoning and the
+other three day-trip cards it sits alongside. Don't use this exception to
+justify generic filler ("Amazing views await!") — it applies specifically to
+description-style copy on cards actively pitching an experience, not to
+navigation, headings, or system labels, which the generic-swap test still
+governs at full strength.
+
+**Why:** The recommended venue could be a luxury spot or a very local,
+standard place — the specific venue isn't the point. The point is that
+Bethere, as a local friend, knows which one is right for the user in this
+moment. That extends to places being genuine hidden gems, known mainly to
+locals rather than pulled from a tourist-oriented "top places" list — a
+friend who lives in the city recommends the spot they'd actually take you
+to, not just whatever ranks highest for visitors. Generic labels ("Most
+Popular", "Categories") undercut that positioning by reading as a system
+sorting inventory rather than a friend making a recommendation. Book and
+Manage carry the opposite risk: ambiguity or cuteness in a payment, error, or
+confirmation message erodes trust rather than building warmth, so those
+stages favor precision and reassurance first — see "Design quality bar"
+above for why those flows still can't be treated as lower-effort overall.
+The Discover → Evaluate → Book → Manage progression is also the answer to
+formality/price-tier: casualness tapers as the user gets closer to
+committing money, regardless of whether the item itself is a $40 dinner
+reservation or a $4,000 yacht charter — it's the stage, not the price tag,
+that sets the register.
+
+**How to apply:**
+
+- Concrete examples of the Discover-stage voice applied to real headline
+  decisions live in [product-specs/concierge/homepage.md](product-specs/concierge/homepage.md)
+  (e.g. "A few things I think you'll like." instead of "Recommended," "Let's
+  pick a neighborhood." instead of "Locations").
+- When writing new Discover-stage copy: draft the generic/functional version
+  first (what a standard site would say), then rewrite it as something a
+  knowledgeable local friend would actually say out loud, then check it
+  against the "what to avoid" list above.
+- When writing Evaluate/Book/Manage copy (including internal/transactional/
+  financial flows): prioritize the tone in the table above — informative,
+  then confident-and-precise, then clear-and-reassuring — over the Discover
+  "what to avoid" list, which doesn't apply verbatim past Discover (e.g. a
+  settings page section or a booking confirmation can be plainly labeled
+  where a Discover-stage heading cannot). Still check the result isn't cold,
+  slangy, or gimmicky — the personality doesn't disappear, it just gets more
+  precise.
+
+---
+
 ## Global `cursor: pointer` on every clickable element (`src/styles/theme.css`)
 
 **Rule:** Every clickable/interactive element in UCL must show `cursor: pointer`
