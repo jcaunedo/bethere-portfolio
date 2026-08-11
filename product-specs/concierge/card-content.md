@@ -1,7 +1,7 @@
 <!--
 Created: Aug 09, 2026
 Created by: Julio Caunedo
-Last updated: Aug 09, 2026
+Last updated: Aug 10, 2026
 -->
 
 # Experience Card Content Rendering
@@ -69,24 +69,31 @@ $1,200 · ★ 4.9
 
 ✅ **Resolved:** The first metadata row is contextual. It should combine the most useful location label with the secondary fact that helps the guest decide fastest. Do not force distance onto every card when duration is more informative.
 
-| Experience shape           | Location label                | Secondary detail          | Example                     |
-| -------------------------- | ----------------------------- | ------------------------- | --------------------------- |
-| Place-based experience     | Neighborhood                  | Category or activity type | `Wynwood · Art gallery`     |
-| Hotel pool / day pass      | Neighborhood                  | Access or venue type      | `Coral Gables · Hotel pool` |
-| Time-bound experience      | Neighborhood                  | Duration                  | `Little Havana · 2.5 hrs`   |
-| Restaurant / food & drink  | Cuisine or food type          | Neighborhood              | `Cuban · Little Havana`     |
-| Tour or class              | Neighborhood or meeting area  | Duration                  | `Little Havana · 2.5 hrs`   |
-| Charter or private booking | Departure or meeting location | Duration                  | `Key Biscayne · 4 hrs`      |
+✅ **Resolved: two named row patterns.** The contextual row always renders as one of exactly two patterns, chosen by experience shape:
+
+| Pattern                   | Used by                                                                                                                                                                                | Example                                                                                                  |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `Type · Neighborhood`     | Restaurant / food & drink (cuisine or food type leads)                                                                                                                                | `Cuban · Little Havana`                                                                                  |
+| `Neighborhood · Duration` | Every other shape (Place-based, Hotel pool / day pass, Time-bound, Tour or class, Charter or private booking) — "Duration" generalizes to duration, category/activity type, or access/venue type, whichever the shape uses | `Little Havana · 2.5 hrs`, `Wynwood · Art gallery`, `Coral Gables · Hotel pool`, `Key Biscayne · 4 hrs` |
+
+| Experience shape           | Pattern                   | Location label                | Secondary detail          | Example                     |
+| --------------------------- | --------------------------- | ------------------------------ | -------------------------- | ---------------------------- |
+| Place-based experience     | `Neighborhood · Duration` | Neighborhood                  | Category or activity type | `Wynwood · Art gallery`     |
+| Hotel pool / day pass      | `Neighborhood · Duration` | Neighborhood                  | Access or venue type      | `Coral Gables · Hotel pool` |
+| Time-bound experience      | `Neighborhood · Duration` | Neighborhood                  | Duration                  | `Little Havana · 2.5 hrs`   |
+| Restaurant / food & drink  | `Type · Neighborhood`     | Cuisine or food type          | Neighborhood               | `Cuban · Little Havana`     |
+| Tour or class              | `Neighborhood · Duration` | Neighborhood or meeting area  | Duration                  | `Little Havana · 2.5 hrs`   |
+| Charter or private booking | `Neighborhood · Duration` | Departure or meeting location | Duration                  | `Key Biscayne · 4 hrs`      |
 
 Use the most guest-recognizable location label available: neighborhood for general discovery, meeting area for a tour or class when more useful, and departure/boarding area for a charter. Cards should not expose a precise street address by default.
 
-✅ **Resolved (design rationale): Restaurant's type-first order is a deliberate exception, not an inconsistency to fix.** Every row leads with location except Restaurant / food & drink, which leads with cuisine. This was questioned — should Place-based (`Neighborhood · Category`, e.g. `Design District · Art museum`) flip to match Restaurant's `Type · Neighborhood` order for consistency? Decision: **no, keep both as they are.**
+✅ **Resolved (design rationale): duration stays on the contextual row, not the price row.** Context should come before price and rating (see Content Hierarchy above). Duration on the contextual row isn't there as a scheduling detail — it's there as the fact that disambiguates what kind of experience this is and how it fits your day, right alongside where it happens. Moving it to the price row would bury that signal behind the price, which works against the funnel the spec is explicit about (Discover → Evaluate → Book, where evaluate happens before commerce is even parsed). Duplicating duration on both rows was also considered and rejected: it adds visual noise for zero new information, conflicting with the "do not turn the card into a full attribute summary" rendering rule. Duration belongs on exactly one row, and that row is contextual, not commercial.
 
-The reasoning: each row leads with whichever fact most changes the guest's decision, not with whichever fact is positionally consistent across rows. For food, the question a guest is usually resolving is "what am I in the mood to eat?" — cuisine is the primary axis of choice, and a guest will often travel further for the right cuisine than pick a mediocre match because it's close. Restaurant earns its type-first order because of that. For a place-based venue (a museum, a shopping center), the type is usually already legible from the title and image — "ICA Miami" next to a gallery photo doesn't need "Art museum" to lead in order to be understood — but _where_ it sits relative to neighborhoods the guest already cares about is the thing the title can't convey. That's also why Tour, Charter, and Time-bound rows all lead with location: consistent with Place-based, not with Restaurant.
+✅ **Resolved (design rationale): why Restaurant is `Type · Neighborhood` while everything else is `Neighborhood · Duration`.** Each pattern leads with whichever fact most changes the guest's decision for that shape, not with positional sameness across shapes. For food, the question a guest is usually resolving is "what am I in the mood to eat?" — cuisine is the primary axis of choice, and a guest will often travel further for the right cuisine than pick a mediocre match because it's close. Restaurant earns its type-first order because of that. For every other shape (a museum, a shopping center, a tour, a charter, a hotel pool), the type is usually already legible from the title and image — "ICA Miami" next to a gallery photo doesn't need "Art museum" to lead in order to be understood — but _where_ it sits relative to neighborhoods the guest already cares about, or _how long_ it takes, is the thing the title can't convey. That's why Place-based, Hotel pool, Time-bound, Tour, and Charter all share `Neighborhood · Duration`.
 
 There's a brand-voice reason too: leading with the neighborhood mirrors how a local friend actually talks — "there's this great little museum in the Design District" (place first, then what it is) — rather than a directory-listing cadence ("Art museum in the Design District"). See [../../DESIGN.md](../../DESIGN.md) brand voice.
 
-Forcing every row into the same left-to-right order would look consistent but would actually break the more meaningful pattern each row already follows — lead with whatever most helps the guest decide, not with positional sameness for its own sake.
+A single uniform order across all shapes would look consistent but would actually break the more meaningful pattern each shape already follows — lead with whatever most helps the guest decide. Two named patterns, not one, is the right level of formalization: enough structure to implement and audit against, without forcing food into a location-first shape it doesn't fit.
 
 ✅ **Resolved — distance removed from Experience cards, except day-trip destinations.** Per Julio: distance (in any form, including plain mileage) depends on the card knowing an accurate, current guest location — which it frequently doesn't, or can't fully trust even when a coordinate exists (stale permission, VPN, guest browsing from a hotel room before heading out). Showing "0.6 mi" makes a confident-sounding claim the card can't actually stand behind, the same underlying problem flagged with travel-time estimates (see the now-superseded note below). **Distance is removed from every Experience card's contextual row**, replaced by **category or activity type** for the one row that used to carry it (Place-based experience) — a fact the card can always assert regardless of guest location.
 
@@ -152,20 +159,22 @@ $1,200 · ★ 4.9
 
 Use `From` only when the displayed amount is the lowest of multiple valid prices. Use `pp` on compact cards for per-person pricing; do not add it to flat-rate charters or private bookings. Expand `pp` to `per person` in the accessible name.
 
-✅ **Resolved — cover/day-pass pricing:** When the price is a fixed per-person access fee, such as hotel-pool access or a cover charge, render the fixed amount plus `pp`:
+✅ **Resolved — hotel-pool / day-pass access pricing.** When the price is a fixed per-person entry fee for a Hotel pool / day pass listing, render the fixed amount plus `access pp`, not a bare `pp`:
 
 ```text
-$45 pp · ★ 4.9
+$45 access pp · ★ 4.9
 ```
 
-Do not add `From` when there is one fixed cover price. If multiple valid access tiers start at different prices, use `From $45 pp`. The price communicates access only; the card must not imply that drinks, food, seating, or other amenities are included unless the listing explicitly confirms them.
+A bare `pp` doesn't say what the fee is *for* — a guest can misread `$40 pp` as an all-inclusive day rate (unlimited drinks, food, etc.) rather than an entry fee. `access` makes explicit what the rule below already requires: the price covers entry only. Do not add `From` when there is one fixed access price. If multiple valid access tiers start at different prices, use `From $45 access pp`. The card must not imply that drinks, food, seating, or other amenities are included unless the listing explicitly confirms them. Expand to `per person, access only` (or similarly explicit) in the accessible name.
 
-✅ **Resolved — three price formats, chosen by what the guest can actually compare, not by category.** The card shows one of three shapes: an exact starting amount (`From $69`), an exact fixed amount (`$1,200`, `$45 pp`), or a relative price band (`$$$`). These aren't interchangeable stylistic choices — each answers a different question the guest is actually asking at a glance, and the wrong one either overstates precision the listing doesn't have or understates precision it does.
+This is distinct from the `pp` suffix used elsewhere on bookable per-person rates (tours, classes) where the price already reads as the full cost of participating, not an entry fee to something with further spend inside — those keep a bare `pp`.
+
+✅ **Resolved — three price formats, chosen by what the guest can actually compare, not by category.** The card shows one of three shapes: an exact starting amount (`From $69`), an exact fixed amount (`$1,200`, `$40 access pp`), or a relative price band (`$$$`). These aren't interchangeable stylistic choices — each answers a different question the guest is actually asking at a glance, and the wrong one either overstates precision the listing doesn't have or understates precision it does.
 
 | Format | When to use | Example | What it tells the guest |
 | --- | --- | --- | --- |
 | `From $X` | The listing has multiple valid price points (tiers, add-ons, group sizes) and $X is the lowest of them | `From $69 pp` | "This is the minimum you'd pay — the real total may be higher depending on what you choose." |
-| `$X` (exact) | The listing has exactly one price — a flat rate, a single fixed access fee, or a single per-person rate with no tiers | `$1,200`, `$45 pp` | "This is the price, full stop — no guessing at a range." |
+| `$X` (exact) | The listing has exactly one price — a flat rate, a single fixed access fee, or a single per-person rate with no tiers | `$1,200`, `$40 access pp` | "This is the price, full stop — no guessing at a range." |
 | `$$$` (band) | The exact price is variable, unknown at render time, or the listing type is priced per-item rather than per-booking (most commonly restaurants, where the "price" is really an average per-person spend across a menu, not a bookable rate) | `$$$` | "Here's the general spend level, for comparing against other restaurants — not a specific number you'd be charged." |
 
 **Design rationale:** a numeric price (`From $X` or `$X`) makes an implicit promise — "if you book this, this is what you'll pay (or the minimum you'll pay)." That promise only holds for **bookable experiences with a defined rate**: tours, charters, classes, day passes, cover charges. A restaurant doesn't have a bookable "rate" in the same sense — the guest chooses items off a menu, and what they actually spend depends on what they order, not a number Bethere can quote up front. Showing `From $25` on a restaurant card would silently misrepresent a menu average as a bookable minimum, which is a precision the listing doesn't actually have. The `$$$` band exists specifically to avoid that false precision while still giving the guest the comparison signal they're actually looking for at a glance ("is this a cheap spot or a splurge?").
@@ -176,7 +185,37 @@ The reverse mistake also matters: using `$$$` on a bookable experience (a tour, 
 
 ⚠️ **Gap:** the "3–4 dollar sign" band scale itself isn't defined — how many tiers exist (`$` through `$$$$`? `$$$$$`?), what spend range each tier maps to, and whether that mapping is fixed or relative to the local market. An earlier pass on this page briefly used `$$$$$` (5 dollar signs) on a wine-tasting card before it was corrected to cuisine-first format — worth confirming the real tier count before more restaurant cards ship, so bands stay comparable to each other rather than drifting per author.
 
-⚠️ **Gap:** The product has not defined behavior for missing ratings, review-count display, free experiences, price ranges (a numeric low–high, e.g. `$25–$45`, already used on some Restaurant cards — how this relates to the `$$$` band above isn't reconciled), taxes/fees, currency localization, or listings whose price is not available until requested.
+✅ **Resolved — price range.** When a Restaurant / food & drink listing has a known numeric low–high spend (rather than an unknown/variable spend), render it as a range instead of the `$$$` band:
+
+```text
+$25–$45 · ★ 4.8
+```
+
+Use an en dash (`–`), no spaces, and the currency symbol once at the start only. Price range and the `$$$` band are not interchangeable on the same listing — use whichever the listing's data actually supports: a range when real low/high figures are known, the band when only a general spend level is known. Both remain exclusive to Restaurant / food & drink; every other experience shape keeps `From $X` / `$X` per the rule above.
+
+✅ **Resolved — admission and cover charge.** Some Place-based venues charge a fixed per-person entry fee that is not "access" in the hotel-pool/day-pass sense (no amenity implied) and not a bookable rate (no tiers, nothing to book ahead). Render these with a descriptive suffix instead of `pp`, chosen by venue type:
+
+```text
+$25 admission · ★ 4.6
+```
+
+```text
+$20 cover · ★ 4.7
+```
+
+Use `admission` for museums, attractions, exhibits, parks, and similar general-admission Place-based venues. Use `cover` for clubs, bars, and nightlife venues where "cover charge" is the guest-recognizable term. Apply `From` before either suffix (`From $25 admission`) only when multiple valid entry prices exist and $X is the lowest, matching the `From` rule used elsewhere. Expand the suffix in the accessible name the same way `pp` expands to `per person` (e.g. `25 dollars admission`).
+
+✅ **Resolved — free.** When a listing has no cost to the guest, render:
+
+```text
+Free admission · ★ 4.6
+```
+
+Use the same venue-type suffix rule as above (`Free admission` vs. a `Free cover` equivalent, if ever needed) rather than a bare `Free`, so the word before it still communicates what's free. Do not show `From` or a price band alongside `Free`.
+
+✅ **Resolved (exception) — venues with no admission concept.** A walk-in Place-based venue that isn't ticketed or gated at all (e.g. a shopping center) has no "admission" to be free of — `Free admission` would misstate that there was ever a gate to waive. For these, use `Free to explore` (confirmed on `Brickell City Centre`) instead of forcing the `Free admission` suffix. Use `Free admission`/`Free to explore` by whether the venue is normally ticketed (waived here) or was never ticketed to begin with, not interchangeably.
+
+⚠️ **Gap:** The product has not defined behavior for missing ratings, review-count display, taxes/fees, currency localization, or listings whose price is not available until requested.
 
 ## Rendering Rules
 
@@ -219,15 +258,17 @@ $$$ · ★ 4.8
 
 ℹ️ The third example demonstrates the defined rendering pattern; its values are illustrative, not confirmed listing data. (Updated from an earlier `Miami Beach · 0.8 mi` version — see distance-removal note below.)
 
-### Hotel-pool cover / day pass
+### Hotel-pool access / day pass
 
 ```text
 Poolside drinks at The Biltmore Hotel
 Coral Gables · Hotel pool
-$45 pp · ★ 4.9
+$40 access pp · ★ 4.9
 ```
 
-✅ **Confirmed in Figma (Aug 09, 2026):** In "There's plenty around you," the former `Old Havana dinner / Cuban · Little Havana / $25–$45 · ★ 4.9` card was updated to the hotel-pool cover scenario above. The existing pool-and-drinks image and rating were retained. `pp` identifies the price as a per-person access/cover fee; it does not state that drinks are included.
+✅ **Confirmed in Figma (Aug 09, 2026):** In "There's plenty around you," the former `Old Havana dinner / Cuban · Little Havana / $25–$45 · ★ 4.9` card was updated to the hotel-pool day-pass scenario above. The existing pool-and-drinks image and rating were retained. `pp` identifies the price as per-person; it does not state that drinks are included.
+
+⚠️ **Corrected (Aug 10, 2026), caught by Julio:** the original `$45 pp` (later `$40 pp`) reads as an all-inclusive day rate — a guest could plausibly assume $40 buys unlimited drinks at the pool for the day, not just entry. Corrected to `$40 access pp` per the resolved rule above, which now requires the explicit `access` word on Hotel pool / day pass pricing specifically so the fee can't be misread as covering more than entry.
 
 ✅ **Confirmed in Figma (Aug 09, 2026):** two sections of `Concierge App` (node 51:104) were updated to follow this convention:
 
@@ -255,17 +296,28 @@ Confirmed correct on row choice: `ICA Miami` and `Brickell City Centre` both cor
 
 ℹ️ The specific venue names/prices used here (e.g. "Pura Vida") are illustrative placeholders written to demonstrate the pattern, not confirmed real listings.
 
+✅ **Confirmed in Figma (Aug 10, 2026) — full-page audit against the new pricing formats.** Every Experience card's price/rating line was checked against the price-format rule (numeric `From $X`/`$X` for bookable shapes; `$X–$Y` range or `$$$` band, never numeric, for Restaurant/food & drink) added to this spec the same day. Two violations found and fixed:
+
+- `Wine tasting at Pura Vida` (Featured) showed `$$$$` — a 4-sign band with no defined tier count (the exact regression the band-tier gap note above already warned about). Corrected to `$$$`, matching `Cafe Blue Sky`'s two-tier usage as the nearer reference point.
+- `Brunch at The Biltmore Hotel` (Right Now) showed `From $45 pp` — numeric per-person pricing on a Restaurant-shaped card, which the rule explicitly forbids (a brunch menu has no bookable rate to quote a minimum on). Corrected to `$25–$45`, matching the range format already used on `Brunch at Greenstreet Cafe` and `Casa Tua`.
+
+All other cards — including the newly-added `Free admission` (`ICA Miami`) and `Free to explore` (`Brickell City Centre`) formats — already matched the rule with no changes needed.
+
 ## Acceptance Criteria
 
 - Every Experience card follows the shared title → contextual metadata → price/rating hierarchy.
 - Generic title words render in sentence case while configured proper names retain their capitalization.
+- The contextual row follows one of exactly two patterns by experience shape: `Type · Neighborhood` for Restaurant / food & drink, `Neighborhood · Duration` for every other shape.
 - Tour, class, charter, and other time-bound cards prefer duration over distance.
 - Place-based cards show category or activity type, not distance, except in the "Let's get out of town" day-trip section.
 - Charter/private-booking cards use departure or meeting location rather than a generic neighborhood when that is more useful.
 - Per-person and flat-rate pricing remain distinguishable.
-- A fixed cover/day-pass fee renders as `$N pp`; `From` appears only when `$N` is the lowest of multiple valid per-person prices.
+- A fixed Hotel pool / day-pass fee renders as `$N access pp`, not a bare `pp`; `From` appears only when `$N` is the lowest of multiple valid access prices.
+- Restaurant cards use `$X–$Y` range or `$$$` band pricing, never `From $X` / `$X` numeric pricing; every other shape uses `From $X` / `$X`, never a range or band.
+- Fixed per-person entry fees that are not bookable rates render as `$N admission` (museums, attractions, exhibits, parks) or `$N cover` (clubs, bars, nightlife), not `pp`.
+- Free listings render as `Free admission` (or the matching venue-type suffix), never a bare `Free` or a price band.
 - Missing optional fields do not create blank rows, duplicate separators, or placeholder copy.
-- Accessible text expands `pp` to `per person` and communicates currency meaning and ratings.
+- Accessible text expands `pp`, `admission`, and `cover` to their full words and communicates currency meaning and ratings.
 
 ## Open Questions
 
