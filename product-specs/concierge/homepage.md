@@ -1,7 +1,7 @@
 <!--
 Created: Aug 08, 2026
 Created by: Julio Caunedo
-Last updated: Aug 09, 2026
+Last updated: Aug 12, 2026
 -->
 
 # Concierge Website — Home & Browse
@@ -250,9 +250,11 @@ This preserves the existing "why to go" copy (Wynwood's line carries over unchan
 
 **Heading:** "What sounds good?" — ⚠️ **Carryover:** carries over from the original homepage draft; may need re-evaluation now that it's a Browse-page section heading rather than a homepage section, but no strong reason yet to change it.
 
-**Categories (per current build):** Eat & Drink · On the Water · Night Out · Culture · Outdoors · Wellness · Family Fun · Shopping
+✅ **Resolved (Aug 12, 2026):** **Categories:** Water · Outdoors · Dine · Shop · Family · Art & culture · Nightlife · Music · Wellness · Adventure
 
-> ℹ️ Eight categories listed (Shopping added to match the current implementation). ⚠️ **Gap:** confirm this is the full/final category taxonomy for this section, and how it maps (if at all) to the Experience categories already defined under `../experience/` (Water Activities, Tours, Nightlife, Wellness, Events, Restaurant, Yacht Charter, Other) — the naming doesn't line up 1:1 today (e.g. "Eat & Drink" vs. "Restaurant"; "On the Water" vs. "Yacht Charter"/"Water Activities"; "Night Out" vs. "Nightlife"; "Shopping" has no obvious equivalent under `../experience/` at all). This mapping should be resolved so a single taxonomy drives both provider-side categorization and guest-facing browsing labels.
+This replaces the earlier current-build set (Eat & Drink · On the Water · Night Out · Culture · Outdoors · Wellness · Family Fun · Shopping) — chosen as the compact-and-broad prioritization from a larger candidate pool of Bethere-friendly interests (Music · Wellness · Sports · Adventure · Culture · Relax · Drinks · Coffee · Beach · Nature · Local favorites · Kids · Date night, among others). The broader pool remains a useful reference if this set needs to expand later, but the 10 above are the primary taxonomy.
+
+> ⚠️ **Gap:** how this maps (if at all) to the Experience categories already defined under `../experience/` (Water Activities, Tours, Nightlife, Wellness, Events, Restaurant, Yacht Charter, Other) is still unconfirmed — naming doesn't line up 1:1 today (e.g. "Dine" vs. "Restaurant"; "Water" vs. "Yacht Charter"/"Water Activities"; "Shop" has no obvious equivalent under `../experience/` at all). This mapping should be resolved so a single taxonomy drives both provider-side categorization and guest-facing browsing labels.
 
 **Relationship to the Category filter:** ⚠️ **Gap:** confirm whether these tiles ARE the Category filter (tapping one applies that filter and drops the user into the grid below, filtered) or a separate, second categorization layer above the filter panel. Treating them as the same taxonomy applied two ways (a shortcut tile, and a filter chip) avoids maintaining two category lists.
 

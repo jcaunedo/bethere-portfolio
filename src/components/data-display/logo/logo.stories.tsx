@@ -9,7 +9,7 @@ const meta: Meta<typeof Logo> = {
   argTypes: {
     variant: {
       control: "select",
-      options: ["gradient", "solid", "black", "white"],
+      options: ["neutral", "brand"],
     },
   },
 };
@@ -17,34 +17,19 @@ const meta: Meta<typeof Logo> = {
 export default meta;
 type Story = StoryObj<typeof Logo>;
 
-export const Gradient: Story = {
-  args: { variant: "gradient" },
+export const Neutral: Story = {
+  args: { variant: "neutral" },
 };
 
-export const Solid: Story = {
-  args: { variant: "solid" },
-};
-
-export const Black: Story = {
-  args: { variant: "black" },
-};
-
-export const White: Story = {
-  args: { variant: "white" },
-  render: (args) => (
-    <div className="rounded-md bg-neutral-800 p-4">
-      <Logo {...args} />
-    </div>
-  ),
+export const Brand: Story = {
+  args: { variant: "brand" },
 };
 
 export const AllVariants: Story = {
   render: () => (
-    <div className="flex flex-col items-start gap-6 rounded-md bg-neutral-800 p-4">
-      <Logo variant="gradient" />
-      <Logo variant="solid" />
-      <Logo variant="black" />
-      <Logo variant="white" />
+    <div className="flex flex-col items-start gap-6 rounded-md bg-card p-4">
+      <Logo variant="neutral" />
+      <Logo variant="brand" />
     </div>
   ),
 };

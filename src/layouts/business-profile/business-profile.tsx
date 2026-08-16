@@ -24,6 +24,7 @@ const PROVIDER_TYPE_OPTIONS = [
 type BusinessProfileValues = {
   companyName: string;
   providerType: string;
+  phoneNumber: string;
   website: string;
 };
 
@@ -46,6 +47,7 @@ function BusinessProfile() {
   const initialValues: BusinessProfileValues = {
     companyName: "",
     providerType: "",
+    phoneNumber: "",
     website: "",
   };
 
@@ -103,15 +105,27 @@ function BusinessProfile() {
                     required
                   />
                   <FormikInput
+                    name="phoneNumber"
+                    label="Phone number"
+                    type="tel"
+                    size="xl"
+                  />
+                  <FormikInput
                     name="website"
                     label="Website"
                     placeholder="https://"
                     size="xl"
                   />
                 </div>
-                <Button type="submit" size="xl" className="w-full">
-                  Continue
-                </Button>
+                <div className="flex w-full flex-col gap-2">
+                  <Button type="submit" size="xl" className="w-full">
+                    Take me to my portal
+                  </Button>
+                  {/* Figma has no defined destination for this CTA yet — visual-only stub. */}
+                  <Button type="button" variant="outline" size="xl" className="w-full">
+                    Create my first experience
+                  </Button>
+                </div>
               </Form>
             </Formik>
           </div>

@@ -925,3 +925,7 @@ const schema = Yup.object({
 	</Form>
 </Formik>;
 ```
+
+## product-specs/
+
+Before creating or editing any file under `product-specs/`, read [`CONVENTIONS.md`](CONVENTIONS.md) and follow it — status label emoji/bold-label rules and the creation-header format apply to every spec doc there.

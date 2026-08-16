@@ -1,7 +1,7 @@
 <!--
 Created: Aug 09, 2026
 Created by: Julio Caunedo
-Last updated: Aug 10, 2026
+Last updated: Aug 12, 2026
 -->
 
 # Experience Card Content Rendering
@@ -183,6 +183,8 @@ The reverse mistake also matters: using `$$$` on a bookable experience (a tour, 
 
 **Rule:** default to `$` band notation **only** for Restaurant / food & drink cards (per the Contextual Metadata table above), and default to `From $X` / `$X` numeric pricing for every other experience shape (Place-based, Hotel pool / day pass, Time-bound, Tour or class, Charter or private booking) — these all have a definable rate per booking, so they should always show it. Do not vary format within the same experience shape based on convenience; the shape determines the format, not the specific listing's data availability.
 
+✅ **Resolved — perfect rating renders without a decimal.** A rating of exactly 5 stars renders as `★ 5`, not `★ 5.0`. Every other rating value keeps one decimal place (`★ 4.9`, `★ 4.6`), per the earlier correction away from bare integer ratings (see Worked Examples below) — that correction was about non-perfect ratings needing a decimal to read as precise rather than placeholder, not a rule that `5` itself must gain a trailing `.0`. A trailing zero on a perfect score reads as manufactured precision a friend wouldn't bother stating.
+
 ⚠️ **Gap:** the "3–4 dollar sign" band scale itself isn't defined — how many tiers exist (`$` through `$$$$`? `$$$$$`?), what spend range each tier maps to, and whether that mapping is fixed or relative to the local market. An earlier pass on this page briefly used `$$$$$` (5 dollar signs) on a wine-tasting card before it was corrected to cuisine-first format — worth confirming the real tier count before more restaurant cards ship, so bands stay comparable to each other rather than drifting per author.
 
 ✅ **Resolved — price range.** When a Restaurant / food & drink listing has a known numeric low–high spend (rather than an unknown/variable spend), render it as a range instead of the `$$$` band:
@@ -316,6 +318,7 @@ All other cards — including the newly-added `Free admission` (`ICA Miami`) and
 - Restaurant cards use `$X–$Y` range or `$$$` band pricing, never `From $X` / `$X` numeric pricing; every other shape uses `From $X` / `$X`, never a range or band.
 - Fixed per-person entry fees that are not bookable rates render as `$N admission` (museums, attractions, exhibits, parks) or `$N cover` (clubs, bars, nightlife), not `pp`.
 - Free listings render as `Free admission` (or the matching venue-type suffix), never a bare `Free` or a price band.
+- A perfect rating renders as `★ 5`, never `★ 5.0`; every other rating keeps one decimal place.
 - Missing optional fields do not create blank rows, duplicate separators, or placeholder copy.
 - Accessible text expands `pp`, `admission`, and `cover` to their full words and communicates currency meaning and ratings.
 
