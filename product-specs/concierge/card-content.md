@@ -1,7 +1,7 @@
 <!--
 Created: Aug 09, 2026
 Created by: Julio Caunedo
-Last updated: Aug 12, 2026
+Last updated: Aug 17, 2026
 -->
 
 # Experience Card Content Rendering
@@ -71,17 +71,17 @@ $1,200 · ★ 4.9
 
 ✅ **Resolved: two named row patterns.** The contextual row always renders as one of exactly two patterns, chosen by experience shape:
 
-| Pattern                   | Used by                                                                                                                                                                                | Example                                                                                                  |
-| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `Type · Neighborhood`     | Restaurant / food & drink (cuisine or food type leads)                                                                                                                                | `Cuban · Little Havana`                                                                                  |
+| Pattern                   | Used by                                                                                                                                                                                                                    | Example                                                                                                 |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `Type · Neighborhood`     | Restaurant / food & drink (cuisine or food type leads)                                                                                                                                                                     | `Cuban · Little Havana`                                                                                 |
 | `Neighborhood · Duration` | Every other shape (Place-based, Hotel pool / day pass, Time-bound, Tour or class, Charter or private booking) — "Duration" generalizes to duration, category/activity type, or access/venue type, whichever the shape uses | `Little Havana · 2.5 hrs`, `Wynwood · Art gallery`, `Coral Gables · Hotel pool`, `Key Biscayne · 4 hrs` |
 
 | Experience shape           | Pattern                   | Location label                | Secondary detail          | Example                     |
-| --------------------------- | --------------------------- | ------------------------------ | -------------------------- | ---------------------------- |
+| -------------------------- | ------------------------- | ----------------------------- | ------------------------- | --------------------------- |
 | Place-based experience     | `Neighborhood · Duration` | Neighborhood                  | Category or activity type | `Wynwood · Art gallery`     |
 | Hotel pool / day pass      | `Neighborhood · Duration` | Neighborhood                  | Access or venue type      | `Coral Gables · Hotel pool` |
 | Time-bound experience      | `Neighborhood · Duration` | Neighborhood                  | Duration                  | `Little Havana · 2.5 hrs`   |
-| Restaurant / food & drink  | `Type · Neighborhood`     | Cuisine or food type          | Neighborhood               | `Cuban · Little Havana`     |
+| Restaurant / food & drink  | `Type · Neighborhood`     | Cuisine or food type          | Neighborhood              | `Cuban · Little Havana`     |
 | Tour or class              | `Neighborhood · Duration` | Neighborhood or meeting area  | Duration                  | `Little Havana · 2.5 hrs`   |
 | Charter or private booking | `Neighborhood · Duration` | Departure or meeting location | Duration                  | `Key Biscayne · 4 hrs`      |
 
@@ -165,21 +165,21 @@ Use `From` only when the displayed amount is the lowest of multiple valid prices
 $45 access pp · ★ 4.9
 ```
 
-A bare `pp` doesn't say what the fee is *for* — a guest can misread `$40 pp` as an all-inclusive day rate (unlimited drinks, food, etc.) rather than an entry fee. `access` makes explicit what the rule below already requires: the price covers entry only. Do not add `From` when there is one fixed access price. If multiple valid access tiers start at different prices, use `From $45 access pp`. The card must not imply that drinks, food, seating, or other amenities are included unless the listing explicitly confirms them. Expand to `per person, access only` (or similarly explicit) in the accessible name.
+A bare `pp` doesn't say what the fee is _for_ — a guest can misread `$40 pp` as an all-inclusive day rate (unlimited drinks, food, etc.) rather than an entry fee. `access` makes explicit what the rule below already requires: the price covers entry only. Do not add `From` when there is one fixed access price. If multiple valid access tiers start at different prices, use `From $45 access pp`. The card must not imply that drinks, food, seating, or other amenities are included unless the listing explicitly confirms them. Expand to `per person, access only` (or similarly explicit) in the accessible name.
 
 This is distinct from the `pp` suffix used elsewhere on bookable per-person rates (tours, classes) where the price already reads as the full cost of participating, not an entry fee to something with further spend inside — those keep a bare `pp`.
 
 ✅ **Resolved — three price formats, chosen by what the guest can actually compare, not by category.** The card shows one of three shapes: an exact starting amount (`From $69`), an exact fixed amount (`$1,200`, `$40 access pp`), or a relative price band (`$$$`). These aren't interchangeable stylistic choices — each answers a different question the guest is actually asking at a glance, and the wrong one either overstates precision the listing doesn't have or understates precision it does.
 
-| Format | When to use | Example | What it tells the guest |
-| --- | --- | --- | --- |
-| `From $X` | The listing has multiple valid price points (tiers, add-ons, group sizes) and $X is the lowest of them | `From $69 pp` | "This is the minimum you'd pay — the real total may be higher depending on what you choose." |
-| `$X` (exact) | The listing has exactly one price — a flat rate, a single fixed access fee, or a single per-person rate with no tiers | `$1,200`, `$40 access pp` | "This is the price, full stop — no guessing at a range." |
-| `$$$` (band) | The exact price is variable, unknown at render time, or the listing type is priced per-item rather than per-booking (most commonly restaurants, where the "price" is really an average per-person spend across a menu, not a bookable rate) | `$$$` | "Here's the general spend level, for comparing against other restaurants — not a specific number you'd be charged." |
+| Format       | When to use                                                                                                                                                                                                                                 | Example                   | What it tells the guest                                                                                             |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `From $X`    | The listing has multiple valid price points (tiers, add-ons, group sizes) and $X is the lowest of them                                                                                                                                      | `From $69 pp`             | "This is the minimum you'd pay — the real total may be higher depending on what you choose."                        |
+| `$X` (exact) | The listing has exactly one price — a flat rate, a single fixed access fee, or a single per-person rate with no tiers                                                                                                                       | `$1,200`, `$40 access pp` | "This is the price, full stop — no guessing at a range."                                                            |
+| `$$$` (band) | The exact price is variable, unknown at render time, or the listing type is priced per-item rather than per-booking (most commonly restaurants, where the "price" is really an average per-person spend across a menu, not a bookable rate) | `$$$`                     | "Here's the general spend level, for comparing against other restaurants — not a specific number you'd be charged." |
 
 **Design rationale:** a numeric price (`From $X` or `$X`) makes an implicit promise — "if you book this, this is what you'll pay (or the minimum you'll pay)." That promise only holds for **bookable experiences with a defined rate**: tours, charters, classes, day passes, cover charges. A restaurant doesn't have a bookable "rate" in the same sense — the guest chooses items off a menu, and what they actually spend depends on what they order, not a number Bethere can quote up front. Showing `From $25` on a restaurant card would silently misrepresent a menu average as a bookable minimum, which is a precision the listing doesn't actually have. The `$$$` band exists specifically to avoid that false precision while still giving the guest the comparison signal they're actually looking for at a glance ("is this a cheap spot or a splurge?").
 
-The reverse mistake also matters: using `$$$` on a bookable experience (a tour, a charter) would *understate* precision the listing does have — the provider has set an actual rate, and hiding it behind a vague band makes the guest do extra work (open the card) to learn something the compact card could have told them directly. Per [../../DESIGN.md](../../DESIGN.md) brand voice's Discover→Evaluate→Book→Manage funnel — "Book" is confident and precise, since ambiguity there is a liability, not a personality trait — a bookable listing should always show its real number rather than a vaguer band.
+The reverse mistake also matters: using `$$$` on a bookable experience (a tour, a charter) would _understate_ precision the listing does have — the provider has set an actual rate, and hiding it behind a vague band makes the guest do extra work (open the card) to learn something the compact card could have told them directly. Per [../../DESIGN.md](../../DESIGN.md) brand voice's Discover→Evaluate→Book→Manage funnel — "Book" is confident and precise, since ambiguity there is a liability, not a personality trait — a bookable listing should always show its real number rather than a vaguer band.
 
 **Rule:** default to `$` band notation **only** for Restaurant / food & drink cards (per the Contextual Metadata table above), and default to `From $X` / `$X` numeric pricing for every other experience shape (Place-based, Hotel pool / day pass, Time-bound, Tour or class, Charter or private booking) — these all have a definable rate per booking, so they should always show it. Do not vary format within the same experience shape based on convenience; the shape determines the format, not the specific listing's data availability.
 
