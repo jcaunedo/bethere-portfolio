@@ -120,7 +120,7 @@ Worked example — **Boats & yacht charters**:
   - Speedboat
   - Other
 
-- \+ Service → "What service are you offering?"
+- \+ Service → "What type of listing are you creating??"
 
   ⚠️ **Decision needed — v1 candidate set, not finalized.** Leaning toward a tighter v1 list, with a fuller candidate set to expand into later if demand justifies it:
 
