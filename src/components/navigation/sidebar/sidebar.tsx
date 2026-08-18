@@ -375,18 +375,18 @@ function Sidebar({
             className="flex size-9 shrink-0 cursor-e-resize items-center justify-center rounded-full outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-sidebar-ring/50"
           >
             <Symbol
-              className={cn("h-[30px]", isRailHovered && "hidden")}
+              className={cn("h-[23.333px]", isRailHovered && "hidden")}
             />
             <PanelLeftIcon
               className={cn(
-                "hidden size-[18px] text-foreground",
+                "hidden size-4 text-foreground",
                 isRailHovered && "block",
               )}
             />
           </button>
         ) : (
           <div className="flex h-9 w-full items-center justify-between py-2 pr-1 pl-1.5">
-            <Logo className="h-[23.179px]" />
+            <Logo className="h-[24.72px]" />
             <button
               type="button"
               data-slot="sidebar-collapse"
@@ -394,7 +394,7 @@ function Sidebar({
               onClick={handleToggleCollapsed}
               className="flex size-6 shrink-0 cursor-w-resize items-center justify-center rounded-full outline-none transition-colors hover:bg-sidebar-accent focus-visible:ring-[3px] focus-visible:ring-sidebar-ring/50"
             >
-              <PanelLeftIcon className="size-[18px] text-sidebar-icon-foreground" />
+              <PanelLeftIcon className="size-4 text-icon-subtle" />
             </button>
           </div>
         )}
