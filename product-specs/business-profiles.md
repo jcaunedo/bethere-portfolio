@@ -1,7 +1,7 @@
 <!--
 Created: Aug 05, 2026
 Created by: Julio Caunedo
-Last updated: Aug 06, 2026
+Last updated: Aug 24, 2026
 -->
 
 # Business Profiles — Provider Portal
@@ -9,7 +9,7 @@ Last updated: Aug 06, 2026
 **Location:** Settings → Business profiles (list) → a business's own detail page
 **Audience:** Business owner / provider (same audience as My Profile)
 **Description:** Manage the businesses tied to a provider account — a list of businesses with status, and a per-business detail page covering profile fields, verification/compliance fields, and grouped compliance documents.
-**Figma:** Provider Portal — "Businesses" frame (list), "Business Profile" frame (detail: Profile tab), "Business Verification" frame (detail: Verification tab), "Business Documents" frame (detail: Documents tab)
+**Figma:** Provider Portal — "Businesses" frame (list), "Business Profile" frame (detail: Profile tab), "Business Compliance" frame (detail: Compliance tab), "Business Documents" frame (detail: Documents tab)
 **Source:**
 - `src/layouts/account-settings/pages/business-profiles/business-profiles.tsx` (list)
 - `src/layouts/account-settings/pages/business-profile/business-profile.tsx` (detail)
@@ -22,7 +22,7 @@ Last updated: Aug 06, 2026
 This feature is two pages plus the design-system components needed to build them, developed together in one pass:
 
 1. **Business profiles** (list) — a page title + description, an "Add business" action, and a stack of `CardBusiness` rows, one per business the account owns. Clicking a card is meant to navigate to that business's detail page.
-2. **Business Profile** (detail) — the page a user lands on after clicking a business card: a "Back to businesses" link, the business's name + status badge, and three tabs (Profile / Verification / Documents), all three now built out.
+2. **Business Profile** (detail) — the page a user lands on after clicking a business card: a "Back to businesses" link, the business's name, and three tabs (Profile / Compliance / Documents), all three now built out.
 
 Both pages share `AccountSettingsLayout`'s shell (header, `SidebarSettings` rail, mobile back-navigation) — see [my-profile.md](my-profile.md) for that shell's full behavior, which is not re-documented here except where these pages diverge from it.
 
@@ -64,12 +64,12 @@ Three hardcoded businesses, one per `CardBusiness` badge color currently exercis
 ### Header
 
 - "Back to businesses" — `ChevronLeftIcon` + text link, `text-primary`, calls `onBack`.
-- Business name as `Typography as="h1" size="2xl" weight="semibold"` + a `Building2Icon` (`size-6`, 24px) + a status `Badge` (`size="lg"`, color/label from props, default green/"Approved").
+- Business name as `Typography as="h1" size="2xl" weight="semibold"` + a `Building2Icon` (`size-6`, 24px). No status badge — see [Design decisions](#design-decisions--the-aug-24-revision).
 - 💬 The header's icon size and heading size/weight both went through a correction pass — see [Design decisions](#design-decisions--h1-sizing-drifted-from-a-stale-figma-pull).
 
 ### Tabs
 
-`Tabs` (Profile / Verification / Documents), underline style, `defaultValue="profile"`. `TabsList` gap is `gap-4` (16px) — see [Design decisions](#design-decisions--tabslist-gap) for why this doesn't match the Figma-measured value.
+`Tabs` (Profile / Compliance / Documents), underline style, `defaultValue="profile"`. The middle tab reads "Compliance" but keeps `value="verification"` and the `VerificationTab` component name — the rename was label-only. `TabsList` gap is `gap-4` (16px) — see [Design decisions](#design-decisions--tabslist-gap) for why this doesn't match the Figma-measured value.
 
 #### Profile tab
 
@@ -78,16 +78,16 @@ Three hardcoded businesses, one per `CardBusiness` badge color currently exercis
 | Legal business name | `SettingsDetailRow`, text edit | |
 | Business address | `SettingsDetailRow`, text edit | |
 | Website | `SettingsDetailRow`, text edit | `Input type="url"` |
-| **Owner** | Plain row + `onClick` stub | Action label "Transfer ownership" — not a scalar edit, see [Row shape decisions](#row-shape-decisions) |
 | **Primary contact** | Plain row + `onClick` stub | Action label "Add primary contact" |
 | **Phone numbers** | Plain row + `onClick` stub | Action label "Add phone number" — plural, implies a list |
 | Main email | `SettingsDetailRow`, text edit | `Input type="email"` |
 
-#### Verification tab
+#### Compliance tab
 
 | Row | Shape | Notes |
 |---|---|---|
-| EIN / Tax ID | `SettingsDetailRow`, text edit | |
+| **Owner** | Plain row + `onClick` stub | `value="John Smith"` over a muted `johnsmith@email.com` second line; action label "Transfer ownership" — not a scalar edit, see [Row shape decisions](#row-shape-decisions) |
+| Tax ID (EIN) | `SettingsDetailRow`, text edit | |
 | License number | `SettingsDetailRow`, text edit | |
 | Registration number | `SettingsDetailRow`, text edit | Empty-state: "No registration entered yet" / `addLabel="Add registration number"` |
 | **Owner verification** | `SettingsDetailRow`, static (no expand) | `value="John Smith"`, rich `note` = doc type + expiry + inline "View" link (`onViewOwnerVerification`), `onEditStart={onEditOwnerVerification}` never flips `editing` |
@@ -115,7 +115,7 @@ Group/row data is a hardcoded `DOCUMENT_GROUPS` array in `business-profile.tsx` 
 
 ### Field-editing mechanics
 
-Both the Profile tab's 4 text fields and the Verification tab's 3 text fields use **two independent copies** of the same expand/edit/save state shape `my-profile.tsx` established (`FieldState = { value, editing }`, `startEditing`/`cancelEditing`/`save`/`isUnchanged`) — one keyed by `FieldKey` (Profile tab), one by `VerificationFieldKey` (Verification tab). Unlike `my-profile.tsx`, this page has **no shared Escape/Enter keyboard handler** and **no `openOrder`/focus-tracking machinery** — ⚠️ **Gap:** multiple rows can still be expanded simultaneously (nothing prevents it), but there's no keyboard shortcut to close/save "whichever row has focus" the way My Profile has. This wasn't a deliberate simplification decision — it just wasn't carried over when this page was built from my-profile.tsx's pattern. See [my-profile.md § Shared row mechanics](my-profile.md#shared-row-mechanics) for what the fuller version looks like.
+Both the Profile tab's 4 text fields and the Compliance tab's 3 text fields use **two independent copies** of the same expand/edit/save state shape `my-profile.tsx` established (`FieldState = { value, editing }`, `startEditing`/`cancelEditing`/`save`/`isUnchanged`) — one keyed by `FieldKey` (Profile tab), one by `VerificationFieldKey` (Compliance tab — the key type kept its pre-rename name). Unlike `my-profile.tsx`, this page has **no shared Escape/Enter keyboard handler** and **no `openOrder`/focus-tracking machinery** — ⚠️ **Gap:** multiple rows can still be expanded simultaneously (nothing prevents it), but there's no keyboard shortcut to close/save "whichever row has focus" the way My Profile has. This wasn't a deliberate simplification decision — it just wasn't carried over when this page was built from my-profile.tsx's pattern. See [my-profile.md § Shared row mechanics](my-profile.md#shared-row-mechanics) for what the fuller version looks like.
 
 ---
 
@@ -131,7 +131,7 @@ flowchart LR
     B -->|navigates to| A
 ```
 
-⚠️ **Gap:** `onSelectBusiness` passes only a business `id` string — there's no defined contract yet for how a real app would use that `id` to fetch the specific business's data and populate `BusinessProfileLayout`'s props (`name`, `badgeLabel`, `badgeColor`, and all the field values, which are currently hardcoded `initialFields`/`initialVerificationFields` seed data matching the *first* example business only, "Key Biscayne Yacht Club"). A real implementation needs a data-fetching layer between the two pages that doesn't exist in this reference-layout pass.
+⚠️ **Gap:** `onSelectBusiness` passes only a business `id` string — there's no defined contract yet for how a real app would use that `id` to fetch the specific business's data and populate `BusinessProfileLayout`'s props (`name` and all the field values, which are currently hardcoded `initialFields`/`initialVerificationFields` seed data matching the *first* example business only, "Key Biscayne Yacht Club"). A real implementation needs a data-fetching layer between the two pages that doesn't exist in this reference-layout pass.
 
 ---
 
@@ -144,7 +144,7 @@ All five were generated via the `ucl-generate-component`/`ucl-generate-layout` s
 Pill-shaped status label. `color` (10 values: gray/red/yellow/green/blue/purple/violet/pink/orange/amber) × `size` (sm/lg), optional `showX` dismiss affordance.
 
 - ⚠️ **Decision:** 8 of the 10 colors had no existing UCL token — new `--badge-<color>-bg`/`-fg` tokens were added to `theme.css` (light + dark) rather than hardcoding raw hex, so the component stays token-driven. `gray`'s background (`#f3f4f6`) doesn't match any existing neutral-scale step exactly and is a literal hex with a comment explaining why; `gray`'s text and `red`'s background/text alias existing `neutral-800`/`destructive-600` tokens exactly.
-- Used by `CardBusiness` (status badge) and the Business Profile header (status badge).
+- Used by `CardBusiness` (status badge) on the Business profiles list. The Business Profile detail header carried one too until the Aug 24 revision removed it — see [Design decisions](#design-decisions--the-aug-24-revision).
 
 ### `CardBusiness` (`src/components/cards/card-business/`)
 
@@ -183,12 +183,24 @@ Document/file list row: `AvatarFiles` (leading icon avatar), name, an **optional
 
 ## Design decisions & rationale
 
+### The Aug 24 revision
+
+The detail page was redesigned after its first build (bethere-ucl `88bc2ea`, "Settings Layouts udpated, matching Figma", Aug 24 2026). Five changes, all on Page 2 — the Business profiles list and the Documents tab were untouched:
+
+1. **The "Verification" tab is now "Compliance."** ℹ️ The rename is label-only — `TabsTrigger value` stays `"verification"`, and `verification-tab.tsx` / `VerificationTab` / `VerificationFieldKey` all keep their pre-rename names. Don't "finish" the rename by renaming the file and type — the reference layout deliberately didn't, so a consuming app that mirrors it stays diffable against this one.
+2. **The header's status `Badge` was removed** — along with the `badgeLabel`/`badgeColor` props and the `Pending` story that exercised them. The header is now just `Building2Icon` + name. ⚠️ **Decision:** this is a removal, not a relocation — the business's status is no longer surfaced anywhere on the detail page, only on its `CardBusiness` row in the list. If a future pass wants status back on the detail page, that's a new design question, not a regression to fix.
+3. **Owner moved from the Profile tab to the Compliance tab**, where it's now the first row, above Tax ID (EIN).
+4. **The Owner row gained a second line** — the owner's email (`johnsmith@email.com`), muted, under the name. That makes Owner compound content *and* a flow-starting action; see [Row shape decisions](#row-shape-decisions).
+5. **Copy and spacing:** "EIN / Tax ID" → "Tax ID (EIN)", and Owner verification's inline "View" link moved from a bare trailing space onto `ml-2`.
+
+⚠️ **Naming trap:** the onboarding flow (`business-onboarding.md`) moved the *opposite* direction in the same commit — `src/layouts/business-compliance/` was renamed back to `src/layouts/business-verification/`. So "Compliance" now names a tab in account settings while "Verification" names a step in onboarding. They are different screens in different flows; don't reconcile the two vocabularies without checking both specs.
+
 ### Row shape decisions
 
-Three rows on the Profile tab (Owner, Primary contact, Phone numbers) and two on the Verification tab (Owner verification, Insurance provider) do **not** use `SettingsDetailRow`'s normal expand-to-edit-form behavior, even though all five visually look like a `SettingsDetailRow` (bold title, value/placeholder below, trailing text action). The decision, and the reasoning for it, is captured in full in `DESIGN.md`'s "`SettingsDetailRow` reuse across account-settings pages" entry — summarized:
+Two rows on the Profile tab (Primary contact, Phone numbers) and three on the Compliance tab (Owner, Owner verification, Insurance provider) do **not** use `SettingsDetailRow`'s normal expand-to-edit-form behavior, even though all five visually look like a `SettingsDetailRow` (bold title, value/placeholder below, trailing text action). The decision, and the reasoning for it, is captured in full in `DESIGN.md`'s "`SettingsDetailRow` reuse across account-settings pages" entry — summarized:
 
-- **Owner / Primary contact / Phone numbers** (Profile tab): action verbs ("Transfer ownership", "Add primary contact", "Add phone number") signal *navigation to a different flow*, not editing a scalar value in place — and no Figma `Property 1=Edit` state exists to design an inline form against. Rendered as a plain row + `onClick` stub.
-- **Owner verification / Insurance provider** (Verification tab): content is *compound* (a name/provider plus a doc-type/expiry/link note), not a single text value, and again no Figma edit-form source exists. `SettingsDetailRow` is still reused for its title/value/note *display*, but `onEditStart` is a stub that never sets `editing` — the row visually never expands.
+- **Primary contact / Phone numbers** (Profile tab) and **Owner** (Compliance tab): action verbs ("Add primary contact", "Add phone number", "Transfer ownership") signal *navigation to a different flow*, not editing a scalar value in place — and no Figma `Property 1=Edit` state exists to design an inline form against. Rendered as a plain row + `onClick` stub. Owner is doubly disqualified: its content is compound too (name over a muted email line).
+- **Owner verification / Insurance provider** (Compliance tab): content is *compound* (a name/provider plus a doc-type/expiry/link note), not a single text value, and again no Figma edit-form source exists. `SettingsDetailRow` is still reused for its title/value/note *display*, but `onEditStart` is a stub that never sets `editing` — the row visually never expands.
 
 **The underlying rule** (stated generally in `DESIGN.md` so it applies to future pages too): check the Figma action label's verb. "Edit"/"Save" → a scalar-value `SettingsDetailRow` expand. "Transfer"/"Add X"/"Manage"/"Choose" → a different flow, stub it.
 
@@ -217,7 +229,7 @@ See `DESIGN.md`'s dedicated entry ("Global `cursor: pointer` on every clickable 
 ## Open items / TODOs
 
 1. ⚠️ **No data-fetching contract between the list and detail pages.** `onSelectBusiness(id)` has no defined consumer-side behavior; the detail page's field values (including the Documents tab's `DOCUMENT_GROUPS`) are hardcoded to one example business regardless of which `id` was selected.
-2. ⚠️ **Verification tab has no shared keyboard shortcuts or multi-row focus tracking** — unlike My Profile, Escape/Enter don't operate on "whichever row is focused/most-recently-opened." Not a deliberate simplification; just not carried over yet.
+2. ⚠️ **Compliance tab has no shared keyboard shortcuts or multi-row focus tracking** — unlike My Profile, Escape/Enter don't operate on "whichever row is focused/most-recently-opened." Not a deliberate simplification; just not carried over yet.
 3. ⚠️ **No persistence layer**, same caveat as `my-profile.md` — all state is in-memory React state seeded from hardcoded values; no API calls, no optimistic updates, no error handling.
 4. ⚠️ **No "Create Business" flow** — `onAddBusiness` is a stub; you confirmed this is intentionally deferred to a future pass.
 5. ⚠️ **Owner/Primary contact/Phone numbers/Owner verification/Insurance provider have no real destination flows** — all five are `onClick` stubs with no modal, picker, or list-manager UI built yet, since no Figma design exists for any of them.
