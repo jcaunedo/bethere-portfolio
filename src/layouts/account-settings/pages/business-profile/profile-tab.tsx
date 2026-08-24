@@ -11,7 +11,6 @@ type ProfileTabProps = {
 	cancelEditing: (key: FieldKey) => void;
 	save: (key: FieldKey) => void;
 	isUnchanged: (key: FieldKey) => boolean;
-	onTransferOwnership?: () => void;
 	onAddPrimaryContact?: () => void;
 	onAddPhoneNumber?: () => void;
 };
@@ -31,7 +30,6 @@ function ProfileTab({
 	cancelEditing,
 	save,
 	isUnchanged,
-	onTransferOwnership,
 	onAddPrimaryContact,
 	onAddPhoneNumber,
 }: ProfileTabProps) {
@@ -104,25 +102,11 @@ function ProfileTab({
 				</SettingsDetailRow>
 			</div>
 
-			{/* Owner/Primary contact/Phone numbers start a different flow
-			    (transfer, picker, list manager) rather than editing a
-			    scalar value in place — no Figma edit-form state exists for
-			    them, so they're a plain row + onClick stub, not a
-			    SettingsDetailRow expand. See DESIGN.md. */}
-			<div className="flex w-full items-center gap-6 px-2 py-6">
-				<div className="flex min-w-0 flex-1 flex-col gap-1 text-base">
-					<p className="font-semibold text-foreground">Owner</p>
-					<p className="text-foreground">John Smith</p>
-				</div>
-				<button
-					type="button"
-					onClick={onTransferOwnership}
-					className="h-8 shrink-0 py-1.5 text-sm font-medium text-primary outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50"
-				>
-					Transfer ownership
-				</button>
-			</div>
-
+			{/* Primary contact/Phone numbers start a different flow (picker,
+			    list manager) rather than editing a scalar value in place —
+			    no Figma edit-form state exists for them, so they're a plain
+			    row + onClick stub, not a SettingsDetailRow expand. See
+			    DESIGN.md. */}
 			<div className="flex w-full items-center gap-6 px-2 py-6">
 				<div className="flex min-w-0 flex-1 flex-col gap-1 text-base">
 					<p className="font-semibold text-foreground">

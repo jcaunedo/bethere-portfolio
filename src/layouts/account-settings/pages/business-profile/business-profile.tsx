@@ -4,10 +4,8 @@ import { Building2Icon, ChevronLeftIcon } from "lucide-react";
 
 import { AccountSettingsLayout } from "@/layouts/account-settings/account-settings";
 import { AccountSettingsMenuLayout } from "@/layouts/account-settings/account-settings-menu";
-import { Badge, type badgeVariants } from "@/components/data-display/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/navigation/tabs";
 import { Typography } from "@/components/typography";
-import type { VariantProps } from "class-variance-authority";
 import { slideVariants } from "@/lib/motion";
 
 import { ProfileTab } from "./profile-tab";
@@ -15,8 +13,8 @@ import { VerificationTab } from "./verification-tab";
 import { DocumentsTab } from "./documents-tab";
 
 // Text-edit fields (Figma: rows whose action is "Edit" — a scalar value
-// edited in place). Owner/Primary contact/Phone numbers are deliberately
-// NOT here — see ProfileTab's onClick-stub rows and DESIGN.md's
+// edited in place). Primary contact/Phone numbers are deliberately not
+// here — see ProfileTab's onClick-stub rows and DESIGN.md's
 // "SettingsDetailRow reuse across account-settings pages" entry.
 const FIELD_KEYS = ["legalName", "address", "website", "email"] as const;
 type FieldKey = (typeof FIELD_KEYS)[number];
@@ -29,11 +27,12 @@ const initialFields: Record<FieldKey, FieldState> = {
 	email: { value: "hello@domain.com", editing: false },
 };
 
-// Verification tab's scalar text-edit fields (EIN/Tax ID, License number,
-// Registration number). Owner verification/Insurance provider are NOT here —
-// their content is compound (name/provider + doc-type + expiry + link), not
-// a single text value, so VerificationTab renders them as static
-// SettingsDetailRows with a stubbed onEditStart instead — see DESIGN.md.
+// Compliance tab's scalar text-edit fields (Tax ID (EIN), License number,
+// Registration number). Owner/Owner verification/Insurance provider are NOT
+// here — their content is compound (name/email or name/provider + doc-type +
+// expiry + link), not a single text value, so VerificationTab renders them as
+// static rows/SettingsDetailRows with a stubbed onEditStart instead — see
+// DESIGN.md.
 const VERIFICATION_FIELD_KEYS = ["ein", "license", "registration"] as const;
 type VerificationFieldKey = (typeof VERIFICATION_FIELD_KEYS)[number];
 
@@ -46,18 +45,14 @@ const initialVerificationFields: Record<VerificationFieldKey, FieldState> = {
 type BusinessProfileLayoutProps = {
 	/** Business name shown in the header (Figma: header text). */
 	name?: string;
-	/** Header badge label (Figma default: "Approved"). */
-	badgeLabel?: string;
-	/** Header badge color (Figma default: "green"). */
-	badgeColor?: NonNullable<VariantProps<typeof badgeVariants>["color"]>;
 	/** Called when "Back to businesses" is activated. */
 	onBack?: () => void;
-	/** Called when "Transfer ownership" is activated — hooks into a (future) transfer-ownership flow. */
-	onTransferOwnership?: () => void;
 	/** Called when "Add primary contact" is activated — hooks into a (future) contact picker. */
 	onAddPrimaryContact?: () => void;
 	/** Called when "Add phone number" is activated — hooks into a (future) phone list manager. */
 	onAddPhoneNumber?: () => void;
+	/** Called when "Transfer ownership" is activated — hooks into a (future) transfer-ownership flow. */
+	onTransferOwnership?: () => void;
 	/** Called when Owner verification's "View" link is activated — hooks into a (future) document viewer. */
 	onViewOwnerVerification?: () => void;
 	/** Called when Owner verification's "Edit" is activated — hooks into a (future) owner-verification flow. */
@@ -77,7 +72,7 @@ type BusinessProfileLayoutProps = {
  * → "Business Profile" frame) — the page a user lands on after clicking a
  * `CardBusiness` row on `BusinessProfilesLayout`. Renders inside
  * `AccountSettingsLayout`'s content column: a "Back to businesses" link,
- * business name + status badge, and Profile/Verification/Documents tabs.
+ * business name, and Profile/Compliance/Documents tabs.
  * This file owns all page state and the mobile menu↔page shell; each tab's
  * JSX lives in its own sibling file (`profile-tab.tsx`, `verification-tab.tsx`,
  * `documents-tab.tsx`) since the combined file previously exceeded my-profile.tsx's
@@ -85,12 +80,10 @@ type BusinessProfileLayoutProps = {
  */
 function BusinessProfileLayout({
 	name = "Key Biscayne Yacht Club",
-	badgeLabel = "Approved",
-	badgeColor = "green",
 	onBack,
-	onTransferOwnership,
 	onAddPrimaryContact,
 	onAddPhoneNumber,
+	onTransferOwnership,
 	onViewOwnerVerification,
 	onEditOwnerVerification,
 	onEditInsuranceProvider,
@@ -247,15 +240,12 @@ function BusinessProfileLayout({
 							>
 								{name}
 							</Typography>
-							<Badge color={badgeColor} size="lg" className="shrink-0">
-								{badgeLabel}
-							</Badge>
 						</div>
 
 						<Tabs defaultValue="profile">
 							<TabsList>
 								<TabsTrigger value="profile">Profile</TabsTrigger>
-								<TabsTrigger value="verification">Verification</TabsTrigger>
+								<TabsTrigger value="verification">Compliance</TabsTrigger>
 								<TabsTrigger value="documents">Documents</TabsTrigger>
 							</TabsList>
 
@@ -268,7 +258,6 @@ function BusinessProfileLayout({
 									cancelEditing={cancelEditing}
 									save={save}
 									isUnchanged={isUnchanged}
-									onTransferOwnership={onTransferOwnership}
 									onAddPrimaryContact={onAddPrimaryContact}
 									onAddPhoneNumber={onAddPhoneNumber}
 								/>
@@ -283,6 +272,7 @@ function BusinessProfileLayout({
 									cancelEditingVerification={cancelEditingVerification}
 									saveVerification={saveVerification}
 									isVerificationUnchanged={isVerificationUnchanged}
+									onTransferOwnership={onTransferOwnership}
 									onViewOwnerVerification={onViewOwnerVerification}
 									onEditOwnerVerification={onEditOwnerVerification}
 									onEditInsuranceProvider={onEditInsuranceProvider}

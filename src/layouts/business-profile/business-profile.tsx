@@ -8,16 +8,22 @@ import { Typography } from "@/components/typography";
 import { StepperOnboarding } from "@/components/stepper/stepper-onboarding";
 import { Logo } from "@/components/data-display/logo";
 
+// Business category taxonomy — provider-facing labels. See
+// product-specs/business-onboarding.md "Category list" for the source of
+// truth (paired against the guest-facing Concierge tile taxonomy) and notes
+// on individual entries.
 const PROVIDER_TYPE_OPTIONS = [
-  { value: "experience-company", label: "Experience Company" },
-  { value: "independent-host", label: "Independent Host" },
-  { value: "tour-operator", label: "Tour Operator" },
-  { value: "venue-location", label: "Venue / Location" },
-  { value: "event-organizer", label: "Event Organizer" },
-  { value: "rental-provider", label: "Rental Provider" },
-  { value: "instructor-guide", label: "Instructor / Guide" },
-  { value: "hospitality-service", label: "Hospitality Service" },
-  { value: "agency-broker", label: "Agency / Broker" },
+  { value: "city-tours", label: "City tours" },
+  { value: "boats-yacht-charters", label: "Boats & yacht charters" },
+  { value: "activities-recreation", label: "Activities & recreation" },
+  { value: "food-dining", label: "Food & dining" },
+  { value: "wellness-beauty", label: "Wellness & beauty" },
+  { value: "entertainment-nightlife", label: "Entertainment & nightlife" },
+  { value: "shopping-experiences", label: "Shopping experiences" },
+  { value: "family-experiences", label: "Family experiences" },
+  { value: "art-culture-entertainment", label: "Art, culture & entertainment" },
+  { value: "transport", label: "Transport" },
+  { value: "professional-services", label: "Professional services" },
   { value: "other", label: "Other" },
 ];
 
@@ -91,18 +97,16 @@ function BusinessProfile() {
                 <div className="flex w-full flex-col gap-4">
                   <FormikInput
                     name="companyName"
-                    label="Company name"
+                    label="Business name"
                     placeholder="Blue Yachts Miami"
                     size="xl"
-                    required
                   />
                   <FormikSelect
                     name="providerType"
-                    label="Provider type"
-                    placeholder="Select provider type"
+                    label="What does your business offer?"
+                    placeholder="Select a category"
                     options={PROVIDER_TYPE_OPTIONS}
                     size="xl"
-                    required
                   />
                   <FormikInput
                     name="phoneNumber"

@@ -14,11 +14,3 @@ export default meta;
 type Story = StoryObj<typeof BusinessProfileLayout>;
 
 export const Default: Story = {};
-
-export const Pending: Story = {
-  args: {
-    name: "Brickell Bay Cafe",
-    badgeLabel: "Pending approval",
-    badgeColor: "yellow",
-  },
-};

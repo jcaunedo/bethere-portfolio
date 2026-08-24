@@ -15,18 +15,20 @@ type VerificationTabProps = {
 	cancelEditingVerification: (key: VerificationFieldKey) => void;
 	saveVerification: (key: VerificationFieldKey) => void;
 	isVerificationUnchanged: (key: VerificationFieldKey) => boolean;
+	onTransferOwnership?: () => void;
 	onViewOwnerVerification?: () => void;
 	onEditOwnerVerification?: () => void;
 	onEditInsuranceProvider?: () => void;
 };
 
 /**
- * Business Profile's "Verification" tab (Figma: "Business Verification"
- * frame) — EIN/License/Registration scalar edits plus two static rows
- * (Owner verification, Insurance provider) whose content is compound
- * (name/provider + doc-type + expiry + link), not a single text value, so
- * `onEditStart` is a stub that never flips `editing`. See DESIGN.md's
- * "SettingsDetailRow reuse across account-settings pages" entry.
+ * Business Profile's "Compliance" tab (Figma: "Business Compliance" frame)
+ * — Owner (name/email, navigates to a transfer-ownership flow) plus
+ * Tax ID/License/Registration scalar edits, and two static rows (Owner
+ * verification, Insurance provider) whose content is compound (name/provider
+ * + doc-type + expiry + link), not a single text value, so `onEditStart` is
+ * a stub that never flips `editing`. See DESIGN.md's "SettingsDetailRow
+ * reuse across account-settings pages" entry.
  */
 function VerificationTab({
 	verificationFields,
@@ -36,15 +38,35 @@ function VerificationTab({
 	cancelEditingVerification,
 	saveVerification,
 	isVerificationUnchanged,
+	onTransferOwnership,
 	onViewOwnerVerification,
 	onEditOwnerVerification,
 	onEditInsuranceProvider,
 }: VerificationTabProps) {
 	return (
 		<div className="flex flex-col divide-y divide-border">
+			{/* Owner has compound content (name + email) rather than a single
+			    scalar value, and navigates to a different flow (transfer
+			    ownership) rather than editing in place — plain row + onClick
+			    stub, not a SettingsDetailRow expand. See DESIGN.md. */}
+			<div className="flex w-full items-center gap-6 px-2 py-6">
+				<div className="flex min-w-0 flex-1 flex-col gap-1">
+					<p className="text-base font-semibold text-foreground">Owner</p>
+					<p className="text-base text-foreground">John Smith</p>
+					<p className="text-sm text-muted-foreground">johnsmith@email.com</p>
+				</div>
+				<button
+					type="button"
+					onClick={onTransferOwnership}
+					className="h-8 shrink-0 py-1.5 text-sm font-medium text-primary outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50"
+				>
+					Transfer ownership
+				</button>
+			</div>
+
 			<div className="py-6">
 				<SettingsDetailRow
-					title="EIN / Tax ID"
+					title="Tax ID (EIN)"
 					value={verificationFields.ein.value}
 					editing={verificationFields.ein.editing}
 					onEditStart={() => startEditingVerification("ein")}
@@ -122,11 +144,11 @@ function VerificationTab({
 					value="John Smith"
 					note={
 						<>
-							Driver license · Expires Jun 02, 2032{" "}
+							Driver license · Expires Jun 02, 2032
 							<button
 								type="button"
 								onClick={onViewOwnerVerification}
-								className="text-primary outline-none hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50"
+								className="ml-2 text-primary outline-none hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50"
 							>
 								View
 							</button>
