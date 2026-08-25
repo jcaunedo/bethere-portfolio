@@ -339,6 +339,7 @@
 	--radius-button-xl: var(--radius-xl); /* 12px */
 	--radius-pill: var(--radius-full); /* Figma radius/pill — corrected 2026-08-04 from a stale 8px alias to --radius-lg; Figma's value is now 9999 (fully round) */
 	--radius-chip: var(--radius-lg); /* 8px — Figma radius/chip */
+	--radius-select-item: var(--radius-lg); /* 8px — Figma radius/select-item */
 
 	/* ---------- Shadow roles (Figma `effect` styles) ----------
 	   Figma's `shadow 5` primitive is a flat rgba(0,0,0,0.05) used at multiple

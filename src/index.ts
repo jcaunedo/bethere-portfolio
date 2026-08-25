@@ -299,9 +299,26 @@ export {
 } from "./components/overlays/dialog";
 
 export {
+  DropdownMenu,
+  DropdownMenuPortal,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "./components/overlays/dropdown-menu";
+
+export {
   InviteTeamMembersDialog,
   type InviteTeamMembersDialogProps,
 } from "./components/overlays/invite-team-members-dialog";
+
+export {
+  EditMemberDialog,
+  type EditMemberDialogProps,
+  type EditMemberDialogMember,
+} from "./components/overlays/edit-member-dialog";
 
 /* -------------------------------------------------------------------------- */
 /* Navigation                                                                 */

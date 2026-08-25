@@ -28,7 +28,12 @@ type InviteRow = {
 let nextRowId = 0;
 function createInviteRow(): InviteRow {
   nextRowId += 1;
-  return { id: `invite-${nextRowId}`, email: "", role: "staff", emailTouched: false };
+  return {
+    id: `invite-${nextRowId}`,
+    email: "",
+    role: "staff",
+    emailTouched: false,
+  };
 }
 
 // Matches the pattern used by MyProfileLayout's email field — "good enough"
@@ -101,7 +106,12 @@ function InviteTeamMembersDialog({
     if (hasInvalidEmail) {
       // Surface the error on every row that has one, even if the user
       // never blurred that field before clicking Send.
-      setRows((prev) => prev.map((row) => ({ ...row, emailTouched: true })));
+      setRows((prev) =>
+        prev.map((row) => ({
+          ...row,
+          emailTouched: true,
+        })),
+      );
       return;
     }
     onSendInvites?.(
@@ -117,7 +127,7 @@ function InviteTeamMembersDialog({
       {children}
       <DialogContent className={cn("sm:max-w-[600px]", className)}>
         <DialogHeader>
-          <DialogTitle>Invite team members</DialogTitle>
+          <DialogTitle>Invite members</DialogTitle>
           <DialogDescription>
             Invite members by email and assign a role.
           </DialogDescription>
@@ -151,7 +161,7 @@ function InviteTeamMembersDialog({
                   <Input
                     id={`${row.id}-email`}
                     type="email"
-                    placeholder="john.smith@email.com"
+                    placeholder="name@company.com"
                     value={row.email}
                     aria-invalid={
                       row.emailTouched &&
@@ -172,6 +182,7 @@ function InviteTeamMembersDialog({
                     value={row.role}
                     onValueChange={(role) => updateRow(row.id, { role })}
                     triggerClassName="h-9"
+                    contentClassName="w-[304px] min-w-[304px]"
                   />
                 </FormField>
                 {canRemove && (
@@ -183,7 +194,10 @@ function InviteTeamMembersDialog({
                     // Aligns the button with the input row, not the label
                     // row above it (Figma: the "X" sits beside the input,
                     // never beside "Email"/"Role").
-                    className={cn(hasLabel && "mt-[28px]")}
+                    className={cn(
+                      "text-muted-foreground hover:text-foreground",
+                      hasLabel && "mt-[28px]",
+                    )}
                     onClick={() => removeRow(row.id)}
                   >
                     <CircleMinusIcon />

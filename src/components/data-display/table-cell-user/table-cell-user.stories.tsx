@@ -16,6 +16,7 @@ const meta: Meta<typeof TableCellUser> = {
   argTypes: {
     name: { control: "text" },
     email: { control: "text" },
+    phone: { control: "text" },
     avatarUrl: { control: "text" },
   },
 };
@@ -39,10 +40,19 @@ export const WithPhoto: Story = {
   },
 };
 
+/** `phone` adds a third line below email (Figma: Provider-Portal Team members). */
+export const WithPhone: Story = {
+  args: {
+    name: "Cameron Williamson",
+    email: "kathryn.murphy@email.com",
+    phone: "(207) 555-0119",
+  },
+};
+
 /** Figma `row` (`Property 1=Avatar`) — the intended usage: a person column inside `Table`/`DataTable`. */
 export const InTable: Story = {
   render: () => (
-    <div className="w-full overflow-hidden rounded-xl bg-card">
+    <div className="w-full overflow-hidden rounded-t-xl bg-card">
       <Table>
         <TableHeader>
           <TableRow>

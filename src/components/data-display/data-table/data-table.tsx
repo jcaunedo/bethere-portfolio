@@ -86,7 +86,7 @@ function DataTable<TData, TValue>({
         />
       ) : null}
 
-      <div className="overflow-hidden rounded-xl bg-card">
+      <div className="overflow-hidden rounded-t-xl bg-card">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

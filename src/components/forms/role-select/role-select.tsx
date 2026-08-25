@@ -44,6 +44,10 @@ type RoleSelectProps = Omit<
   onValueChange?: (value: TeamRole) => void;
   placeholder?: string;
   triggerClassName?: string;
+  /** Overrides the popper's width — defaults to matching the trigger's own
+   * width (`SelectContent`'s default). Only "Invite team members" needs a
+   * wider panel than its narrow Role column trigger. */
+  contentClassName?: string;
 };
 
 /**
@@ -57,6 +61,7 @@ type RoleSelectProps = Omit<
 function RoleSelect({
   placeholder = "Select a role",
   triggerClassName,
+  contentClassName,
   onValueChange,
   ...props
 }: RoleSelectProps) {
@@ -68,7 +73,7 @@ function RoleSelect({
       <SelectTrigger className={triggerClassName}>
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
-      <SelectContent className="w-[304px] min-w-[304px]">
+      <SelectContent className={contentClassName}>
         {ROLE_OPTIONS.map((role) => (
           <SelectItem
             key={role.value}

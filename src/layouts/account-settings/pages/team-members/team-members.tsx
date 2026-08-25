@@ -1,9 +1,10 @@
 import * as React from "react";
-import { EllipsisIcon, UserPlusIcon } from "lucide-react";
+import { EllipsisIcon, PencilIcon, Trash2Icon, UserPlusIcon } from "lucide-react";
 
 import { AccountSettingsLayout } from "@/layouts/account-settings/account-settings";
 import { Button } from "@/components/buttons/button";
 import { Typography } from "@/components/typography";
+import { TransferOwnershipIcon } from "@/components/icons/transfer-ownership-icon";
 import { TableCellUser } from "@/components/data-display/table-cell-user";
 import {
   Table,
@@ -15,12 +16,35 @@ import {
 } from "@/components/data-display/table";
 import { DialogTrigger } from "@/components/overlays/dialog";
 import { InviteTeamMembersDialog } from "@/components/overlays/invite-team-members-dialog";
+import {
+  EditMemberDialog,
+  type EditMemberDialogMember,
+} from "@/components/overlays/edit-member-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/overlays/dropdown-menu";
 import { SearchTrigger } from "@/components/forms/search-trigger";
-import type { TeamRole } from "@/components/forms/role-select";
+import { ROLE_OPTIONS, type TeamRole } from "@/components/forms/role-select";
+
+const TEAM_ROLE_VALUES = new Set(ROLE_OPTIONS.map((option) => option.value));
+
+/** Maps a display role string (e.g. "Admin", "Owner") to a `TeamRole` for
+ * `RoleSelect` — falls back to "staff" for values RoleSelect doesn't
+ * support (e.g. "Owner", which has no Figma-sourced role-picker option). */
+function toTeamRole(role: string): TeamRole {
+  const normalized = role.toLowerCase();
+  return TEAM_ROLE_VALUES.has(normalized as TeamRole)
+    ? (normalized as TeamRole)
+    : "staff";
+}
 
 type TeamMember = {
   name: string;
   email: string;
+  phone: string;
   avatarUrl?: string;
   title: string;
   role: string;
@@ -32,6 +56,7 @@ const PENDING_INVITES: TeamMember[] = [
   {
     name: "Cameron Williamson",
     email: "kathryn.murphy@email.com",
+    phone: "(207) 555-0119",
     avatarUrl: "https://i.pravatar.cc/72?img=47",
     title: "Manager",
     role: "Admin",
@@ -40,6 +65,7 @@ const PENDING_INVITES: TeamMember[] = [
   {
     name: "Jacob Jones",
     email: "guy.hawkins@email.com",
+    phone: "(302) 555-0164",
     title: "Sales",
     role: "Staff",
     dateLabel: "2 days ago",
@@ -50,6 +76,7 @@ const ACTIVE_MEMBERS: TeamMember[] = [
   {
     name: "Guy Hawkins",
     email: "esther.howard@email.com",
+    phone: "(315) 555-0141",
     avatarUrl: "https://i.pravatar.cc/72?img=12",
     title: "Finance",
     role: "Owner",
@@ -58,6 +85,7 @@ const ACTIVE_MEMBERS: TeamMember[] = [
   {
     name: "Esther Howard",
     email: "cody.fisher@email.com",
+    phone: "(704) 555-0182",
     avatarUrl: "https://i.pravatar.cc/72?img=32",
     title: "General Assistance",
     role: "Admin",
@@ -66,6 +94,7 @@ const ACTIVE_MEMBERS: TeamMember[] = [
   {
     name: "Floyd Miles",
     email: "bessie.cooper@email.com",
+    phone: "(913) 555-0127",
     title: "Sales Representative",
     role: "Staff",
     dateLabel: "Apr 22, 2025",
@@ -73,6 +102,7 @@ const ACTIVE_MEMBERS: TeamMember[] = [
   {
     name: "Bessie Cooper",
     email: "floyd.miles@email.com",
+    phone: "(505) 555-0173",
     avatarUrl: "https://i.pravatar.cc/72?img=45",
     title: "Operations",
     role: "Staff",
@@ -81,6 +111,7 @@ const ACTIVE_MEMBERS: TeamMember[] = [
   {
     name: "Cody Fisher",
     email: "jacob.jones@email.com",
+    phone: "(614) 555-0158",
     title: "Captain",
     role: "Staff",
     dateLabel: "Jun 07, 2025",
@@ -88,6 +119,7 @@ const ACTIVE_MEMBERS: TeamMember[] = [
   {
     name: "Kathryn Murphy",
     email: "cameron.williamson@email.com",
+    phone: "(816) 555-0136",
     avatarUrl: "https://i.pravatar.cc/72?img=28",
     title: "Maintenance",
     role: "Staff",
@@ -98,52 +130,100 @@ const ACTIVE_MEMBERS: TeamMember[] = [
 type MembersTableProps = {
   members: TeamMember[];
   dateColumnLabel: string;
-  onMemberActions?: (member: TeamMember) => void;
+  /** Called when a row's "Edit" action is activated. */
+  onEditMember?: (member: TeamMember) => void;
+  /** Called when a row's "Delete" action is activated. Not offered for the
+   * "Owner" row — an owner can't be deleted. */
+  onDeleteMember?: (member: TeamMember) => void;
+  /** Called when the "Owner" row's "Transfer ownership" action is
+   * activated. Shown only for the "Owner" row, in place of "Delete". */
+  onTransferOwnership?: (member: TeamMember) => void;
 };
 
 function MembersTable({
   members,
   dateColumnLabel,
-  onMemberActions,
+  onEditMember,
+  onDeleteMember,
+  onTransferOwnership,
 }: MembersTableProps) {
   return (
-    <div className="overflow-hidden rounded-xl bg-card">
+    <div className="overflow-hidden rounded-t-xl bg-card">
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead className="w-[312px]">Name</TableHead>
-            <TableHead>Title</TableHead>
+            <TableHead>Job title</TableHead>
             <TableHead className="w-[97px]">Role</TableHead>
             <TableHead className="w-[101px]">{dateColumnLabel}</TableHead>
             <TableHead className="w-9" />
           </TableRow>
         </TableHeader>
         <TableBody>
-          {members.map((member) => (
-            <TableRow key={member.email}>
-              <TableCell>
-                <TableCellUser
-                  name={member.name}
-                  email={member.email}
-                  avatarUrl={member.avatarUrl}
-                />
-              </TableCell>
-              <TableCell>{member.title}</TableCell>
-              <TableCell>{member.role}</TableCell>
-              <TableCell>{member.dateLabel}</TableCell>
-              <TableCell>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-sm"
-                  aria-label={`More actions for ${member.name}`}
-                  onClick={() => onMemberActions?.(member)}
-                >
-                  <EllipsisIcon />
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
+          {members.map((member) => {
+            const isOwner = member.role === "Owner";
+            return (
+              <TableRow
+                key={member.email}
+                className="cursor-pointer"
+                onClick={() => onEditMember?.(member)}
+              >
+                <TableCell>
+                  <TableCellUser
+                    name={member.name}
+                    email={member.email}
+                    phone={member.phone}
+                    avatarUrl={member.avatarUrl}
+                  />
+                </TableCell>
+                <TableCell>{member.title}</TableCell>
+                <TableCell>{member.role}</TableCell>
+                <TableCell>{member.dateLabel}</TableCell>
+                <TableCell onClick={(e) => e.stopPropagation()}>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label={`More actions for ${member.name}`}
+                        className="text-muted-foreground hover:text-foreground"
+                      >
+                        <EllipsisIcon />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem
+                        showIcon
+                        icon={<PencilIcon />}
+                        onSelect={() => onEditMember?.(member)}
+                      >
+                        Edit
+                      </DropdownMenuItem>
+                      {isOwner ? (
+                        <DropdownMenuItem
+                          showIcon
+                          icon={<TransferOwnershipIcon className="text-foreground" />}
+                          onSelect={() => onTransferOwnership?.(member)}
+                        >
+                          Transfer ownership
+                        </DropdownMenuItem>
+                      ) : (
+                        <DropdownMenuItem
+                          showIcon
+                          icon={<Trash2Icon />}
+                          variant="destructive"
+                          onSelect={() => onDeleteMember?.(member)}
+                        >
+                          Delete
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </div>
@@ -158,8 +238,17 @@ type TeamMembersLayoutProps = {
    * "Send Invites" is activated. The dialog closes itself either way.
    */
   onSendInvites?: (invites: { email: string; role: TeamRole }[]) => void;
-  /** Called when a row's "more actions" (ellipsis) button is activated. */
-  onMemberActions?: (member: TeamMember) => void;
+  /**
+   * Called with the edited values when a row's `EditMemberDialog` "Save" is
+   * activated. The dialog closes itself either way.
+   */
+  onEditMember?: (member: TeamMember, edited: EditMemberDialogMember) => void;
+  /** Called when a row's "Delete" action is activated. Not offered for the
+   * "Owner" row — an owner can't be deleted. */
+  onDeleteMember?: (member: TeamMember) => void;
+  /** Called when the "Owner" row's "Transfer ownership" action is
+   * activated. Shown only for the "Owner" row, in place of "Delete". */
+  onTransferOwnership?: (member: TeamMember) => void;
 };
 
 /**
@@ -167,16 +256,22 @@ type TeamMembersLayoutProps = {
  * Portal → "Team members" frame). Rendered inside `AccountSettingsLayout`'s
  * content column — a search + invite row, then "Pending invites" and
  * "Active" member tables built from the shared `Table`/`TableCellUser`
- * primitives. "Invite member" opens `InviteTeamMembersDialog`. Row actions
- * are stubbed via `onMemberActions` — no dropdown menu content is wired up
- * yet.
+ * primitives. "Invite member" opens `InviteTeamMembersDialog`. Each row's
+ * "more actions" (ellipsis) opens a `DropdownMenu` with Edit/Delete (Figma:
+ * bethere.ds "Select Content (Popper)" panel shell, reused as a row-actions
+ * menu) — "Edit" opens `EditMemberDialog` seeded with that row's data.
  */
 function TeamMembersLayout({
   onClose,
   onSendInvites,
-  onMemberActions,
+  onEditMember,
+  onDeleteMember,
+  onTransferOwnership,
 }: TeamMembersLayoutProps) {
   const [searchQuery, setSearchQuery] = React.useState("");
+  const [editingMember, setEditingMember] = React.useState<TeamMember | null>(
+    null,
+  );
 
   return (
     <AccountSettingsLayout activeItem="Team members" onClose={onClose}>
@@ -215,7 +310,8 @@ function TeamMembersLayout({
           <MembersTable
             members={PENDING_INVITES}
             dateColumnLabel="Date invited"
-            onMemberActions={onMemberActions}
+            onEditMember={setEditingMember}
+            onDeleteMember={onDeleteMember}
           />
         </div>
 
@@ -226,10 +322,30 @@ function TeamMembersLayout({
           <MembersTable
             members={ACTIVE_MEMBERS}
             dateColumnLabel="Last seen"
-            onMemberActions={onMemberActions}
+            onTransferOwnership={onTransferOwnership}
+            onEditMember={setEditingMember}
+            onDeleteMember={onDeleteMember}
           />
         </div>
       </div>
+
+      {editingMember && (
+        <EditMemberDialog
+          open
+          onOpenChange={(open) => {
+            if (!open) setEditingMember(null);
+          }}
+          member={{
+            name: editingMember.name,
+            email: editingMember.email,
+            phone: editingMember.phone,
+            avatarUrl: editingMember.avatarUrl,
+            title: editingMember.title,
+            role: toTeamRole(editingMember.role),
+          }}
+          onSave={(edited) => onEditMember?.(editingMember, edited)}
+        />
+      )}
     </AccountSettingsLayout>
   );
 }

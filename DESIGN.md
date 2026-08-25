@@ -486,3 +486,44 @@ two-tier lookup — a per-row DOM ref map + `document.activeElement`
 containment check, falling back to an open-order stack — rather than
 either a single `activeKey` (breaks multi-open) or pure LIFO (ignores
 focus). Don't drop the focus check to "simplify" this back to LIFO-only.
+
+---
+
+## Tables round only their top corners (`src/components/data-display/table/table.tsx`)
+
+**Rule:** A table's rounded container only rounds the **top** corners
+(`rounded-t-xl`), never the bottom — this is a global rule for every table
+in UCL, not a per-page choice. `Table`/`TableHeader` already only apply
+`rounded-tl-xl`/`rounded-tr-xl` internally (on the header row's first/last
+cell); the bug is in whatever wrapper `div` clips the table's overflow —
+using `rounded-xl` there rounds all four corners and visually rounds the
+bottom even though the table itself never intended that.
+
+```tsx
+// WRONG — rounds all four corners
+<div className="overflow-hidden rounded-xl bg-card">
+  <Table>…</Table>
+</div>
+
+// CORRECT — only the top rounds; overflow-hidden still needed to clip
+// the header's own rounded-tl-xl/rounded-tr-xl corners
+<div className="overflow-hidden rounded-t-xl bg-card">
+  <Table>…</Table>
+</div>
+```
+
+**Why:** `DataTable` (`src/components/data-display/data-table/data-table.tsx`)
+and the "Team members" page's `MembersTable`
+(`src/layouts/account-settings/pages/team-members/team-members.tsx`) both
+wrapped `Table` in an `overflow-hidden rounded-xl` container. `Table` itself
+was already correctly top-only, so the bottom rounding was coming from the
+wrapper alone — an easy thing to miss since `rounded-xl` on a clipping
+wrapper still renders *something* plausible, it's just not the intended
+shape.
+
+**How to apply:** Any new table wrapper (a page-level table, a new shared
+table component) must use `rounded-t-xl` (or `rounded-t-*` matching the
+surrounding radius scale), never a plain `rounded-xl`/`rounded-*`, on the
+`overflow-hidden` container around `Table`. Keep `overflow-hidden` — it's
+still required to clip the header's top corners — just drop the bottom
+radius.

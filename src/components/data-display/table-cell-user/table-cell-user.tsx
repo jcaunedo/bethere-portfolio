@@ -11,20 +11,25 @@ function initialsFromName(name: string): string {
 }
 
 /**
- * Avatar + name/email cell content for a person column inside `Table`/
- * `DataTable`. Figma: bethere.ds `row` (`Property 1=Avatar`). Plug into a
- * `ColumnDef`'s `cell` renderer — it renders content only, not a `<td>`
- * wrapper, so `TableCell`'s own padding still applies.
+ * Avatar + name/email(/phone) cell content for a person column inside
+ * `Table`/`DataTable`. Figma: bethere.ds `row` (`Property 1=Avatar`).
+ * `phone` is optional — omit it for the original two-line layout; when
+ * present it renders as a third line, same style as email (Figma:
+ * Provider-Portal Team members, updated to add a phone number line below
+ * email). Plug into a `ColumnDef`'s `cell` renderer — it renders content
+ * only, not a `<td>` wrapper, so `TableCell`'s own padding still applies.
  */
 function TableCellUser({
   name,
   email,
+  phone,
   avatarUrl,
   className,
   ...props
 }: React.ComponentProps<"div"> & {
   name: string;
   email: string;
+  phone?: string;
   avatarUrl?: string;
 }) {
   return (
@@ -44,6 +49,11 @@ function TableCellUser({
         <span className="block truncate text-xs text-muted-foreground">
           {email}
         </span>
+        {phone ? (
+          <span className="block truncate text-xs text-muted-foreground">
+            {phone}
+          </span>
+        ) : null}
       </span>
     </div>
   );
