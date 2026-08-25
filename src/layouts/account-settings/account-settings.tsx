@@ -105,7 +105,7 @@ function AccountSettingsLayout({
           */}
           <div
             data-slot="settings-layout-column"
-            className="w-full max-w-[720px] px-4 pt-6 md:pt-0"
+            className="w-full max-w-[880px] px-4 pt-6 md:pt-0"
           >
             {children}
           </div>

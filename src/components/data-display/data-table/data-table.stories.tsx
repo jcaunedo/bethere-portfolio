@@ -49,7 +49,7 @@ type Story = StoryObj<typeof DataTable<Payment, unknown>>;
 
 export const Default: Story = {
   render: () => (
-    <div className="w-[640px]">
+    <div className="w-full">
       <DataTable columns={columns} data={data} />
     </div>
   ),
@@ -57,7 +57,7 @@ export const Default: Story = {
 
 export const Searchable: Story = {
   render: () => (
-    <div className="w-[640px]">
+    <div className="w-full">
       <DataTable columns={columns} data={data} searchable pageSize={5} />
     </div>
   ),
@@ -65,7 +65,7 @@ export const Searchable: Story = {
 
 export const Empty: Story = {
   render: () => (
-    <div className="w-[640px]">
+    <div className="w-full">
       <DataTable columns={columns} data={[]} />
     </div>
   ),

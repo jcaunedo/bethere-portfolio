@@ -2,9 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -27,9 +25,8 @@ const invoices = [
 
 export const Default: Story = {
   render: () => (
-    <div className="w-[560px]">
+    <div className="w-full">
       <Table>
-        <TableCaption>A list of your recent invoices.</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead>Invoice</TableHead>
@@ -48,12 +45,6 @@ export const Default: Story = {
             </TableRow>
           ))}
         </TableBody>
-        <TableFooter>
-          <TableRow>
-            <TableCell colSpan={3}>Total</TableCell>
-            <TableCell className="text-right">$750.00</TableCell>
-          </TableRow>
-        </TableFooter>
       </Table>
     </div>
   ),

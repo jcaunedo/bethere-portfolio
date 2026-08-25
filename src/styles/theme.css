@@ -476,7 +476,7 @@
 	--radius: 0.5rem;
 
 	/* Extended roles */
-	--overlay: #dbdbdbb2;
+	--overlay: #31373f29; /* Figma color/overlay/overlay — neutral-700 @ 16% */
 	--link: var(--sunset-500);
 
 	/* Status / alerts (base + key tints, standardized on -subtle/-muted for all 4 roles) */

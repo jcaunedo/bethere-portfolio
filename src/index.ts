@@ -67,6 +67,11 @@ export {
 } from "./components/forms/search-input";
 
 export {
+  SearchTrigger,
+  type SearchTriggerProps,
+} from "./components/forms/search-trigger";
+
+export {
   NumericInput,
   type NumericInputProps,
 } from "./components/forms/numeric-input";
@@ -111,6 +116,13 @@ export {
   SelectTrigger,
   SelectValue,
 } from "./components/forms/select";
+
+export {
+  RoleSelect,
+  ROLE_OPTIONS,
+  type RoleSelectProps,
+  type TeamRole,
+} from "./components/forms/role-select";
 
 export {
   SettingsDetailRow,
@@ -212,6 +224,11 @@ export {
 } from "./components/data-display/data-table";
 
 export {
+  TableCellUser,
+  type TableCellUserProps,
+} from "./components/data-display/table-cell-user";
+
+export {
   Symbol,
   symbolVariants,
   type SymbolProps,
@@ -267,6 +284,24 @@ export {
   AccountMenuSeparator,
   AccountMenuTrigger,
 } from "./components/overlays/account-menu";
+
+export {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogOverlay,
+  DialogPortal,
+  DialogTitle,
+  DialogTrigger,
+} from "./components/overlays/dialog";
+
+export {
+  InviteTeamMembersDialog,
+  type InviteTeamMembersDialogProps,
+} from "./components/overlays/invite-team-members-dialog";
 
 /* -------------------------------------------------------------------------- */
 /* Navigation                                                                 */

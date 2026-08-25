@@ -214,6 +214,36 @@ per-component guesswork and keeps the affordance consistent app-wide.
 
 ---
 
+## `Button` default size is `lg` (36px) unless Figma specifies otherwise (`src/components/buttons/button/button.tsx`)
+
+**Rule:** Every `Button` defaults to `size="lg"` (36px, `h-9`) —
+`defaultVariants.size` in `buttonVariants` already encodes this, so most
+call sites don't need to pass `size` at all. When a specific Figma frame
+binds a button to a different size (`xs`/`sm`/`md`/`xl`/an `icon-*`
+variant), that Figma value wins for that instance — but don't reach for a
+smaller size than Figma actually shows just because it "looks fine," and
+don't leave `size` unset while assuming it'll come out right without
+checking against the source.
+
+**Why:** Buttons in `InviteTeamMembersDialog`
+(`src/components/overlays/invite-team-members-dialog/invite-team-members-dialog.tsx`)
+and the "Invite member" trigger in `TeamMembersLayout`
+(`src/layouts/account-settings/pages/team-members/team-members.tsx`) were
+built at a size that didn't match Figma's actual `lg`/36px spec for those
+buttons — an easy drift to introduce silently, since an unset `size` prop
+still renders *a* button, just not necessarily the right one, and a
+slightly-off height doesn't fail a build or a type check.
+
+**How to apply:** When building or reviewing a page with `Button`
+instances, check each one's rendered height against Figma's `lg`/36px
+default rather than assuming the default prop is already correct — set
+`size="lg"` explicitly on user-facing action buttons (primary/secondary CTA
+rows, dialog footers) so the intended size is visible in the code, not just
+inherited silently. Only omit `size` (or set a different one) when Figma
+itself specifies a non-default size for that specific button.
+
+---
+
 ## Heading element → `Typography` `size` pairing (`src/components/typography/typography.tsx`)
 
 **Rule:** `Typography`'s `as` (semantic element) and `size` (visual scale)

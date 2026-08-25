@@ -107,6 +107,28 @@ export const AllVariants: Story = {
   ),
 };
 
+/** Figma `Select Item 2 Lines` — a title plus a muted description line. */
+export const TwoLines: Story = {
+  render: () => (
+    <Select defaultValue="owner">
+      <SelectTrigger className="w-64">
+        <SelectValue placeholder="Select a role" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="owner" description="Full access to all settings and billing.">
+          Owner
+        </SelectItem>
+        <SelectItem value="admin" description="Can manage team members and content.">
+          Admin
+        </SelectItem>
+        <SelectItem value="staff" description="Can view and edit assigned work only.">
+          Staff
+        </SelectItem>
+      </SelectContent>
+    </Select>
+  ),
+};
+
 export const ItemSlots: Story = {
   render: () => (
     <Select defaultValue="orange">

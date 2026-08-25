@@ -220,6 +220,10 @@ function SelectItem({
   circleColor,
   shortcut,
   showChevron = false,
+  // Renders a two-line item (Figma `Select Item 2 Lines`) — `children` as
+  // the title, this as a muted line underneath. Switches the item from its
+  // default single-line row to a stacked column.
+  description,
   // Radix's data-[state=checked] marks the item as selected; this only
   // controls which token the checkmark uses once checked.
   checkColor = "default",
@@ -237,11 +241,13 @@ function SelectItem({
   circleColor?: string
   shortcut?: string
   showChevron?: boolean
+  description?: React.ReactNode
   checkColor?: "default" | "primary"
   tier?: 1
   tierState?: "active" | "collapsed" | "expanded"
 }) {
   const isTiered = tier === 1
+  const isTwoLines = description != null
   return (
     <SelectPrimitive.Item
       data-slot="select-item"
@@ -254,7 +260,10 @@ function SelectItem({
         // Radix auto-focuses an item on pointer move, so hover and focus fire
         // together — both must use the same subtle state-hover tint (matching
         // Combobox's CommandItem) or the opaque focus:bg-accent paints over it.
-        "relative flex h-9 w-full cursor-pointer items-center gap-2 rounded-lg py-[7px] pr-8 pl-2 text-sm text-foreground outline-hidden select-none hover:bg-state-hover focus:bg-state-hover data-[disabled]:pointer-events-none data-[disabled]:cursor-not-allowed data-[disabled]:text-muted-foreground data-[state=checked]:bg-state-active [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
+        "relative flex w-full cursor-pointer items-center gap-2 rounded-lg py-[7px] pr-8 pl-2 text-sm text-foreground outline-hidden select-none hover:bg-state-hover focus:bg-state-hover data-[disabled]:pointer-events-none data-[disabled]:cursor-not-allowed data-[disabled]:text-muted-foreground data-[state=checked]:bg-state-active [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
+        isTwoLines
+          ? "h-auto flex-col items-start gap-0.5 py-2 pr-8 pl-2.5"
+          : "h-9",
         isTiered && "border-l border-border pl-3.5",
         className
       )}
@@ -279,7 +288,29 @@ function SelectItem({
           className={cn("size-4", tierState === "expanded" && "rotate-90")}
         />
       )}
-      <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+      <SelectPrimitive.ItemText>
+        {/*
+          Radix's Select.Value re-renders this ItemText's children inside
+          the trigger for the selected item, outside of this SelectItem's
+          own DOM — so a plain `font-medium` here would also bold the
+          trigger's collapsed value for every Select, not just this row.
+          The [[data-slot=select-item]_&] scope only matches while this
+          span still has its real select-item ancestor (i.e. inside the
+          open dropdown), leaving the trigger's projected copy unstyled.
+        */}
+        <span
+          className={cn(
+            isTwoLines && "[[data-slot=select-item]_&]:font-medium",
+          )}
+        >
+          {children}
+        </span>
+      </SelectPrimitive.ItemText>
+      {isTwoLines && (
+        <span className="w-full text-xs text-muted-foreground">
+          {description}
+        </span>
+      )}
       {shortcut && (
         <span className="shrink-0 text-right text-xs text-muted-foreground">
           {shortcut}
@@ -288,7 +319,10 @@ function SelectItem({
       {showChevron && <ChevronRightIcon className="size-4" />}
       <span
         data-slot="select-item-indicator"
-        className="absolute right-2 flex size-3.5 items-center justify-center"
+        className={cn(
+          "absolute right-2 flex size-3.5 items-center justify-center",
+          isTwoLines && "top-2",
+        )}
       >
         <SelectPrimitive.ItemIndicator>
           <CheckIcon
