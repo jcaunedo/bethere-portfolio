@@ -125,11 +125,20 @@ function SettingsDetailRow({
     ? (hasValue ? editDescription : (addDescription ?? emptyPlaceholder))
     : (hasValue ? value : emptyPlaceholder);
 
+  // A note-bearing row (e.g. Insurance provider, Preferred language) uses a
+  // wider 6px title→value gap than the ordinary 4px, so the value→note pair
+  // below it can sit flush (0px) via the negative margin on `note` — an
+  // ordinary row with no note keeps the default 4px throughout.
+  const hasNote = !editing && Boolean(note);
+
   const headingBlock = (
     <motion.div
       layout="position"
       transition={resolve(enterTransition)}
-      className="flex min-w-0 flex-1 flex-col gap-1 text-base"
+      className={cn(
+        "flex min-w-0 flex-1 flex-col text-base",
+        hasNote ? "gap-1.5" : "gap-1",
+      )}
     >
       <p className="font-semibold text-foreground">{heading}</p>
       {subtitle ? (
@@ -148,8 +157,10 @@ function SettingsDetailRow({
           {subtitle}
         </div>
       ) : null}
-      {!editing && note ? (
-        <p className="mt-3 text-sm text-muted-foreground">{note}</p>
+      {hasNote ? (
+        // `-mt-1` (-4px) trims the 6px flex gap above down to 2px, so
+        // value→note reads as gap-0.5 while title→value keeps its wider 6px.
+        <p className="-mt-1 text-sm text-muted-foreground">{note}</p>
       ) : null}
     </motion.div>
   );

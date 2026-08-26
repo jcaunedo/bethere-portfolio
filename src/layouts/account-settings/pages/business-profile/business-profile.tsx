@@ -8,12 +8,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/navigatio
 import { Typography } from "@/components/typography";
 import { slideVariants } from "@/lib/motion";
 
-// Primary contact is picked from the business's own Team members (Figma:
-// "choose an existing user" rather than free-text entry) — reuses the same
-// mock roster `TeamMembersLayout` renders, keyed by email since that's the
-// unique identifier TeamMember already has.
-import { ACTIVE_MEMBERS } from "@/layouts/account-settings/pages/team-members/team-members";
-
 import { ProfileTab } from "./profile-tab";
 import { VerificationTab } from "./verification-tab";
 import { DocumentsTab } from "./documents-tab";
@@ -23,10 +17,11 @@ import { DocumentsTab } from "./documents-tab";
 // former is guest-facing, e.g. a DBA; the latter is the officially
 // registered name) — Figma reuses the same starting value for both since
 // they're the same string until a provider customizes the display name.
-// Primary contact/Phone numbers are deliberately not here — see
-// ProfileTab's onClick-stub rows and DESIGN.md's "SettingsDetailRow reuse
-// across account-settings pages" entry.
-const FIELD_KEYS = ["displayName", "legalName", "address", "website", "email"] as const;
+// Primary contact is deliberately not here — see ProfileTab's Select-picker
+// row and DESIGN.md's "SettingsDetailRow reuse across account-settings
+// pages" entry. Phone number reuses MyProfileLayout's US-phone
+// validation/formatting (see ProfileTab).
+const FIELD_KEYS = ["displayName", "legalName", "address", "phone", "website", "email"] as const;
 type FieldKey = (typeof FIELD_KEYS)[number];
 type FieldState = { value: string; editing: boolean };
 
@@ -34,6 +29,7 @@ const initialFields: Record<FieldKey, FieldState> = {
 	displayName: { value: "Key Biscayne Yacht Club", editing: false },
 	legalName: { value: "Key Biscayne Yacht Club, LLC", editing: false },
 	address: { value: "888 MacArthur Causeway Miami, FL 33132", editing: false },
+	phone: { value: "", editing: false },
 	website: { value: "https://www.domain.com", editing: false },
 	email: { value: "hello@domain.com", editing: false },
 };
@@ -53,17 +49,18 @@ const initialVerificationFields: Record<VerificationFieldKey, FieldState> = {
 	registration: { value: "", editing: false },
 };
 
+// Every expandable row across both tabs (Profile + Compliance) shares one
+// Escape/Enter keyboard handler and one open-row stack, same as
+// MyProfileLayout — a scalar FieldKey/VerificationFieldKey, plus the two
+// Select-picker rows (Business owner, Primary contact) which aren't keyed
+// to either Record. See DESIGN.md's "Multi-row keyboard shortcuts" entry.
+type RowKey = FieldKey | VerificationFieldKey | "businessOwner" | "primaryContact";
+
 type BusinessProfileLayoutProps = {
 	/** Business name shown in the header (Figma: header text). */
 	name?: string;
 	/** Called when "Back to businesses" is activated. */
 	onBack?: () => void;
-	/** Called when "Add phone number" is activated — hooks into a (future) phone list manager. */
-	onAddPhoneNumber?: () => void;
-	/** Called when Owner verification's "View" link is activated — hooks into a (future) document viewer. */
-	onViewOwnerVerification?: () => void;
-	/** Called when Owner verification's "Edit" is activated — hooks into a (future) owner-verification flow. */
-	onEditOwnerVerification?: () => void;
 	/** Called when Insurance provider's "Edit" is activated — hooks into a (future) insurance-edit flow. */
 	onEditInsuranceProvider?: () => void;
 	/** Called when the Documents tab's search button is activated — hooks into a (future) document search/filter. */
@@ -88,9 +85,6 @@ type BusinessProfileLayoutProps = {
 function BusinessProfileLayout({
 	name = "Key Biscayne Yacht Club",
 	onBack,
-	onAddPhoneNumber,
-	onViewOwnerVerification,
-	onEditOwnerVerification,
 	onEditInsuranceProvider,
 	onSearchDocuments,
 	onAddDocument,
@@ -113,6 +107,46 @@ function BusinessProfileLayout({
 		) as Record<FieldKey, string>,
 	);
 
+	// Rows can be opened in any order (and across both tabs) and several can
+	// be open at once; this tracks that order so Escape/Enter fall back to
+	// the most recently opened one (LIFO) when focus isn't inside any open
+	// row — see `rowRefs`/`focusedRowKey` below for the focus-aware case that
+	// takes priority over this fallback. Same model as MyProfileLayout.
+	const [openOrder, setOpenOrder] = React.useState<RowKey[]>([]);
+
+	function openRow(key: RowKey) {
+		setOpenOrder((prev) => [...prev.filter((k) => k !== key), key]);
+	}
+
+	function closeRow(key: RowKey) {
+		setOpenOrder((prev) => prev.filter((k) => k !== key));
+	}
+
+	// Maps each RowKey to its row's wrapper DOM node, so the shared
+	// Escape/Enter handler can tell which row (if any) currently contains
+	// focus — e.g. the user opened one row, then another, then clicked back
+	// into the first to keep editing. Without this, Escape/Enter would
+	// always act on whichever row opened last (openOrder's LIFO fallback),
+	// even while the user is actively focused inside an earlier-opened row.
+	const rowRefs = React.useRef<Partial<Record<RowKey, HTMLDivElement | null>>>(
+		{},
+	);
+
+	function registerRow(key: RowKey) {
+		return (el: HTMLDivElement | null) => {
+			rowRefs.current[key] = el;
+		};
+	}
+
+	// Finds which open row (if any) currently contains focus, by walking
+	// `rowRefs` — only rows present in `openOrder` are checked, since a
+	// collapsed row has no focusable form content to hold focus anyway.
+	function focusedRowKey(openKeys: RowKey[]): RowKey | undefined {
+		const active = document.activeElement;
+		if (!active) return undefined;
+		return openKeys.find((key) => rowRefs.current[key]?.contains(active));
+	}
+
 	function goToMenu() {
 		setScreenDirection(-1);
 		setMobileScreen("menu");
@@ -123,12 +157,20 @@ function BusinessProfileLayout({
 		setMobileScreen("business-profile");
 	}
 
+	// The keydown handler below is only re-bound when `openOrder` changes, so
+	// it would otherwise close over stale `drafts`/`verificationDrafts` from
+	// whenever a row was opened — refs keep save reading the latest keystroke
+	// instead. Same fix as MyProfileLayout.
+	const draftsRef = React.useRef(drafts);
+	draftsRef.current = drafts;
+
 	function startEditing(key: FieldKey) {
 		setDrafts((prev) => ({ ...prev, [key]: fields[key].value }));
 		setFields((prev) => ({
 			...prev,
 			[key]: { ...prev[key], editing: true },
 		}));
+		openRow(key);
 	}
 
 	function cancelEditing(key: FieldKey) {
@@ -136,13 +178,15 @@ function BusinessProfileLayout({
 			...prev,
 			[key]: { ...prev[key], editing: false },
 		}));
+		closeRow(key);
 	}
 
 	function save(key: FieldKey) {
 		setFields((prev) => ({
 			...prev,
-			[key]: { value: drafts[key], editing: false },
+			[key]: { value: draftsRef.current[key], editing: false },
 		}));
+		closeRow(key);
 	}
 
 	function isUnchanged(key: FieldKey): boolean {
@@ -161,16 +205,19 @@ function BusinessProfileLayout({
 	function startEditingBusinessOwner() {
 		setBusinessOwnerDraft(businessOwnerEmail);
 		setBusinessOwnerEditing(true);
+		openRow("businessOwner");
 	}
 
 	function cancelEditingBusinessOwner() {
 		setBusinessOwnerEditing(false);
+		closeRow("businessOwner");
 	}
 
 	function saveBusinessOwnerValue(email: string) {
 		setBusinessOwnerDraft(email);
 		setBusinessOwnerEmail(email);
 		setBusinessOwnerEditing(false);
+		closeRow("businessOwner");
 	}
 
 	// Primary contact stores the chosen team member's email (unique in
@@ -183,10 +230,12 @@ function BusinessProfileLayout({
 	function startEditingPrimaryContact() {
 		setPrimaryContactDraft(primaryContactEmail);
 		setPrimaryContactEditing(true);
+		openRow("primaryContact");
 	}
 
 	function cancelEditingPrimaryContact() {
 		setPrimaryContactEditing(false);
+		closeRow("primaryContact");
 	}
 
 	// Saves immediately on selection (like MyProfileLayout's Time zone row)
@@ -198,6 +247,7 @@ function BusinessProfileLayout({
 		setPrimaryContactDraft(email);
 		setPrimaryContactEmail(email);
 		setPrimaryContactEditing(false);
+		closeRow("primaryContact");
 	}
 
 	const [verificationFields, setVerificationFields] = React.useState<
@@ -214,6 +264,11 @@ function BusinessProfileLayout({
 		) as Record<VerificationFieldKey, string>,
 	);
 
+	// Same stale-closure fix as `draftsRef` above, for the Compliance tab's
+	// own draft record.
+	const verificationDraftsRef = React.useRef(verificationDrafts);
+	verificationDraftsRef.current = verificationDrafts;
+
 	function startEditingVerification(key: VerificationFieldKey) {
 		setVerificationDrafts((prev) => ({
 			...prev,
@@ -223,6 +278,7 @@ function BusinessProfileLayout({
 			...prev,
 			[key]: { ...prev[key], editing: true },
 		}));
+		openRow(key);
 	}
 
 	function cancelEditingVerification(key: VerificationFieldKey) {
@@ -230,18 +286,71 @@ function BusinessProfileLayout({
 			...prev,
 			[key]: { ...prev[key], editing: false },
 		}));
+		closeRow(key);
 	}
 
 	function saveVerification(key: VerificationFieldKey) {
 		setVerificationFields((prev) => ({
 			...prev,
-			[key]: { value: verificationDrafts[key], editing: false },
+			[key]: { value: verificationDraftsRef.current[key], editing: false },
 		}));
+		closeRow(key);
 	}
 
 	function isVerificationUnchanged(key: VerificationFieldKey): boolean {
 		return verificationDrafts[key] === verificationFields[key].value;
 	}
+
+	// Esc cancels / Enter saves whichever open row currently has focus inside
+	// it (e.g. several rows are open — possibly across both tabs — and the
+	// user clicked back into an earlier one to keep editing) — same as
+	// clicking that row's own Cancel/Save. When focus isn't inside any open
+	// row, falls back to the most recently opened one (LIFO). Business
+	// owner/Primary contact commit on selection rather than a text edit, so
+	// Enter has nothing to submit for them — only Escape (cancel/close)
+	// applies. Enter is also skipped while focus is on a button (native
+	// click-activation already handles it there) so it doesn't double-fire.
+	// Same model as MyProfileLayout.
+	React.useEffect(() => {
+		if (openOrder.length === 0) return;
+
+		function handleKeyDown(event: KeyboardEvent) {
+			const activeKey =
+				focusedRowKey(openOrder) ?? openOrder[openOrder.length - 1];
+
+			if (event.key === "Escape") {
+				switch (activeKey) {
+					case "businessOwner":
+						cancelEditingBusinessOwner();
+						break;
+					case "primaryContact":
+						cancelEditingPrimaryContact();
+						break;
+					default:
+						if ((VERIFICATION_FIELD_KEYS as readonly string[]).includes(activeKey)) {
+							cancelEditingVerification(activeKey as VerificationFieldKey);
+						} else {
+							cancelEditing(activeKey as FieldKey);
+						}
+				}
+			} else if (
+				event.key === "Enter" &&
+				(event.target as HTMLElement | null)?.tagName !== "BUTTON" &&
+				activeKey !== "businessOwner" &&
+				activeKey !== "primaryContact"
+			) {
+				event.preventDefault();
+				if ((VERIFICATION_FIELD_KEYS as readonly string[]).includes(activeKey)) {
+					saveVerification(activeKey as VerificationFieldKey);
+				} else {
+					save(activeKey as FieldKey);
+				}
+			}
+		}
+
+		document.addEventListener("keydown", handleKeyDown);
+		return () => document.removeEventListener("keydown", handleKeyDown);
+	}, [openOrder]);
 
 	const menuScreen = (
 		<motion.div
@@ -300,7 +409,7 @@ function BusinessProfileLayout({
 
 						<Tabs defaultValue="profile">
 							<TabsList>
-								<TabsTrigger value="profile">Profile</TabsTrigger>
+								<TabsTrigger value="profile">Business profile</TabsTrigger>
 								<TabsTrigger value="verification">Compliance</TabsTrigger>
 								<TabsTrigger value="documents">Documents</TabsTrigger>
 							</TabsList>
@@ -314,19 +423,13 @@ function BusinessProfileLayout({
 									cancelEditing={cancelEditing}
 									save={save}
 									isUnchanged={isUnchanged}
-									businessOwnerEmail={businessOwnerEmail}
-									businessOwnerEditing={businessOwnerEditing}
-									businessOwnerDraft={businessOwnerDraft}
-									startEditingBusinessOwner={startEditingBusinessOwner}
-									cancelEditingBusinessOwner={cancelEditingBusinessOwner}
-									saveBusinessOwnerValue={saveBusinessOwnerValue}
 									primaryContactEmail={primaryContactEmail}
 									primaryContactEditing={primaryContactEditing}
 									primaryContactDraft={primaryContactDraft}
 									startEditingPrimaryContact={startEditingPrimaryContact}
 									cancelEditingPrimaryContact={cancelEditingPrimaryContact}
 									savePrimaryContactValue={savePrimaryContactValue}
-									onAddPhoneNumber={onAddPhoneNumber}
+									registerRow={registerRow}
 								/>
 							</TabsContent>
 
@@ -339,9 +442,14 @@ function BusinessProfileLayout({
 									cancelEditingVerification={cancelEditingVerification}
 									saveVerification={saveVerification}
 									isVerificationUnchanged={isVerificationUnchanged}
-									onViewOwnerVerification={onViewOwnerVerification}
-									onEditOwnerVerification={onEditOwnerVerification}
+									businessOwnerEmail={businessOwnerEmail}
+									businessOwnerEditing={businessOwnerEditing}
+									businessOwnerDraft={businessOwnerDraft}
+									startEditingBusinessOwner={startEditingBusinessOwner}
+									cancelEditingBusinessOwner={cancelEditingBusinessOwner}
+									saveBusinessOwnerValue={saveBusinessOwnerValue}
 									onEditInsuranceProvider={onEditInsuranceProvider}
+									registerRow={registerRow}
 								/>
 							</TabsContent>
 
@@ -369,4 +477,4 @@ function BusinessProfileLayout({
 }
 
 export { BusinessProfileLayout };
-export type { FieldKey, FieldState, VerificationFieldKey };
+export type { FieldKey, FieldState, VerificationFieldKey, RowKey };
