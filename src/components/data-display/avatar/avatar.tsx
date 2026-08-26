@@ -134,7 +134,7 @@ function AvatarFallback({
           : style
       }
       className={cn(
-        "flex size-full items-center justify-center rounded-full text-sm font-medium text-muted-foreground group-data-[size=sm]/avatar:text-xs [&_svg]:size-4 group-data-[size=sm]/avatar:[&_svg]:size-3 group-data-[size=lg]/avatar:[&_svg]:size-5 group-data-[size=xl]/avatar:text-2xl group-data-[size=xl]/avatar:font-bold group-data-[size=xl]/avatar:[&_svg]:size-8",
+        "flex size-full items-center justify-center rounded-full text-sm font-medium text-muted-foreground group-data-[size=sm]/avatar:text-[10px] [&_svg]:size-4 group-data-[size=sm]/avatar:[&_svg]:size-3 group-data-[size=lg]/avatar:[&_svg]:size-5 group-data-[size=xl]/avatar:text-2xl group-data-[size=xl]/avatar:font-bold group-data-[size=xl]/avatar:[&_svg]:size-8",
         hasColorBackground ? "text-white" : "bg-muted",
         className,
       )}

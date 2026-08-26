@@ -133,7 +133,10 @@ function SettingsDetailRow({
     >
       <p className="font-semibold text-foreground">{heading}</p>
       {subtitle ? (
-        <p
+        // A plain <div>, not <p> — the collapsed HasValue subtitle can be a
+        // rich node (e.g. Primary contact's avatar + name/note block, Figma
+        // "row" with `avatar-users`), which a <p> can't validly contain.
+        <div
           className={
             editing
               ? "text-sm text-muted-foreground"
@@ -143,7 +146,7 @@ function SettingsDetailRow({
           }
         >
           {subtitle}
-        </p>
+        </div>
       ) : null}
       {!editing && note ? (
         <p className="mt-3 text-sm text-muted-foreground">{note}</p>
@@ -215,7 +218,7 @@ function SettingsDetailRow({
                 <Button
                   type="button"
                   size="lg"
-                  className="w-22 justify-center"
+                  className="w-18 justify-center"
                   onClick={onSave}
                   disabled={saveDisabled}
                 >

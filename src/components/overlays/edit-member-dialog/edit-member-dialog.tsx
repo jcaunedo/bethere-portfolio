@@ -108,6 +108,14 @@ function EditMemberDialog({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
+  const isUnchanged =
+    firstName === initialFirstName &&
+    lastName === initialLastName &&
+    title === member.title &&
+    email === member.email &&
+    phone === (member.phone ?? "") &&
+    role === member.role;
+
   function handleSave() {
     onSave?.({
       name: [firstName, lastName].filter(Boolean).join(" "),
@@ -152,7 +160,7 @@ function EditMemberDialog({
               </Button>
             </DialogClose>
           </div>
-          <Avatar size="xl">
+          <Avatar size="xl" className="-mt-4">
             {member.avatarUrl ? (
               <AvatarImage src={member.avatarUrl} alt="" />
             ) : null}
@@ -213,7 +221,12 @@ function EditMemberDialog({
               Cancel
             </Button>
           </DialogClose>
-          <Button type="button" size="lg" onClick={handleSave}>
+          <Button
+            type="button"
+            size="lg"
+            disabled={isUnchanged}
+            onClick={handleSave}
+          >
             Save
           </Button>
         </DialogFooter>

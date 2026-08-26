@@ -8,20 +8,31 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/navigatio
 import { Typography } from "@/components/typography";
 import { slideVariants } from "@/lib/motion";
 
+// Primary contact is picked from the business's own Team members (Figma:
+// "choose an existing user" rather than free-text entry) — reuses the same
+// mock roster `TeamMembersLayout` renders, keyed by email since that's the
+// unique identifier TeamMember already has.
+import { ACTIVE_MEMBERS } from "@/layouts/account-settings/pages/team-members/team-members";
+
 import { ProfileTab } from "./profile-tab";
 import { VerificationTab } from "./verification-tab";
 import { DocumentsTab } from "./documents-tab";
 
 // Text-edit fields (Figma: rows whose action is "Edit" — a scalar value
-// edited in place). Primary contact/Phone numbers are deliberately not
-// here — see ProfileTab's onClick-stub rows and DESIGN.md's
-// "SettingsDetailRow reuse across account-settings pages" entry.
-const FIELD_KEYS = ["legalName", "address", "website", "email"] as const;
+// edited in place). Display name and Legal name are separate fields (the
+// former is guest-facing, e.g. a DBA; the latter is the officially
+// registered name) — Figma reuses the same starting value for both since
+// they're the same string until a provider customizes the display name.
+// Primary contact/Phone numbers are deliberately not here — see
+// ProfileTab's onClick-stub rows and DESIGN.md's "SettingsDetailRow reuse
+// across account-settings pages" entry.
+const FIELD_KEYS = ["displayName", "legalName", "address", "website", "email"] as const;
 type FieldKey = (typeof FIELD_KEYS)[number];
 type FieldState = { value: string; editing: boolean };
 
 const initialFields: Record<FieldKey, FieldState> = {
-	legalName: { value: "Key Biscayne Yacht Club", editing: false },
+	displayName: { value: "Key Biscayne Yacht Club", editing: false },
+	legalName: { value: "Key Biscayne Yacht Club, LLC", editing: false },
 	address: { value: "888 MacArthur Causeway Miami, FL 33132", editing: false },
 	website: { value: "https://www.domain.com", editing: false },
 	email: { value: "hello@domain.com", editing: false },
@@ -47,12 +58,8 @@ type BusinessProfileLayoutProps = {
 	name?: string;
 	/** Called when "Back to businesses" is activated. */
 	onBack?: () => void;
-	/** Called when "Add primary contact" is activated — hooks into a (future) contact picker. */
-	onAddPrimaryContact?: () => void;
 	/** Called when "Add phone number" is activated — hooks into a (future) phone list manager. */
 	onAddPhoneNumber?: () => void;
-	/** Called when "Transfer ownership" is activated — hooks into a (future) transfer-ownership flow. */
-	onTransferOwnership?: () => void;
 	/** Called when Owner verification's "View" link is activated — hooks into a (future) document viewer. */
 	onViewOwnerVerification?: () => void;
 	/** Called when Owner verification's "Edit" is activated — hooks into a (future) owner-verification flow. */
@@ -81,9 +88,7 @@ type BusinessProfileLayoutProps = {
 function BusinessProfileLayout({
 	name = "Key Biscayne Yacht Club",
 	onBack,
-	onAddPrimaryContact,
 	onAddPhoneNumber,
-	onTransferOwnership,
 	onViewOwnerVerification,
 	onEditOwnerVerification,
 	onEditInsuranceProvider,
@@ -142,6 +147,57 @@ function BusinessProfileLayout({
 
 	function isUnchanged(key: FieldKey): boolean {
 		return drafts[key] === fields[key].value;
+	}
+
+	// Business owner is picked the same way as Primary contact — a team
+	// member's email, empty string meaning "no owner set" — rather than the
+	// earlier static "Transfer ownership" stub. Kept as separate state from
+	// Primary contact since a business can have a different owner and
+	// primary contact.
+	const [businessOwnerEmail, setBusinessOwnerEmail] = React.useState("");
+	const [businessOwnerEditing, setBusinessOwnerEditing] = React.useState(false);
+	const [businessOwnerDraft, setBusinessOwnerDraft] = React.useState("");
+
+	function startEditingBusinessOwner() {
+		setBusinessOwnerDraft(businessOwnerEmail);
+		setBusinessOwnerEditing(true);
+	}
+
+	function cancelEditingBusinessOwner() {
+		setBusinessOwnerEditing(false);
+	}
+
+	function saveBusinessOwnerValue(email: string) {
+		setBusinessOwnerDraft(email);
+		setBusinessOwnerEmail(email);
+		setBusinessOwnerEditing(false);
+	}
+
+	// Primary contact stores the chosen team member's email (unique in
+	// ACTIVE_MEMBERS) rather than a free-text value — empty string means
+	// "no primary contact set", same as the other fields' empty-string convention.
+	const [primaryContactEmail, setPrimaryContactEmail] = React.useState("");
+	const [primaryContactEditing, setPrimaryContactEditing] = React.useState(false);
+	const [primaryContactDraft, setPrimaryContactDraft] = React.useState("");
+
+	function startEditingPrimaryContact() {
+		setPrimaryContactDraft(primaryContactEmail);
+		setPrimaryContactEditing(true);
+	}
+
+	function cancelEditingPrimaryContact() {
+		setPrimaryContactEditing(false);
+	}
+
+	// Saves immediately on selection (like MyProfileLayout's Time zone row)
+	// instead of a separate Save button — takes the chosen email directly
+	// rather than reading `primaryContactDraft` after the fact, since the
+	// draft state update and this call happen in the same `onValueChange`
+	// and would otherwise race.
+	function savePrimaryContactValue(email: string) {
+		setPrimaryContactDraft(email);
+		setPrimaryContactEmail(email);
+		setPrimaryContactEditing(false);
 	}
 
 	const [verificationFields, setVerificationFields] = React.useState<
@@ -258,7 +314,18 @@ function BusinessProfileLayout({
 									cancelEditing={cancelEditing}
 									save={save}
 									isUnchanged={isUnchanged}
-									onAddPrimaryContact={onAddPrimaryContact}
+									businessOwnerEmail={businessOwnerEmail}
+									businessOwnerEditing={businessOwnerEditing}
+									businessOwnerDraft={businessOwnerDraft}
+									startEditingBusinessOwner={startEditingBusinessOwner}
+									cancelEditingBusinessOwner={cancelEditingBusinessOwner}
+									saveBusinessOwnerValue={saveBusinessOwnerValue}
+									primaryContactEmail={primaryContactEmail}
+									primaryContactEditing={primaryContactEditing}
+									primaryContactDraft={primaryContactDraft}
+									startEditingPrimaryContact={startEditingPrimaryContact}
+									cancelEditingPrimaryContact={cancelEditingPrimaryContact}
+									savePrimaryContactValue={savePrimaryContactValue}
 									onAddPhoneNumber={onAddPhoneNumber}
 								/>
 							</TabsContent>
@@ -272,7 +339,6 @@ function BusinessProfileLayout({
 									cancelEditingVerification={cancelEditingVerification}
 									saveVerification={saveVerification}
 									isVerificationUnchanged={isVerificationUnchanged}
-									onTransferOwnership={onTransferOwnership}
 									onViewOwnerVerification={onViewOwnerVerification}
 									onEditOwnerVerification={onEditOwnerVerification}
 									onEditInsuranceProvider={onEditInsuranceProvider}

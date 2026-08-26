@@ -527,3 +527,62 @@ surrounding radius scale), never a plain `rounded-xl`/`rounded-*`, on the
 `overflow-hidden` container around `Table`. Keep `overflow-hidden` — it's
 still required to clip the header's top corners — just drop the bottom
 radius.
+
+---
+
+## Dialog close animation: two separate ways it silently breaks (`src/components/overlays/dialog/dialog.tsx`)
+
+**Rule:** A `Dialog`'s close transition (fade-out + zoom-out, the reverse of
+its fade-in + zoom-in open) can break in two independent ways — both must be
+avoided, and both were live bugs before being fixed:
+
+1. **Use `animation-duration-*`, never `duration-*`, on `DialogContent`.**
+   Tailwind's `duration-*` utility sets the *transition*-duration variable.
+   `tw-animate-css`'s `animate-in`/`animate-out` (what `data-[state=open]`/
+   `data-[state=closed]` actually use) are keyframe *animations*, which read
+   `--tw-animation-duration` — set only by `animation-duration-*`. Applying
+   `duration-200` to `DialogContent` looked plausible but did nothing for
+   either direction, so both silently fell back to `tw-animate-css`'s
+   default 150ms in a way that resolved inconsistently, making close look
+   noticeably snappier than open.
+
+2. **Never gate a `Dialog`'s own JSX behind the same state its close flow
+   clears.** A pattern like:
+
+   ```tsx
+   // WRONG — clearing `editingMember` on close unmounts the dialog
+   // instantly, before Radix's exit animation gets to play at all.
+   {editingMember && (
+     <EditMemberDialog
+       open
+       onOpenChange={(open) => { if (!open) setEditingMember(null); }}
+       member={editingMember}
+     />
+   )}
+   ```
+
+   hard-unmounts the dialog the moment Cancel/Save/X fires, since Radix's
+   Presence-based exit animation needs the component to stay mounted while
+   `data-state="closed"` plays out — an external `&&` unmount skips that
+   transition window entirely, so the dialog just vanishes instead of
+   animating out.
+
+**Why:** Both bugs are easy to introduce because the broken version still
+*looks* correct in code review — `duration-200` reads like it should control
+the animation, and `{data && <Dialog>}` reads like ordinary conditional
+rendering. Neither error throws or warns; the only symptom is a close that
+feels abrupt compared to the open, which is easy to miss without comparing
+the two side by side.
+
+**How to apply:**
+- Any timing override on `DialogContent` (or another Radix overlay built the
+  same way) must use `animation-duration-*`/`--tw-animation-duration`, not
+  `duration-*`. `DialogContent` already carries `animation-duration-200` —
+  don't reintroduce `duration-*` there or on a new overlay's equivalent.
+- Split the state instead: keep a data-holding value that's set on open and
+  **never reset to empty/null as part of closing** (only replaced the next
+  time the dialog opens for different data), and a separate boolean that
+  actually drives `open`/`onOpenChange`. See
+  `TeamMembersLayout`'s `editingMember` (data, never cleared on close) vs.
+  `editDialogOpen` (the boolean Cancel/Save/X actually toggle) in
+  `src/layouts/account-settings/pages/team-members/team-members.tsx`.

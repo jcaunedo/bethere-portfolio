@@ -61,6 +61,7 @@ function SelectTrigger({
   size = "lg",
   children,
   readOnly,
+  avatar,
   onPointerDown,
   onKeyDown,
   onClick,
@@ -72,6 +73,13 @@ function SelectTrigger({
   // `disabled` (50% opacity, not focusable). No native HTML equivalent on
   // a button, so open attempts are blocked directly.
   readOnly?: boolean
+  /**
+   * Optional avatar rendered before the value (Figma `Type=Dropdown,
+   * showAvatar`) — e.g. `<Avatar size="sm"><AvatarImage .../><AvatarFallback>
+   * AB</AvatarFallback></Avatar>`. Represents the selected option's
+   * person/business, not a per-value icon — omit for plain dropdowns.
+   */
+  avatar?: React.ReactNode
 }) {
   const isPointerRef = React.useContext(SelectPointerContext)
   return (
@@ -105,11 +113,12 @@ function SelectTrigger({
         onKeyDown?.(e)
       }}
       className={cn(
-        "flex w-full items-center justify-between gap-2 rounded-xl border border-input bg-card px-3 py-2 text-sm text-foreground whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none hover:border-input-ring focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-[placeholder]:text-muted-foreground data-[size=xs]:h-6 data-[size=xs]:text-xs data-[size=sm]:h-7 data-[size=sm]:text-xs data-[size=md]:h-8 data-[size=lg]:h-9 data-[size=xl]:h-10 data-[size=xl]:text-base *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 dark:bg-input/30 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground data-[readonly]:cursor-default data-[readonly]:border-input-border-disabled data-[readonly]:bg-input-fill-read-only data-[readonly]:hover:border-input-border-disabled",
+        "flex w-full items-center justify-between gap-2 rounded-xl border border-input bg-card px-3 py-2 text-sm text-foreground whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none hover:border-input-ring focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-[placeholder]:text-muted-foreground data-[size=xs]:h-6 data-[size=xs]:text-xs data-[size=sm]:h-7 data-[size=sm]:text-xs data-[size=md]:h-8 data-[size=lg]:h-9 data-[size=xl]:h-10 data-[size=xl]:text-base *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:flex-1 *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 dark:bg-input/30 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground data-[readonly]:cursor-default data-[readonly]:border-input-border-disabled data-[readonly]:bg-input-fill-read-only data-[readonly]:hover:border-input-border-disabled",
         className
       )}
       {...props}
     >
+      {avatar}
       {children}
       <SelectPrimitive.Icon asChild>
         <ChevronDownIcon className="size-4 opacity-50" />
@@ -215,6 +224,7 @@ function SelectItem({
   children,
   icon,
   showIcon = false,
+  avatar,
   showCheckbox = false,
   showCircleColor = false,
   circleColor,
@@ -236,6 +246,14 @@ function SelectItem({
 }: React.ComponentProps<typeof SelectPrimitive.Item> & {
   icon?: React.ReactNode
   showIcon?: boolean
+  /**
+   * Optional avatar rendered before the item's other leading slots (Figma
+   * `Type=Dropdown, showAvatar` list item) — same shape as SelectTrigger's
+   * `avatar` prop, e.g. `<Avatar size="sm"><AvatarFallback>AB</AvatarFallback>
+   * </Avatar>`. Represents this option's person/business, not a generic
+   * icon — independent of `icon`/`showIcon`.
+   */
+  avatar?: React.ReactNode
   showCheckbox?: boolean
   showCircleColor?: boolean
   circleColor?: string
@@ -269,6 +287,7 @@ function SelectItem({
       )}
       {...props}
     >
+      {avatar}
       {showIcon && (icon ?? <UserRoundIcon className="size-4" />)}
       {showCheckbox && (
         <span

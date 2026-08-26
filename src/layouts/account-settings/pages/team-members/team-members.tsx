@@ -272,6 +272,19 @@ function TeamMembersLayout({
   const [editingMember, setEditingMember] = React.useState<TeamMember | null>(
     null,
   );
+  // Separate from `editingMember` so the dialog stays mounted (and its
+  // Radix close animation can actually play) while closing — clearing
+  // `editingMember` immediately via `{editingMember && <EditMemberDialog>}`
+  // would unmount the dialog mid-transition instead of letting `open`
+  // toggle to false first. `editingMember` itself is left populated (not
+  // reset to null) until the next row's Edit is clicked, so the content
+  // doesn't flash empty while it's animating out.
+  const [editDialogOpen, setEditDialogOpen] = React.useState(false);
+
+  function openEditDialog(member: TeamMember) {
+    setEditingMember(member);
+    setEditDialogOpen(true);
+  }
 
   return (
     <AccountSettingsLayout activeItem="Team members" onClose={onClose}>
@@ -310,7 +323,7 @@ function TeamMembersLayout({
           <MembersTable
             members={PENDING_INVITES}
             dateColumnLabel="Date invited"
-            onEditMember={setEditingMember}
+            onEditMember={openEditDialog}
             onDeleteMember={onDeleteMember}
           />
         </div>
@@ -323,7 +336,7 @@ function TeamMembersLayout({
             members={ACTIVE_MEMBERS}
             dateColumnLabel="Last seen"
             onTransferOwnership={onTransferOwnership}
-            onEditMember={setEditingMember}
+            onEditMember={openEditDialog}
             onDeleteMember={onDeleteMember}
           />
         </div>
@@ -331,10 +344,8 @@ function TeamMembersLayout({
 
       {editingMember && (
         <EditMemberDialog
-          open
-          onOpenChange={(open) => {
-            if (!open) setEditingMember(null);
-          }}
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
           member={{
             name: editingMember.name,
             email: editingMember.email,
@@ -350,5 +361,5 @@ function TeamMembersLayout({
   );
 }
 
-export { TeamMembersLayout };
+export { TeamMembersLayout, ACTIVE_MEMBERS };
 export type { TeamMember };

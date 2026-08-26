@@ -1,4 +1,11 @@
+import * as React from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/data-display/avatar";
+
 import {
   Select,
   SelectContent,
@@ -127,6 +134,68 @@ export const TwoLines: Story = {
       </SelectContent>
     </Select>
   ),
+};
+
+type AvatarPerson = {
+  value: string;
+  name: string;
+  initials: string;
+  image?: string;
+};
+
+const AVATAR_PEOPLE: AvatarPerson[] = [
+  { value: "ab", name: "Alex Brooks", initials: "AB" },
+  {
+    value: "jw",
+    name: "Jenny Wilson",
+    initials: "JW",
+    image: "https://i.pravatar.cc/72?img=47",
+  },
+];
+
+function PersonAvatar({ person }: { person: AvatarPerson }) {
+  return (
+    <Avatar size="sm">
+      {person.image ? <AvatarImage src={person.image} alt="" /> : null}
+      <AvatarFallback colorSeed={person.value}>{person.initials}</AvatarFallback>
+    </Avatar>
+  );
+}
+
+/**
+ * Figma `Type=Dropdown, showAvatar` — the trigger shows the selected
+ * person's avatar, and each list item shows its own so the picker reads the
+ * same way open or closed.
+ */
+export const WithAvatar: Story = {
+  render: function Render() {
+    const [value, setValue] = React.useState("ab");
+    const selected = AVATAR_PEOPLE.find((person) => person.value === value);
+    return (
+      <Select value={value} onValueChange={setValue}>
+        <SelectTrigger
+          className="w-64"
+          avatar={selected ? <PersonAvatar person={selected} /> : undefined}
+        >
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectLabel>Choose user</SelectLabel>
+            {AVATAR_PEOPLE.map((person) => (
+              <SelectItem
+                key={person.value}
+                value={person.value}
+                avatar={<PersonAvatar person={person} />}
+              >
+                {person.name}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+    );
+  },
 };
 
 export const ItemSlots: Story = {
