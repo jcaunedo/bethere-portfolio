@@ -129,6 +129,15 @@ export {
   type SettingsDetailRowProps,
 } from "./components/forms/settings-detail-row";
 
+export { Switch } from "./components/forms/switch";
+
+export {
+  NotificationSwitcher,
+  notificationSwitcherVariants,
+  type NotificationSwitcherProps,
+  type NotificationChannel,
+} from "./components/forms/notification-switcher";
+
 /* -------------------------------------------------------------------------- */
 /* Forms — Formik-connected fields (require the optional `formik` peer)        */
 /* -------------------------------------------------------------------------- */

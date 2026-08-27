@@ -9,22 +9,18 @@ import { StepperOnboarding } from "@/components/stepper/stepper-onboarding";
 import { Logo } from "@/components/data-display/logo";
 
 // Business category taxonomy — provider-facing labels. See
-// product-specs/business-onboarding.md "Category list" for the source of
-// truth (paired against the guest-facing Concierge tile taxonomy) and notes
-// on individual entries.
+// product-specs/business-onboarding.md "Category list" / "v1 category scope"
+// for the source of truth (paired against the guest-facing Concierge tile
+// taxonomy) and notes on individual entries. v1 ships exactly these 6
+// categories, no "Other" fallback; the rest are deferred to v2 — see that
+// doc for the full set.
 const PROVIDER_TYPE_OPTIONS = [
   { value: "city-tours", label: "City tours" },
   { value: "boats-yacht-charters", label: "Boats & yacht charters" },
-  { value: "activities-recreation", label: "Activities & recreation" },
   { value: "food-dining", label: "Food & dining" },
   { value: "wellness-beauty", label: "Wellness & beauty" },
   { value: "entertainment-nightlife", label: "Entertainment & nightlife" },
-  { value: "shopping-experiences", label: "Shopping experiences" },
-  { value: "family-experiences", label: "Family experiences" },
-  { value: "art-culture-entertainment", label: "Art, culture & entertainment" },
   { value: "transport", label: "Transport" },
-  { value: "professional-services", label: "Professional services" },
-  { value: "other", label: "Other" },
 ];
 
 type BusinessProfileValues = {

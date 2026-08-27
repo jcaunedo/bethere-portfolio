@@ -1,7 +1,7 @@
 <!--
 Created: Aug 15, 2026
 Created by: Julio Caunedo
-Last updated: Aug 16, 2026 (simplified: single-word guest taxonomy vs. short descriptive provider taxonomy, side by side; condensed reconciliation notes; provider-side "Tours" → "City tours"; confirmed single-select; removed attribution phrasing; provider-side "Private driver" reverted to "Transport"; defined "Professional services"; revised New Listing design rationale — keep Experience/Service as a mandatory choice, remove the redundant Step 2 category re-ask instead of defaulting/hiding Experience/Service; filled in Boats & yacht charters worked example with Experience/Service subtype lists; flagged the Service subtype list as an open v1-vs-full-candidate decision, not yet finalized; confirmed both taxonomy columns are live product copy — guest tiles vs. listing-detail display; added Figma reference for the provider-facing listing-detail display, node 212:5398; repaired truncated guest-facing bullet and added its Figma reference, node 116:10098)
+Last updated: Aug 26, 2026 (scoped v1 onboarding category list down to 6 categories — City tours, Boats & yacht charters, Wellness & beauty, Entertainment & nightlife, Transport, Food & dining; deferred Activities & recreation, Shopping experiences, Family experiences, Art/culture/entertainment, and Professional services as v2 candidates, not eliminated; trimmed the guest/provider table and entry notes to match; narrowed the New Listing subtype-gap list to the v1 set; removed the "Other" fallback per explicit v1 scope decision — flagged the resulting no-fit gap for deferred categories)
 
 Scope: Provider-side "Create Business" onboarding funnel — currently just the "Tell us about your
 business" screen and its business-category dropdown. Not the Business Profile detail page (see
@@ -30,17 +30,13 @@ Define the "What does your business offer?" dropdown on the "Tell us about your 
 | Guest-facing (Concierge tile) | Provider-facing (this dropdown) |
 | ----------------------------- | ------------------------------- |
 | Water                         | Boats & yacht charters          |
-| Outdoors                      | Activities & recreation         |
 | Dine                          | Food & dining                   |
 | Wellness                      | Wellness & beauty               |
 | Nightlife                     | Entertainment & nightlife       |
-| Shop                          | Shopping experiences            |
-| Family                        | Family experiences              |
-| Art                           | Art, culture & entertainment    |
 | Transport                     | Transport                       |
-| —                             | Professional services           |
 | Tours                         | City tours                      |
-| Other                         | Other                           |
+
+ℹ️ This table shows only the 6 v1 categories — see "v1 category scope" below for the deferred categories and their guest-tile pairings.
 
 ✅ **Confirmed usage — both columns ship, in different surfaces.** This isn't just an internal mapping for reference: both label sets are live product copy, each used in a different place in Concierge.
 
@@ -53,27 +49,40 @@ The onboarding dropdown (right column) is what actually ships on this screen:
 
 - City tours
 - Boats & yacht charters
-- Activities & recreation
 - Food & dining
 - Wellness & beauty
 - Entertainment & nightlife
-- Shopping experiences
-- Family experiences
-- Art, culture & entertainment
 - Transport
-- Professional services
-- Other
 
 **Notes on specific entries:**
 
-- **Shopping experiences** — places to go for shopping in the city, not a business that sells retail goods itself.
-- **Family experiences** — family-oriented experiences generally, not a specific activity type.
-- **Art, culture & entertainment** — museums, exhibitions, musical events, cultural events, concerts. ⚠️ **Overlap:** this absorbs "musical events/concerts," which could also plausibly read as **Entertainment & nightlife**. No hard rule yet for which one a concert-venue or live-music provider should pick — leave to provider judgment until this needs tightening.
 - **Transport** — kept as a single word on both sides; broad enough to cover private drivers and other transport providers without narrowing to one specific service type.
-- **Professional services** — a provider offering a booked professional service delivered to a guest or client, rather than an activity, venue, or transport. Covers the service types in `../services/*.md` other than private drivers, which fall under **Transport** instead: event planning, personal chef, photography, makeup/beauty, massage, concierge services, security — plus babysitting and rentals per `homepage.md`'s "Need a Hand" list, which don't yet have their own `services/*.md` file (see that doc's own flagged gap on this). Illustrative, not a closed enum — `services/*.md` may grow. No guest-facing tile equivalent, since guests don't browse "by professional service." Like every other category, a business here can still create either Experience or Service listings — see "Onboarding category vs. New Listing's flow" below.
 - **City tours** — provider label now more descriptive than the guest-facing "Tours" tile, matching this doc's other entries; guest side stays the single word "Tours."
 
 ✅ **Resolved:** single-select. Matches the Figma screen's standard single-value dropdown ("Select a category"). A provider spanning categories (e.g. a restaurant with a late-night bar) picks the single option that best represents the business, same as any other one-value classification field on this screen.
+
+## v1 category scope
+
+✅ **Resolved — v1 ships exactly 6 categories, no fallback.** For the first release, the onboarding dropdown is scoped down to **City tours, Boats & yacht charters, Food & dining, Wellness & beauty, Entertainment & nightlife, and Transport** — no "Other" catch-all. This is a deliberate v1 cut, not the full candidate taxonomy.
+
+⚠️ **Deferred to v2 — not eliminated:** the following categories (and their guest-facing tile pairings, where one exists) were part of the broader taxonomy explored above but are held back from v1:
+
+| Guest-facing (Concierge tile) | Provider-facing (deferred) |
+| ----------------------------- | --------------------------- |
+| Outdoors                      | Activities & recreation    |
+| Shop                          | Shopping experiences       |
+| Family                        | Family experiences         |
+| Art                           | Art, culture & entertainment |
+| —                             | Professional services       |
+
+Their rationale/notes, preserved for whenever they're reconsidered:
+
+- **Shopping experiences** — places to go for shopping in the city, not a business that sells retail goods itself.
+- **Family experiences** — family-oriented experiences generally, not a specific activity type.
+- **Art, culture & entertainment** — museums, exhibitions, musical events, cultural events, concerts. This absorbs "musical events/concerts," which could also plausibly read as **Entertainment & nightlife**; no hard rule was set for which one a concert-venue or live-music provider should pick.
+- **Professional services** — a provider offering a booked professional service delivered to a guest or client, rather than an activity, venue, or transport. Was scoped to cover the service types in `../services/*.md` other than private drivers (which fall under **Transport**): event planning, personal chef, photography, makeup/beauty, massage, concierge services, security — plus babysitting and rentals per `homepage.md`'s "Need a Hand" list. No guest-facing tile equivalent, since guests don't browse "by professional service."
+
+⚠️ **Gap:** with no "Other" fallback, providers whose business would have mapped to one of these deferred categories have no dropdown option that fits in v1. Not resolved here — flagged for whoever finalizes the v1 Figma screen to decide (e.g. force-fit to the nearest of the 6, or add "Other" back before ship).
 
 ## Decision history
 
@@ -148,7 +157,7 @@ Worked example — **Boats & yacht charters**:
 
 The onboarding category informs and personalizes the listing-details step (which subtype options appear) but never substitutes for the Experience/Service choice, and the Experience/Service choice never substitutes for asking business category at onboarding — each of the three properties answers a question the other two can't.
 
-⚠️ **Gap — not yet designed or finalized:** the worked example above is the only business category with listing-subtype options drafted, and even its Service-subtype list (above) is still an open candidate set, not a locked decision. Every other business category (City tours, Activities & recreation, Food & dining, Wellness & beauty, Entertainment & nightlife, Shopping experiences, Family experiences, Art/culture/entertainment, Transport, Professional services, Other) still needs its own Experience-subtype and Service-subtype lists defined from scratch — none have a Figma reference yet.
+⚠️ **Gap — not yet designed or finalized:** the worked example above is the only business category with listing-subtype options drafted, and even its Service-subtype list (above) is still an open candidate set, not a locked decision. Every other v1 business category (City tours, Food & dining, Wellness & beauty, Entertainment & nightlife, Transport) still needs its own Experience-subtype and Service-subtype lists defined from scratch — none have a Figma reference yet.
 
 ⚠️ **Gap:** whether New Listing can read the business's onboarding category at all today is unconfirmed — `business-profiles.md` already flags no data-fetching contract exists between `BusinessProfilesLayout`/`BusinessProfileLayout` and any other page (see that doc's "Open items / TODOs" #1). Personalizing the listing-details step by business category depends on that plumbing existing.
 
