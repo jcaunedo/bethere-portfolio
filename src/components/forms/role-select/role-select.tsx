@@ -8,8 +8,18 @@ import {
   SelectValue,
 } from "@/components/forms/select";
 
-/** A team member role (Figma: bethere.ds `role-options`). */
-type TeamRole = "staff" | "admin" | "broker";
+/**
+ * A team member role that can actually be assigned (Figma: bethere.ds
+ * `role-options`).
+ *
+ * `OWNER` is deliberately absent: it is written by the backend only — at
+ * business creation, or as the result of the owner-transfer flow — so it
+ * must never be offered by a picker. Figma's `role-options` also defines a
+ * "Broker" option; the product doesn't support that role, and it was
+ * removed rather than filtered at each call site so nothing downstream has
+ * to defensively handle a value that can't be assigned.
+ */
+type TeamRole = "staff" | "admin";
 
 const ROLE_OPTIONS: {
   value: TeamRole;
@@ -27,11 +37,6 @@ const ROLE_OPTIONS: {
     label: "Admin",
     description:
       "Full access to manage the business profile, team, documents, and experiences.",
-  },
-  {
-    value: "broker",
-    label: "Broker",
-    description: "Access to manage leads, client bookings, and guest coordination.",
   },
 ];
 
@@ -51,8 +56,8 @@ type RoleSelectProps = Omit<
 };
 
 /**
- * Team member role picker (Figma: bethere.ds `role-options`) — Staff/Admin/
- * Broker, each with a description of what that role can access. Used by the
+ * Team member role picker (Figma: bethere.ds `role-options`) — Staff and
+ * Admin, each with a description of what that role can access. Used by the
  * "Invite member" flow (Provider Portal → Team members) to assign a new
  * team member's role. Built on the shared `Select`/`SelectItem` primitives;
  * `SelectItem`'s `description` prop renders the two-line "Select Item 2

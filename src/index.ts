@@ -1,6 +1,12 @@
 export { cn } from "./lib/utils";
 
 export {
+  formatRelativeDate,
+  RELATIVE_CUTOVER,
+  type RelativeDate,
+} from "./lib/relative-date";
+
+export {
   motionDuration,
   motionDistance,
   motionScale,
@@ -328,6 +334,11 @@ export {
   type EditMemberDialogProps,
   type EditMemberDialogMember,
 } from "./components/overlays/edit-member-dialog";
+
+export {
+  ConfirmDialog,
+  type ConfirmDialogProps,
+} from "./components/overlays/confirm-dialog";
 
 /* -------------------------------------------------------------------------- */
 /* Navigation                                                                 */

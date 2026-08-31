@@ -1,4 +1,5 @@
 import * as React from "react";
+import { UserIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/data-display/avatar";
@@ -18,6 +19,13 @@ function initialsFromName(name: string): string {
  * Provider-Portal Team members, updated to add a phone number line below
  * email). Plug into a `ColumnDef`'s `cell` renderer — it renders content
  * only, not a `<td>` wrapper, so `TableCell`'s own padding still applies.
+ *
+ * `name` is optional, for a person the product knows of but has no name
+ * for yet — a pending team invitation is an email address and nothing
+ * else until it's accepted. Without a name the email takes the primary
+ * line and the avatar falls back to a neutral person icon, since there
+ * are no initials to derive and a colored initials tile would imply an
+ * identity that doesn't exist yet.
  */
 function TableCellUser({
   name,
@@ -27,11 +35,12 @@ function TableCellUser({
   className,
   ...props
 }: React.ComponentProps<"div"> & {
-  name: string;
+  name?: string;
   email: string;
   phone?: string;
   avatarUrl?: string;
 }) {
+  const hasName = name !== undefined && name.trim() !== "";
   return (
     <div
       data-slot="table-cell-user"
@@ -40,15 +49,27 @@ function TableCellUser({
     >
       <Avatar size="lg" className="shrink-0">
         {avatarUrl ? <AvatarImage src={avatarUrl} alt="" /> : null}
-        <AvatarFallback colorSeed={name}>{initialsFromName(name)}</AvatarFallback>
+        {hasName ? (
+          <AvatarFallback colorSeed={name}>
+            {initialsFromName(name!)}
+          </AvatarFallback>
+        ) : (
+          // No `colorSeed` — an icon fallback stays on the neutral
+          // `bg-muted`, per `AvatarFallback`'s own contract.
+          <AvatarFallback>
+            <UserIcon />
+          </AvatarFallback>
+        )}
       </Avatar>
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm font-medium text-foreground">
-          {name}
+          {hasName ? name : email}
         </span>
-        <span className="block truncate text-xs text-muted-foreground">
-          {email}
-        </span>
+        {hasName ? (
+          <span className="block truncate text-xs text-muted-foreground">
+            {email}
+          </span>
+        ) : null}
         {phone ? (
           <span className="block truncate text-xs text-muted-foreground">
             {phone}

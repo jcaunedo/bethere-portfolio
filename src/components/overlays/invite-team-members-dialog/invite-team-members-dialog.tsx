@@ -44,9 +44,22 @@ function isValidEmail(value: string): boolean {
   return EMAIL_PATTERN.test(value.trim());
 }
 
+/** Email addresses compare case-insensitively and ignoring stray whitespace. */
+function normalizeEmail(value: string): string {
+  return value.trim().toLowerCase();
+}
+
 type InviteTeamMembersDialogProps = React.ComponentProps<typeof Dialog> & {
   /** Called with the filled-in rows when "Send Invites" is activated. */
   onSendInvites?: (invites: { email: string; role: TeamRole }[]) => void;
+  /**
+   * Emails of people already on the team. Inviting one is blocked with an
+   * inline row error rather than sent and rejected by the server — the
+   * caller already has both lists in memory, so this check costs nothing.
+   */
+  existingEmails?: string[];
+  /** Emails with an invitation already outstanding. Same treatment. */
+  pendingEmails?: string[];
   className?: string;
 };
 
@@ -56,9 +69,16 @@ type InviteTeamMembersDialogProps = React.ComponentProps<typeof Dialog> & {
  * on the shared `Dialog`, `Input`, and `RoleSelect`. Row state (email
  * value, role) is owned here; the consumer only receives the filled rows
  * on submit via `onSendInvites`.
+ *
+ * Pass `existingEmails`/`pendingEmails` to catch a duplicate invite before
+ * it's sent — inviting someone who is already on the team, or who already
+ * has an invitation outstanding, is blocked inline rather than silently
+ * creating a second invite.
  */
 function InviteTeamMembersDialog({
   onSendInvites,
+  existingEmails = [],
+  pendingEmails = [],
   className,
   children,
   open,
@@ -93,17 +113,51 @@ function InviteTeamMembersDialog({
     );
   }
 
-  // A row with no email is simply skipped on send; a row with a non-empty
-  // but malformed email blocks sending until it's fixed or removed.
-  const hasInvalidEmail = rows.some(
-    (row) => row.email.trim() !== "" && !isValidEmail(row.email),
+  const existingSet = React.useMemo(
+    () => new Set(existingEmails.map(normalizeEmail)),
+    [existingEmails],
   );
+  const pendingSet = React.useMemo(
+    () => new Set(pendingEmails.map(normalizeEmail)),
+    [pendingEmails],
+  );
+
+  /**
+   * The one blocking problem with a row's email, or `undefined`. An empty
+   * row is never an error — it's simply skipped on send.
+   *
+   * Order matters: a malformed address can't meaningfully be "already a
+   * member", so format is checked first, and the duplicate-within-this-list
+   * check runs last so the *first* occurrence stays clean and only the
+   * repeat is flagged.
+   */
+  function emailError(row: InviteRow, index: number): string | undefined {
+    const value = row.email.trim();
+    if (value === "") return undefined;
+    if (!isValidEmail(value)) return "Enter a valid email address.";
+
+    const normalized = normalizeEmail(value);
+    if (existingSet.has(normalized)) return "Already a team member.";
+    if (pendingSet.has(normalized))
+      return "Already invited — resend that invitation instead.";
+    if (
+      rows.some(
+        (other, otherIndex) =>
+          otherIndex < index && normalizeEmail(other.email) === normalized,
+      )
+    )
+      return "This email is already in the list.";
+    return undefined;
+  }
+
+  const rowErrors = rows.map(emailError);
+  const hasBlockingError = rowErrors.some(Boolean);
   const filledEmailCount = rows.filter(
     (row) => row.email.trim() !== "",
   ).length;
 
   function handleSend() {
-    if (hasInvalidEmail) {
+    if (hasBlockingError) {
       // Surface the error on every row that has one, even if the user
       // never blurred that field before clicking Send.
       setRows((prev) =>
@@ -137,6 +191,9 @@ function InviteTeamMembersDialog({
           {rows.map((row, index) => {
             const hasLabel = index === 0;
             const canRemove = rows.length > 1;
+            // Held back until the field has been blurred once, so a
+            // half-typed address never flashes red mid-keystroke.
+            const error = row.emailTouched ? rowErrors[index] : undefined;
             return (
               <div
                 key={row.id}
@@ -150,24 +207,14 @@ function InviteTeamMembersDialog({
                 <FormField
                   htmlFor={`${row.id}-email`}
                   label={hasLabel ? "Email" : undefined}
-                  error={
-                    row.emailTouched &&
-                    row.email.trim() !== "" &&
-                    !isValidEmail(row.email)
-                      ? "Enter a valid email address."
-                      : undefined
-                  }
+                  error={error}
                 >
                   <Input
                     id={`${row.id}-email`}
                     type="email"
                     placeholder="name@company.com"
                     value={row.email}
-                    aria-invalid={
-                      row.emailTouched &&
-                      row.email.trim() !== "" &&
-                      !isValidEmail(row.email)
-                    }
+                    aria-invalid={error !== undefined}
                     onChange={(e) =>
                       updateRow(row.id, { email: e.target.value })
                     }
@@ -228,7 +275,7 @@ function InviteTeamMembersDialog({
           <Button
             type="button"
             size="lg"
-            disabled={hasInvalidEmail || filledEmailCount === 0}
+            disabled={hasBlockingError || filledEmailCount === 0}
             onClick={handleSend}
           >
             {filledEmailCount > 1 ? "Send Invites" : "Send Invite"}

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { XIcon } from "lucide-react";
+import { UserIcon, XIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/buttons/button";
@@ -11,6 +11,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/components/data-display/avatar";
+import { Alert, AlertDescription } from "@/components/feedback/alert";
 import {
   Dialog,
   DialogClose,
@@ -18,9 +19,15 @@ import {
   DialogFooter,
 } from "@/components/overlays/dialog";
 
-/** "Lucy Smith" → "LS"; falls back to the first two characters if there's no space. */
+/**
+ * "Lucy Smith" → "LS"; falls back to the first two characters if there's no
+ * space, and to an empty string for a member with no name yet (a pending
+ * invitation, which is an email address and nothing else until accepted).
+ */
 function initialsFromName(name: string): string {
-  const parts = name.trim().split(/\s+/);
+  const trimmed = name.trim();
+  if (trimmed === "") return "";
+  const parts = trimmed.split(/\s+/);
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
@@ -38,7 +45,12 @@ type EditMemberDialogMember = {
   avatarUrl?: string;
   /** Job title (Figma: "Job title"). */
   title: string;
-  role: TeamRole;
+  /**
+   * Absent when the role isn't editable here — the owner, whose role has no
+   * `RoleSelect` option. The dialog leaves it absent in the value it saves
+   * too, so a consumer can tell "role unchanged" from "role set to staff".
+   */
+  role?: TeamRole;
 };
 
 type EditMemberDialogProps = React.ComponentProps<typeof Dialog> & {
@@ -47,6 +59,21 @@ type EditMemberDialogProps = React.ComponentProps<typeof Dialog> & {
   /** Called with the edited values when "Save" is activated. The dialog
    * closes itself either way. */
   onSave?: (member: EditMemberDialogMember) => void;
+  /**
+   * Renders Role as read-only text with this label instead of a
+   * `RoleSelect` — for the business owner, whose role is written by the
+   * backend only and can't be reassigned from a picker. `RoleSelect` has no
+   * "Owner" option to select, so without this the owner's row would display
+   * a role it doesn't have and save a demotion.
+   */
+  lockedRoleLabel?: string;
+  /**
+   * Marks this as an invitation that hasn't been accepted yet. The person
+   * has no account, so the name/phone/title fields are pre-seed data rather
+   * than edits, and changing the email re-targets the invitation — both of
+   * which the dialog says out loud rather than leaving the user to infer.
+   */
+  pending?: boolean;
   className?: string;
 };
 
@@ -58,10 +85,17 @@ type EditMemberDialogProps = React.ComponentProps<typeof Dialog> & {
  * seeded from `member` and reset whenever the dialog opens, so reopening it
  * for a different member (or after a previous edit was cancelled) never
  * shows stale values.
+ *
+ * Two rows need special handling and get it through props rather than a
+ * separate dialog: the business owner (`lockedRoleLabel`), whose role isn't
+ * assignable from a picker, and a pending invitation (`pending`), whose
+ * person doesn't exist yet.
  */
 function EditMemberDialog({
   member,
   onSave,
+  lockedRoleLabel,
+  pending = false,
   className,
   children,
   open,
@@ -85,7 +119,7 @@ function EditMemberDialog({
   const [title, setTitle] = React.useState(member.title);
   const [email, setEmail] = React.useState(member.email);
   const [phone, setPhone] = React.useState(member.phone ?? "");
-  const [role, setRole] = React.useState<TeamRole>(member.role);
+  const [role, setRole] = React.useState<TeamRole>(member.role ?? "staff");
   const contentRef = React.useRef<React.ComponentRef<typeof DialogContent>>(
     null,
   );
@@ -101,7 +135,7 @@ function EditMemberDialog({
     setTitle(member.title);
     setEmail(member.email);
     setPhone(member.phone ?? "");
-    setRole(member.role);
+    setRole(member.role ?? "staff");
     // Only re-seed on the open transition, not on every `member` identity
     // change while already open (e.g. a parent re-render passing a new
     // object) — that would clobber in-progress edits.
@@ -114,7 +148,11 @@ function EditMemberDialog({
     title === member.title &&
     email === member.email &&
     phone === (member.phone ?? "") &&
-    role === member.role;
+    // A locked role has no control to change it, so it can never be the
+    // thing that enables Save.
+    (lockedRoleLabel !== undefined || role === (member.role ?? "staff"));
+
+  const emailRetargeted = pending && email.trim() !== member.email;
 
   function handleSave() {
     onSave?.({
@@ -123,7 +161,9 @@ function EditMemberDialog({
       phone: phone.trim() === "" ? undefined : phone,
       avatarUrl: member.avatarUrl,
       title,
-      role,
+      // Left absent rather than echoed back when the role wasn't editable,
+      // so a consumer never mistakes the placeholder for an edit.
+      role: lockedRoleLabel !== undefined ? undefined : role,
     });
     setOpen(false);
   }
@@ -164,9 +204,18 @@ function EditMemberDialog({
             {member.avatarUrl ? (
               <AvatarImage src={member.avatarUrl} alt="" />
             ) : null}
-            <AvatarFallback colorSeed={member.name}>
-              {initialsFromName(member.name)}
-            </AvatarFallback>
+            {initialsFromName(member.name) === "" ? (
+              // No name to derive initials from — a neutral icon avatar,
+              // not a colored initials tile implying an identity that
+              // doesn't exist yet.
+              <AvatarFallback>
+                <UserIcon />
+              </AvatarFallback>
+            ) : (
+              <AvatarFallback colorSeed={member.name}>
+                {initialsFromName(member.name)}
+              </AvatarFallback>
+            )}
           </Avatar>
         </div>
 
@@ -210,9 +259,44 @@ function EditMemberDialog({
               onChange={(e) => setTitle(e.target.value)}
             />
           </FormField>
-          <FormField htmlFor="edit-member-role" label="Role">
-            <RoleSelect value={role} onValueChange={setRole} />
-          </FormField>
+          {lockedRoleLabel !== undefined ? (
+            <FormField
+              htmlFor="edit-member-role"
+              label="Role"
+              description="Ownership can only be changed by transferring it."
+            >
+              <Input
+                id="edit-member-role"
+                value={lockedRoleLabel}
+                readOnly
+                aria-readonly
+                className="bg-fill-subtle text-muted-foreground"
+              />
+            </FormField>
+          ) : (
+            <FormField htmlFor="edit-member-role" label="Role">
+              <RoleSelect value={role} onValueChange={setRole} />
+            </FormField>
+          )}
+
+          {pending ? (
+            <Alert variant="info">
+              <AlertDescription>
+                This person hasn&apos;t accepted yet — anything you add here
+                pre-fills their profile, and their own entries win once they
+                sign up.
+              </AlertDescription>
+            </Alert>
+          ) : null}
+
+          {emailRetargeted ? (
+            <Alert variant="warning">
+              <AlertDescription>
+                Saving sends a new invitation to {email.trim()} and cancels the
+                one sent to {member.email}.
+              </AlertDescription>
+            </Alert>
+          ) : null}
         </div>
 
         <DialogFooter>
