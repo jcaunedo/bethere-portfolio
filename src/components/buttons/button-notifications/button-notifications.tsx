@@ -5,7 +5,7 @@ import { Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const buttonNotificationsVariants = cva(
-	"inline-flex shrink-0 items-center justify-center rounded-full bg-background text-icon-subtle transition-colors outline-none hover:text-icon focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-[current=true]:not-disabled:bg-brand-100 aria-[current=true]:not-disabled:text-icon-primary disabled:pointer-events-none disabled:bg-background disabled:text-icon-subtle disabled:opacity-50 data-[muted=true]:bg-background! data-[muted=true]:text-icon-subtle! data-[muted=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+	"inline-flex shrink-0 items-center justify-center rounded-full bg-background text-icon-subtle transition-colors outline-none hover:text-icon focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-[current=true]:not-disabled:bg-primary-subtle aria-[current=true]:not-disabled:text-icon-primary disabled:pointer-events-none disabled:bg-background disabled:text-icon-subtle disabled:opacity-50 data-[muted=true]:bg-background! data-[muted=true]:text-icon-subtle! data-[muted=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
 	{
 		variants: {
 			size: {

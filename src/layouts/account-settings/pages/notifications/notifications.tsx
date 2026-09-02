@@ -65,7 +65,7 @@ const INITIAL_NOTIFICATION_SECTIONS: NotificationSection[] = [
       { id: "availability-conflict-detected", label: "Availability conflict detected", checked: false, activeChannels: [] },
       { id: "booking-cancelled-by-guest", label: "Booking cancelled by guest", checked: false, activeChannels: [] },
       { id: "booking-cancelled-by-staff-member", label: "Booking cancelled by staff member", checked: false, activeChannels: [] },
-      { id: "booking-modified-rescheduled", label: "Booking modified/rescheduled", checked: false, activeChannels: [] },
+      { id: "booking-modified-rescheduled", label: "Booking rescheduled", checked: false, activeChannels: [] },
       { id: "guest-no-show", label: "Guest no-show", checked: false, activeChannels: [] },
     ],
   },
@@ -282,7 +282,7 @@ function NotificationsLayout() {
               className={cn(
                 "flex shrink-0 items-center justify-center rounded-full p-[10px]",
                 masterRow.checked
-                  ? "bg-primary-muted text-icon-primary"
+                  ? "bg-primary-subtle text-icon-primary"
                   : "bg-background text-icon-muted",
               )}
             >
@@ -309,7 +309,7 @@ function NotificationsLayout() {
                       className={cn(
                         "flex size-10 shrink-0 items-center justify-center rounded-full transition-colors [&_svg]:size-5",
                         isActive
-                          ? "bg-brand-100 text-icon-primary"
+                          ? "bg-primary-subtle text-icon-primary"
                           : "bg-background text-icon-subtle",
                       )}
                     >

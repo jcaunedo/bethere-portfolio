@@ -159,9 +159,12 @@ function NotificationSwitcher({
 	// deactivating the last active one turns the row off instead of leaving
 	// it checked with nothing selected.
 	function handleChannelClick(channel: NotificationChannel) {
+		// A channel click while locked both unlocks whatever governs this row
+		// (e.g. a master switch above it) and activates that channel on this
+		// row specifically — unlike the switch itself, which only unlocks and
+		// leaves every row exactly as it was (see handleCheckedChange).
 		if (locked) {
 			onLockedInteraction?.();
-			return;
 		}
 		if (!isChecked) {
 			const nextActiveChannels = currentActiveChannels.includes(channel)
@@ -204,7 +207,7 @@ function NotificationSwitcher({
 				className={cn(
 					"flex shrink-0 items-center justify-center rounded-full p-[10px]",
 					displayChecked
-						? "bg-primary-muted text-icon-primary"
+						? "bg-primary-subtle text-icon-primary"
 						: "bg-background text-icon-muted",
 				)}
 			>
