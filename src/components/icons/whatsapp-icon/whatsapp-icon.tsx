@@ -2,8 +2,8 @@ import * as React from "react";
 
 /**
  * WhatsApp brand mark (Figma: bethere.ds `whatsapp`, used in `notification-switcher`)
- * — not part of the lucide-react set, so it's vendored here. Unlike lucide icons this
- * is a two-tone brand logo, so its fills are fixed (not `currentColor`).
+ * — not part of the lucide-react set, so it's vendored here. Uses `currentColor`
+ * so it inherits state color like the lucide icons instead of a fixed brand fill.
  */
 function WhatsappIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -17,13 +17,13 @@ function WhatsappIcon(props: React.SVGProps<SVGSVGElement>) {
     >
       <path
         d="M7.48048 5.47608C7.59274 5.46692 7.69627 5.53216 7.74415 5.63396L8.78989 7.85158C8.83927 7.95643 8.81726 8.08127 8.73537 8.16326L7.95574 8.94289C7.78725 9.11145 7.73794 9.37429 7.85402 9.58254C8.13844 10.0926 8.52099 10.584 8.96405 11.036C9.41597 11.479 9.90753 11.8611 10.4175 12.1452C10.6258 12.2613 10.8875 12.212 11.0563 12.0435L11.836 11.2647C11.9179 11.1827 12.0428 11.1605 12.1476 11.2101L14.3653 12.2559C14.4671 12.3037 14.5323 12.4067 14.5231 12.5187C14.4992 12.8105 14.3825 13.3958 13.8583 13.9201C12.3788 15.3994 9.72234 13.7261 9.61265 13.6605C8.95906 13.3094 8.33796 12.8396 7.74904 12.251C7.16033 11.6623 6.68985 11.041 6.33872 10.3874C6.27326 10.2786 4.60001 7.62169 6.07993 6.14178C6.60408 5.61763 7.18862 5.50006 7.48048 5.47608Z"
-        fill="#F26740"
+        fill="currentColor"
       />
       <path
         fillRule="evenodd"
         clipRule="evenodd"
         d="M10 0.833335C15.0626 0.833335 19.1667 4.93746 19.1667 10C19.1667 15.0626 15.0626 19.1667 10 19.1667C8.40362 19.1667 6.90291 18.7587 5.59571 18.0412L0.833335 19.1667L2.05404 14.5736C1.27767 13.2276 0.833335 11.6656 0.833335 10C0.833335 4.93746 4.93746 0.833335 10 0.833335ZM10 2.47478C5.8442 2.47478 2.47559 5.8442 2.47559 10C2.47564 11.6022 2.97615 13.0872 3.82976 14.3075L3.04037 16.9971L5.8545 16.2801C7.04335 17.0666 8.46796 17.5244 10 17.5244C14.1558 17.5244 17.5243 14.1557 17.5244 10C17.5244 5.8442 14.1558 2.47478 10 2.47478Z"
-        fill="#F26740"
+        fill="currentColor"
       />
     </svg>
   );

@@ -586,3 +586,60 @@ the two side by side.
   `TeamMembersLayout`'s `editingMember` (data, never cleared on close) vs.
   `editDialogOpen` (the boolean Cancel/Save/X actually toggle) in
   `src/layouts/account-settings/pages/team-members/team-members.tsx`.
+
+---
+
+## "Outside border" on hover: `box-shadow` ring, not `outline`/`border` (`src/components/forms/notification-switcher/notification-switcher.tsx`)
+
+**Rule:** When a Figma spec calls for a border that sits **outside** a
+component's box on hover (rather than inset), implement it as a
+`box-shadow` ring — `hover:shadow-[0_0_0_<width>_var(--color-token)]` — not
+`border` and not `outline`.
+
+- `border` is inset by default — it eats into the box and shifts internal
+  padding/content. Wrong primitive for "outside."
+- `outline` sits outside the box without affecting layout, which sounds
+  right, but in a stacked list with no gap between rows it caused a real
+  hover appear/disappear flicker: adding `outline` on `:hover` changes the
+  element's painted bounds right where the cursor often sits at a row's
+  edge, so the hover state toggled on/off rapidly. `box-shadow` does not
+  have this failure mode here.
+
+Two more things must stay true or the ring looks wrong even though it
+renders:
+
+1. **Ring color must match the fill token**, not an unrelated one —
+   `NotificationSwitcher`'s hover ring uses `--color-state-hover` (the same
+   token as `hover:bg-state-hover`), not `--color-card` (white), so the
+   fill and ring read as one continuous tinted shape instead of a
+   white-on-white-invisible or mismatched edge.
+2. **Fill and ring must be in the same `transition-*` property list.**
+   Tailwind's `transition-colors` covers `background-color`/`border-color`/
+   `color`/`fill`/`stroke` but **not** `box-shadow` — so a ring added via
+   `shadow-[...]` pops in with a visible delay after the fill unless both
+   are named explicitly: `transition-[background-color,box-shadow]`.
+
+```tsx
+// notificationSwitcherVariants (cva base)
+"transition-[background-color,box-shadow]"
+
+// hover state
+"hover:bg-state-hover hover:shadow-[0_0_0_8px_var(--color-state-hover)]"
+```
+
+**Why:** The Figma hover variant for this component had its border bound to
+the same near-transparent hover token as its fill (a Figma-side token
+issue), so simply copying Figma's border/stroke output verbatim wasn't an
+option — the fix had to be built up in code by testing each layer (outline
+vs. box-shadow, color choice, transition timing) rather than transcribed.
+Each intermediate attempt *looked* plausible (outline is semantically "the
+outside-border property," white is a real token in this file, leaving
+`transition-colors` alone is the path of least resistance) but was wrong in
+a way that only showed up when actually interacting with the component in
+Storybook, not from reading the diff.
+
+**How to apply:** Reach for a `box-shadow` ring first for any future
+"outside border," "ring," or "outline" hover/focus treatment in UCL. Verify
+by actually hovering the component (not just reading the class list) for
+flicker, color mismatch against its own fill, and timing lag between fill
+and ring appearing.
