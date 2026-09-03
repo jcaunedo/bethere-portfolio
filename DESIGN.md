@@ -643,3 +643,47 @@ Storybook, not from reading the diff.
 by actually hovering the component (not just reading the class list) for
 flicker, color mismatch against its own fill, and timing lag between fill
 and ring appearing.
+
+---
+
+## Gaps/margins/padding must match Figma's literal value — don't normalize to the nearest token (`src/components/cards/integration-card/integration-card.tsx`)
+
+**Rule:** When a Figma spacing value (gap, margin, padding) doesn't match an
+existing spacing token exactly, use the literal value as an arbitrary
+Tailwind class (e.g. `gap-[2px]`) — do not round it up/down to the nearest
+token-backed utility (`gap-2` = 8px) for the sake of "consistency" with a
+different variant or a nearby value that *does* use a token. Every gap,
+margin, and padding value must be pixel-accurate to what Figma actually
+specifies for that exact node, checked independently per variant/state —
+never inferred by pattern-matching against a sibling value.
+
+**Why:** `IntegrationCard`'s title/description stack has a real,
+Figma-authored discrepancy between its two variants: the `Default` variant's
+gap is a raw `2px` (no token), while `Connected`'s equivalent gap is `8px`
+(`spacing/2`). When this component was first built, the `2px` value was
+normalized to `8px` to match `Connected` and avoid a non-token literal — a
+reasonable-looking judgment call that was wrong: Figma's two variants are
+not actually the same value, and "normalize to the nearest token" is not a
+substitute for reading the exact number. The mistake shipped invisibly —
+the component built, rendered, and looked plausible — until it was compared
+pixel-for-pixel against Figma and corrected back to `gap-[2px]`.
+
+**How to apply:**
+- Pull the literal value from `get_design_context`/`get_variable_defs` for
+  the **exact node** in question, not a visually-similar sibling or a
+  different variant of the same component.
+- If it matches an existing token's value, use that token's utility class.
+- If it does not match any token, use the literal value as an arbitrary
+  class (`gap-[2px]`, `pl-[13px]`, etc.) rather than rounding to the nearest
+  token — a raw value that's honest about not being tokenized is correct;
+  a token-backed value that's off by a few pixels is not, no matter how
+  much cleaner it reads in the class list.
+- If the same visual role has genuinely different raw values across
+  variants/states in Figma (as with this component), preserve that
+  difference in code rather than collapsing it to one shared value — unless
+  you explicitly ask the user whether the discrepancy is intentional or a
+  Figma authoring slip, and they confirm which one wins.
+- This applies to every spacing value in every component and layout, not
+  just this one file — re-check gaps/margins/padding with the same rigor
+  used for color/typography tokens (see the token-mismatch guidance in
+  [.claude/skills/ucl-generate-component/references/ucl-conventions.md](.claude/skills/ucl-generate-component/references/ucl-conventions.md)).

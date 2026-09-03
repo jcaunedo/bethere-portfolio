@@ -399,6 +399,13 @@ export {
   type CardBusinessProps,
 } from "./components/cards/card-business";
 
+export {
+  IntegrationCard,
+  integrationCardVariants,
+  type IntegrationCardProps,
+  type IntegrationCardDetail,
+} from "./components/cards/integration-card";
+
 /* -------------------------------------------------------------------------- */
 /* Typography                                                                 */
 /* -------------------------------------------------------------------------- */
