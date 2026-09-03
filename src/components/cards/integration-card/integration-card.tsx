@@ -29,6 +29,14 @@ type IntegrationCardDetail = {
 	label: React.ReactNode;
 	/** Detail row value, e.g. "lucysmith@gmail.com". Rendered at full foreground contrast. */
 	value: React.ReactNode;
+	/**
+	 * Trailing "Edit" link text, shown after the value when present (Figma:
+	 * the "Calendars" row's `Edit` link — not every detail row has one, e.g.
+	 * "Connected as" doesn't).
+	 */
+	editLabel?: React.ReactNode;
+	/** Called when the row's edit link is activated. Required alongside `editLabel` to actually render the link. */
+	onEditClick?: () => void;
 };
 
 type IntegrationCardProps = Omit<React.ComponentProps<"div">, "title"> &
@@ -84,12 +92,7 @@ function IntegrationCard({
 					connected ? "w-full shrink-0" : "min-w-0 flex-1",
 				)}
 			>
-				<div
-					className={cn(
-						"flex min-w-0 flex-1 gap-4",
-						connected ? "items-center" : "items-start",
-					)}
-				>
+				<div className='flex min-w-0 flex-1 items-start gap-4'>
 					<div className='flex h-[50px] shrink-0 items-center'>
 						<div className='flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg [&>img]:size-full [&>img]:object-cover [&_svg]:size-12'>
 							{icon}
@@ -129,9 +132,20 @@ function IntegrationCard({
 			{connected && details.length > 0 && (
 				<div className='flex flex-col gap-0.5 pl-16 text-sm text-muted-foreground'>
 					{details.map((detail, index) => (
-						<p key={index}>
-							{detail.label}: <span className='text-foreground'>{detail.value}</span>
-						</p>
+						<div key={index} className='flex items-start gap-2'>
+							<p>
+								{detail.label}: <span className='text-foreground'>{detail.value}</span>
+							</p>
+							{detail.editLabel && detail.onEditClick && (
+								<button
+									type='button'
+									className='text-primary underline-offset-4 hover:underline'
+									onClick={detail.onEditClick}
+								>
+									{detail.editLabel}
+								</button>
+							)}
+						</div>
 					))}
 				</div>
 			)}

@@ -11,8 +11,9 @@ import {
 import { slideVariants } from "@/lib/motion";
 import googleCalendarLogo from "./images/google-calendar.png";
 import slackLogo from "./images/slack.png";
+import stripeLogo from "./images/stripe.png";
 
-type IntegrationId = "google-calendar" | "slack";
+type IntegrationId = "google-calendar" | "slack" | "stripe";
 
 type Integration = {
   id: IntegrationId;
@@ -36,7 +37,11 @@ const INITIAL_INTEGRATIONS: Integration[] = [
     connected: true,
     details: [
       { label: "Connected as", value: "lucysmith@gmail.com" },
-      { label: "Calendar", value: "Bookings" },
+      {
+        label: "Calendars",
+        value: "Bookings, Personal",
+        editLabel: "Edit",
+      },
     ],
   },
   {
@@ -45,6 +50,14 @@ const INITIAL_INTEGRATIONS: Integration[] = [
     title: "Slack",
     description:
       "Get notified in Slack about new bookings, changes, cancellations, and other important Bethere activity.",
+    connected: false,
+  },
+  {
+    id: "stripe",
+    icon: <img src={stripeLogo} alt="" />,
+    title: "Stripe",
+    description:
+      "Connect Stripe to accept payments and manage payouts for your bookings.",
     connected: false,
   },
 ];
@@ -56,7 +69,17 @@ const INITIAL_INTEGRATIONS: Integration[] = [
  * togglable between a "Connect" default state and a "Connected" state with
  * connection details, mirroring the Google Calendar row's two Figma variants.
  */
-function IntegrationsLayout() {
+function IntegrationsLayout({
+  onEditCalendars,
+}: {
+  /**
+   * Called when Google Calendar's "Edit" link (next to its "Calendars" row)
+   * is activated — hooks into the (future) calendar picker flow. Figma
+   * shows the link but not the picker it opens, so this is a stub, same
+   * pattern as `BusinessProfilesLayout`'s `onAddBusiness`.
+   */
+  onEditCalendars?: () => void;
+} = {}) {
   const [integrations, setIntegrations] = React.useState(INITIAL_INTEGRATIONS);
 
   function toggleConnection(id: IntegrationId) {
@@ -142,7 +165,11 @@ function IntegrationsLayout() {
                 title={integration.title}
                 description={integration.description}
                 connected={integration.connected}
-                details={integration.details}
+                details={integration.details?.map((detail) =>
+                  detail.editLabel
+                    ? { ...detail, onEditClick: onEditCalendars }
+                    : detail,
+                )}
                 onConnect={() => toggleConnection(integration.id)}
                 onDisconnect={() => toggleConnection(integration.id)}
               />

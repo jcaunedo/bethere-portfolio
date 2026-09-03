@@ -13,4 +13,8 @@ const meta: Meta<typeof IntegrationsLayout> = {
 export default meta;
 type Story = StoryObj<typeof IntegrationsLayout>;
 
-export const Default: Story = {};
+export const Default: Story = {
+  args: {
+    onEditCalendars: () => alert("Edit calendars"),
+  },
+};
