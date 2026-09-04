@@ -1,6 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { TeamMembersLayout } from "./team-members";
+import { TeamMembersLayout, ALL_BUSINESSES_ID } from "./team-members";
+
+// Same example businesses as BusinessProfilesLayout, for a consistent
+// reference set across the account-settings stories.
+const EXAMPLE_BUSINESSES = [
+  { id: "key-biscayne-yacht-club", name: "Key Biscayne Yacht Club" },
+  { id: "brickell-bay-cafe", name: "Brickell Bay Cafe" },
+  { id: "yacht-rental-miami", name: "Yacht Rental Miami" },
+];
 
 const meta: Meta<typeof TeamMembersLayout> = {
   title: "Layouts/AccountSettings/TeamMembers",
@@ -19,7 +27,13 @@ type Story = StoryObj<typeof TeamMembersLayout>;
  * ago", and the active rows run from "5 hr ago" through "Yesterday" and
  * "4 days ago" to full dates once past the 7-day cutover.
  */
-export const Default: Story = {};
+export const Default: Story = {
+  args: {
+    businesses: EXAMPLE_BUSINESSES,
+    selectedBusinessId: ALL_BUSINESSES_ID,
+    onBusinessChange: (id) => console.log("business changed", id),
+  },
+};
 
 /**
  * No outstanding invitations — the steady state for most accounts. The

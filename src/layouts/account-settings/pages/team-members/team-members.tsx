@@ -36,6 +36,13 @@ import {
 } from "@/components/overlays/dropdown-menu";
 import { SearchTrigger } from "@/components/forms/search-trigger";
 import { type TeamRole } from "@/components/forms/role-select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/forms/select";
 import { formatRelativeDate } from "@/lib/relative-date";
 
 /**
@@ -491,17 +498,38 @@ function MembersSection({
   );
 }
 
+/** One entry in the business selector, plus the reserved "all businesses" aggregate option. */
+type TeamMembersBusinessOption = {
+  id: string;
+  name: string;
+};
+
+/** Sentinel `id` for the selector's "All Businesses" option — not a real business. */
+const ALL_BUSINESSES_ID = "all";
+
 type TeamMembersLayoutProps = {
   /**
-   * Outstanding invitations. ⚠️ Scoped to a single business, which this
-   * layout has no selector for — see `product-specs/team-members.md` →
-   * "Data model & scope".
+   * Outstanding invitations, scoped to whichever business `selectedBusinessId`
+   * currently selects (or the union across all businesses, when it's
+   * `ALL_BUSINESSES_ID`) — the consuming app owns re-fetching on selection
+   * change. See `product-specs/team-members.md` → "Data model & scope".
    */
   pendingInvites?: PendingInvite[];
-  /** Active members of the same business. */
+  /** Active members, scoped the same way as `pendingInvites`. */
   activeMembers?: TeamMember[];
   /** Names the business in the removal confirmation's copy. */
   businessName?: string;
+  /**
+   * Businesses the account can switch between, rendered in the controls
+   * row's selector (Figma: "All Businesses" dropdown). Omit to hide the
+   * selector entirely — e.g. a single-business account with nothing to
+   * switch between.
+   */
+  businesses?: TeamMembersBusinessOption[];
+  /** Currently selected business id, or `ALL_BUSINESSES_ID` for the aggregate option. Controlled — the layout never changes its own selection. */
+  selectedBusinessId?: string;
+  /** Called with the newly selected business id (or `ALL_BUSINESSES_ID`) when the selector changes. */
+  onBusinessChange?: (businessId: string) => void;
   /** Renders both tables as skeletons. */
   loading?: boolean;
   /** Per-query errors — the two GETs fail independently. */
@@ -534,9 +562,16 @@ type TeamMembersLayoutProps = {
 /**
  * Provider Portal "Team members" settings page (Figma origin: Provider
  * Portal → "Team members" frame). Rendered inside `AccountSettingsLayout`'s
- * content column — a search + invite row, then "Pending invites" and
- * "Active" member tables built from the shared `Table`/`TableCellUser`
- * primitives.
+ * content column — a search + invite row (with an optional "All Businesses"
+ * selector at its far end, per `product-specs/team-members.md` → "Data model
+ * & scope" option 2 — the page grows its own selector rather than relying
+ * solely on an app-level switcher), then "Pending invites" and "Active"
+ * member tables built from the shared `Table`/`TableCellUser` primitives.
+ * The selector is presentational only — `selectedBusinessId`/
+ * `onBusinessChange` are controlled, and re-scoping `pendingInvites`/
+ * `activeMembers` on selection change is the consuming app's job, since
+ * `gql`'s `Business.members` is still per-business only (no aggregate query
+ * backs "All Businesses" yet).
  *
  * Behaviour is specified in `product-specs/team-members.md`; the parts most
  * easily broken by a well-meaning edit:
@@ -552,6 +587,9 @@ function TeamMembersLayout({
   pendingInvites = PENDING_INVITES,
   activeMembers = ACTIVE_MEMBERS,
   businessName = "this business",
+  businesses,
+  selectedBusinessId = ALL_BUSINESSES_ID,
+  onBusinessChange,
   loading = false,
   pendingError,
   activeError,
@@ -663,36 +701,62 @@ function TeamMembersLayout({
           </Typography>
         </div>
 
-        <div className="flex items-start gap-2">
-          <SearchTrigger
-            aria-label="Search team members"
-            placeholder="Search team members"
-            value={searchQuery}
-            onChange={(e) => {
-              setFeedback(null);
-              setSearchQuery(e.target.value);
-            }}
-            onClear={() => setSearchQuery("")}
-          />
-          <InviteTeamMembersDialog
-            existingEmails={activeRows.map((row) => row.email)}
-            pendingEmails={pendingRows.map((row) => row.email)}
-            onSendInvites={(invites) => {
-              onSendInvites?.(invites);
-              setFeedback(
-                invites.length === 1
-                  ? `Invitation sent to ${invites[0].email}.`
-                  : `${invites.length} invitations sent.`,
-              );
-            }}
-          >
-            <DialogTrigger asChild>
-              <Button type="button" size="lg" onClick={() => setFeedback(null)}>
-                <UserPlusIcon />
-                Invite member
-              </Button>
-            </DialogTrigger>
-          </InviteTeamMembersDialog>
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex items-start gap-2">
+            <SearchTrigger
+              aria-label="Search team members"
+              placeholder="Search team members"
+              value={searchQuery}
+              onChange={(e) => {
+                setFeedback(null);
+                setSearchQuery(e.target.value);
+              }}
+              onClear={() => setSearchQuery("")}
+            />
+            <InviteTeamMembersDialog
+              existingEmails={activeRows.map((row) => row.email)}
+              pendingEmails={pendingRows.map((row) => row.email)}
+              onSendInvites={(invites) => {
+                onSendInvites?.(invites);
+                setFeedback(
+                  invites.length === 1
+                    ? `Invitation sent to ${invites[0].email}.`
+                    : `${invites.length} invitations sent.`,
+                );
+              }}
+            >
+              <DialogTrigger asChild>
+                <Button type="button" size="lg" onClick={() => setFeedback(null)}>
+                  <UserPlusIcon />
+                  Invite member
+                </Button>
+              </DialogTrigger>
+            </InviteTeamMembersDialog>
+          </div>
+
+          {businesses && businesses.length > 0 ? (
+            <Select
+              value={selectedBusinessId}
+              onValueChange={onBusinessChange}
+            >
+              <SelectTrigger
+                aria-label="Filter by business"
+                className="w-[220px] shrink-0"
+              >
+                <SelectValue placeholder="All Businesses" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL_BUSINESSES_ID}>
+                  All Businesses
+                </SelectItem>
+                {businesses.map((business) => (
+                  <SelectItem key={business.id} value={business.id}>
+                    {business.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : null}
         </div>
 
         {feedback ? (
@@ -801,5 +865,16 @@ function TeamMembersLayout({
   );
 }
 
-export { TeamMembersLayout, ACTIVE_MEMBERS, PENDING_INVITES };
-export type { TeamMember, PendingInvite, MemberRow, MemberRole };
+export {
+  TeamMembersLayout,
+  ACTIVE_MEMBERS,
+  PENDING_INVITES,
+  ALL_BUSINESSES_ID,
+};
+export type {
+  TeamMember,
+  PendingInvite,
+  MemberRow,
+  MemberRole,
+  TeamMembersBusinessOption,
+};
