@@ -1,7 +1,7 @@
 <!--
 Created: Aug 31, 2026
 Created by: Julio Caunedo
-Last updated: Aug 31, 2026 (both date columns now share one formatter — relative for the first 7 days using abbreviated units, full date with year beyond that; replaces the earlier relative-for-pending / absolute-for-active split. Added the column-fit spec: measured the strings in the browser, widened the Date column from 101px to 112px so the year survives, kept the ellipsis as the backstop, and recorded why `truncate` needs an explicit max-width here. Implemented the spec in the layout — see Implementation status for what shipped and what is still open)
+Last updated: Sep 03, 2026 (removed "This doesn't delete their BeThere account." from the remove-member confirmation. Resolved Permissions: Staff see the page read-only, gated in the dashboard by an allowlist-only CanShow component over the new Business.myRole field and enforced server-side; the pending-invites query is skipped for Staff rather than hidden)
 -->
 
 # Team Members — Provider Portal
@@ -370,7 +370,7 @@ A `Toast` primitive (shadcn's `sonner`, which the rest of the library's shadcn l
 
 | Action | Title | Body | Confirm button |
 |---|---|---|---|
-| **Remove active member** | "Remove {name} from the team?" | "They'll immediately lose access to {business name}. This doesn't delete their BeThere account." | "Remove" *(destructive)* |
+| **Remove active member** | "Remove {name} from the team?" | "They'll immediately lose access to {business name}." | "Remove" *(destructive)* |
 | **Revoke pending invite** | "Revoke the invitation for {email}?" | "The invitation link stops working. You can invite them again at any time." | "Revoke invitation" *(destructive)* |
 
 Rules:
@@ -378,7 +378,7 @@ Rules:
 - **The owner can't be removed** — the action is never offered (see [Row actions](#row-actions)).
 - ⚠️ **Self-removal needs a guard.** An admin can currently remove their own row and lock themselves out of the page that would let them undo it. Either hide the action on your own row, or confirm with distinct copy ("You'll lose access to this business immediately") — the generic third-person copy is misleading when the person is you.
 - ⚠️ **Last-admin guard** — open question. Removing the final admin leaves only the owner able to manage the team. That may be fine (the owner is always there), but if owners are ever non-operational accounts it's a lockout. Decide before shipping; the check is cheap.
-- Removal affects **business membership only** — the user's BeThere account, their other business memberships, and their historical records are untouched. The confirm copy says so explicitly.
+- Removal affects **business membership only** — the user's BeThere account, their other business memberships, and their historical records are untouched. The confirm copy no longer says so — it states only what the person loses.
 
 ---
 
@@ -399,11 +399,13 @@ What the flow needs to establish, none of which is designed yet:
 
 ## Permissions
 
-⚠️ **Entirely unspecified today** — the layout renders every action for every row regardless of who's viewing. Proposed, needs confirmation:
+✅ **Resolved and enforced (2026-09-03).** Staff see the page **read-only**; every managing action is gated in the UI and re-checked server-side.
+
+ℹ️ The UCL layout itself still renders every action for every row — it takes no viewer role and is presentational. The gating lives in the consuming app (`provider-dashboard`'s `CanShow`, backed by `Business.myRole`).
 
 | Capability | Owner | Admin | Staff |
 |---|---|---|---|
-| View the Team members page | ✓ | ✓ | ✗ |
+| View the Team members page | ✓ | ✓ | ✓ (read-only) |
 | Invite members | ✓ | ✓ | — |
 | Edit a member's details | ✓ | ✓ | — |
 | Change a member's role | ✓ | ✓ | — |
@@ -412,7 +414,15 @@ What the flow needs to establish, none of which is designed yet:
 | Transfer ownership | ✓ | ✗ | — |
 | Edit **own** details | ✓ | ✓ | ✓ (via My Profile) |
 
-Open: whether Staff sees the page **read-only** (useful — "who do I contact about X?") or not at all. Read-only is the friendlier default and the one worth confirming first. Whatever is chosen, it must be **enforced server-side** — hiding a menu item is presentation, not authorization.
+✅ **Decision: Staff see the page read-only** — the roster answers "who do I contact about X?", which was the argument for it. They get the active-members table and search; no pending-invites section, no "Invite member" button, no row actions menu, and rows aren't clickable (the row opens Edit, which they can't save).
+
+Enforcement, so the UI is never the guarantee:
+
+- `businessInvites` and every team mutation call `requireBusinessAccess(..., BUSINESS_MANAGER_ROLES)` in `gql`; a Staff caller gets `FORBIDDEN` whatever the client renders.
+- Ownership transfer additionally requires `BUSINESS_OWNER_ROLE`.
+- The dashboard **skips** the pending-invites query for Staff rather than hiding its result — running it would return `FORBIDDEN` and paint an error banner for something they were never entitled to see.
+
+Gates are written as **allowlists** (`<CanShow to={["OWNER", "ADMIN"]}>`), never exclusions, so a role added later is hidden everywhere until it is deliberately named.
 
 ---
 
@@ -542,7 +552,7 @@ Photo upload needs storage, an upload endpoint, a crop UI, and a moderation answ
 3. ⚠️ **No toast/transient-feedback primitive** — resend, invite-sent, and remove currently confirm through a non-dismissing `Alert` stand-in. See [the gap](#gap-no-transient-feedback-primitive).
 4. ⚠️ **No server-error surfacing or partial-failure handling** in the invite dialog — `onSendInvites` is still fire-and-forget. See [Required additions](#required-additions-for-a-real-implementation).
 5. ⚠️ **Self-removal and last-admin guards are unimplemented** — an admin can still remove their own access. Both need a "who am I" input the layout doesn't take yet, and both were left open rather than guessed at.
-6. ⚠️ **Permissions are entirely unenforced and unspecified** — including whether Staff sees this page at all. Hiding a menu item is presentation; the API must enforce it.
+6. ✅ **Permissions resolved and enforced** — Staff see the page read-only; managing actions are allowlist-gated in the dashboard and re-checked server-side. See [Permissions](#permissions). Still open: the UCL layout takes no viewer role, so its own stories render every action.
 7. ⚠️ **`OWNER` must be rejected server-side** as a settable role, regardless of what a client sends. The read-only field is not the guarantee.
 8. ⚠️ **Transfer ownership has no flow**, and has two entry points (here and [Business Profile → Compliance](business-profiles.md#compliance-tab)) that must resolve to one implementation.
 9. ⚠️ **Invite expiry behavior is undefined** — expired invites currently have nowhere to go.

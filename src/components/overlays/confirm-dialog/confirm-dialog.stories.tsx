@@ -27,8 +27,7 @@ const renderWithTrigger: Story["render"] = (args) => (
 export const RemoveMember: Story = {
   args: {
     title: "Remove Guy Hawkins from the team?",
-    description:
-      "They'll immediately lose access to Key Biscayne Yacht Club. This doesn't delete their BeThere account.",
+    description: "They'll immediately lose access to Key Biscayne Yacht Club.",
     confirmLabel: "Remove",
   },
   render: renderWithTrigger,

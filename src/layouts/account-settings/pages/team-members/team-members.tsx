@@ -789,7 +789,7 @@ function TeamMembersLayout({
           description={
             confirmingRow.kind === "pending"
               ? "The invitation link stops working. You can invite them again at any time."
-              : `They'll immediately lose access to ${businessName}. This doesn't delete their BeThere account.`
+              : `They'll immediately lose access to ${businessName}.`
           }
           confirmLabel={
             confirmingRow.kind === "pending" ? "Revoke invitation" : "Remove"
