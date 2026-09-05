@@ -1,9 +1,11 @@
 import * as React from "react";
 import { AnimatePresence, motion } from "motion/react";
+import { Calendar } from "lucide-react";
 
 import { AccountSettingsLayout } from "@/layouts/account-settings/account-settings";
 import { AccountSettingsMenuLayout } from "@/layouts/account-settings/account-settings-menu";
 import { Typography } from "@/components/typography";
+import { AddIndicator } from "@/components/primitives/add-indicator";
 import {
   IntegrationCard,
   type IntegrationCardDetail,
@@ -13,7 +15,9 @@ import googleCalendarLogo from "./images/google-calendar.png";
 import slackLogo from "./images/slack.png";
 import stripeLogo from "./images/stripe.png";
 
-type IntegrationId = "google-calendar" | "slack" | "stripe";
+const NYLAS_CONNECT_URL = "https://www.nylas.com/";
+
+type IntegrationId = "add-calendar" | "google-calendar" | "slack" | "stripe";
 
 type Integration = {
   id: IntegrationId;
@@ -24,10 +28,20 @@ type Integration = {
   details?: IntegrationCardDetail[];
 };
 
-// Figma: Provider-Portal "Integrations" frame. Google Calendar starts
-// connected to show both the default (Slack) and connected (Google
-// Calendar) row treatments in the same reference page.
+// Figma: Provider-Portal "Integrations" frame. "Add Calendar" is a prompt
+// row (Property 1=Default) rather than a specific provider, so it's excluded
+// from the generic Connect/Disconnect toggle below and always launches the
+// Nylas connect flow instead. Google Calendar starts connected to show both
+// the default (Slack) and connected (Google Calendar) row treatments in the
+// same reference page.
 const INITIAL_INTEGRATIONS: Integration[] = [
+  {
+    id: "add-calendar",
+    icon: <AddIndicator icon={<Calendar aria-hidden="true" />} />,
+    title: "Calendar",
+    description: "Connect Google or Outlook to sync bookings and availability.",
+    connected: false,
+  },
   {
     id: "google-calendar",
     icon: <img src={googleCalendarLogo} alt="" />,
@@ -90,6 +104,12 @@ function IntegrationsLayout({
           : integration,
       ),
     );
+  }
+
+  // "Add Calendar" isn't a specific provider row — its "Connect" button always
+  // kicks off the Nylas connect flow instead of flipping local state.
+  function connectViaNylas() {
+    window.open(NYLAS_CONNECT_URL, "_blank", "noopener,noreferrer");
   }
 
   // Mobile-only: the header's back arrow (AccountSettingsLayout's onClose) has
@@ -170,7 +190,11 @@ function IntegrationsLayout({
                     ? { ...detail, onEditClick: onEditCalendars }
                     : detail,
                 )}
-                onConnect={() => toggleConnection(integration.id)}
+                onConnect={
+                  integration.id === "add-calendar"
+                    ? connectViaNylas
+                    : () => toggleConnection(integration.id)
+                }
                 onDisconnect={() => toggleConnection(integration.id)}
               />
             ))}

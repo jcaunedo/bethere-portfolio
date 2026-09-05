@@ -94,7 +94,7 @@ function IntegrationCard({
 			>
 				<div className='flex min-w-0 flex-1 items-start gap-4'>
 					<div className='flex h-[50px] shrink-0 items-center'>
-						<div className='flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg [&>img]:size-full [&>img]:object-cover [&_svg]:size-12'>
+						<div className='flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg [&>img]:size-full [&>img]:object-cover [&>svg]:size-12'>
 							{icon}
 						</div>
 					</div>

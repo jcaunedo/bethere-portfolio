@@ -687,3 +687,67 @@ pixel-for-pixel against Figma and corrected back to `gap-[2px]`.
   just this one file — re-check gaps/margins/padding with the same rigor
   used for color/typography tokens (see the token-mismatch guidance in
   [.claude/skills/ucl-generate-component/references/ucl-conventions.md](.claude/skills/ucl-generate-component/references/ucl-conventions.md)).
+
+---
+
+## Icon sizing must match Figma's defined instance size — don't derive a smaller "visible glyph" size (`src/components/primitives/add-indicator/add-indicator.tsx`)
+
+**Rule:** When Figma defines an icon/instance at a given size (e.g. 24×24),
+render it at that size. Don't reinterpret it by measuring a smaller shape
+nested inside the instance (e.g. a vector inset a few px on each side) and
+concluding the "real" visible size is smaller — that inset is often just how
+the source asset was authored, not an instruction to shrink the rendered
+icon.
+
+**Why:** `AddIndicator`'s plus icon instance is defined at 24×24 in Figma,
+but the vector shape inside that instance measures only 16×16 (a 4px inset
+baked into the source asset). This was read as "the visible glyph is
+actually 16px" and shipped at `size-4` — a plausible-sounding derivation that
+was wrong. The user corrected it back to the instance's actual defined size,
+`size-6` (24px), and pushed back on the underlying method: don't compute an
+alternate number from inner geometry, use what Figma defines for the node
+directly.
+
+**How to apply:**
+- Take the size directly from the Figma node in question (its own
+  width/height from `get_metadata`/`get_design_context`), not from a child
+  layer nested inside it.
+- If a nested shape's measured size seems to disagree with the instance's
+  own size, that's not license to substitute the smaller number — ask the
+  user which one is intended rather than silently picking one.
+- This is the same rigor as the gaps/margins/padding rule above, applied to
+  icon/instance sizing: read the literal defined value, don't infer a
+  "more correct" one from surrounding geometry.
+
+---
+
+## Composed components are black boxes to their parents — never reach into a nested component's internals (`src/components/cards/integration-card/integration-card.tsx`)
+
+**Rule:** Once a component (e.g. `AddIndicator`) is inserted into a layout or
+composed inside another component (e.g. `IntegrationCard`'s icon slot), the
+parent must not modify, override, or reach into that component's internals —
+no deep descendant selectors (`[&_svg]:size-12`) that happen to also match
+elements nested inside a child component's own markup.
+
+**Why:** `IntegrationCard`'s icon slot used `[&_svg]:size-12` to size a raw
+`<img>`/`<svg>` logo mark passed directly into the `icon` prop. When
+`AddIndicator` (which renders its own internal `Plus` icon) was placed in
+that same slot, the same selector silently reached two levels deep and
+resized `AddIndicator`'s internal icon too — overriding a child component's
+own styling from the outside, invisibly. It built and rendered *something*
+plausible, so nothing caught the collision short of a visual diff against
+Figma.
+
+**How to apply:**
+- Scope parent styling to **direct children only** (`[&>svg]`, `[&>img]`)
+  when the intent is to size whatever raw element is passed into a slot —
+  never an unscoped descendant selector (`[&_svg]`) that can also match
+  inside a composed child component.
+- If a parent genuinely needs a composed child to render differently in a
+  given context, add a prop/variant to the child component itself — don't
+  reach through it with CSS from the parent.
+- When adding any new component into an existing slot (a card's icon slot,
+  a button's leading/trailing icon slot, etc.), check what selectors that
+  slot's wrapper already applies and confirm they're scoped to direct
+  children, not deep descendants, before assuming the slot is safe to reuse
+  as-is.

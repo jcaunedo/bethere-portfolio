@@ -121,6 +121,7 @@
 	--color-icon-subtle: var(--icon-subtle);
 	--color-icon-primary: var(--icon-primary);
 	--color-icon-on-primary: var(--icon-on-primary);
+	--color-icon-foreground: var(--icon-foreground);
 
 	/* Input extras (color/input/*) */
 	--color-input-border-disabled: var(--input-border-disabled);
@@ -578,6 +579,7 @@
 	--icon-subtle: var(--neutral-400);
 	--icon-primary: var(--primary);
 	--icon-on-primary: var(--white);
+	--icon-foreground: var(--neutral-700); /* Figma color/icon/foreground — kept distinct from --icon for white-labeling flexibility even though both currently resolve to neutral-700 */
 
 	/* Input extras (color/input/*) */
 	--input-border-disabled: var(--border-soft);
@@ -696,6 +698,7 @@
 	--icon: var(--sand-200);
 	--icon-muted: var(--sand-400);
 	--icon-subtle: var(--sand-500);
+	--icon-foreground: var(--sand-200);
 	--input-border-disabled: var(--sand-800);
 	--input-ring: var(--sand-500);
 	--input-ring-focus: var(--sunset-500);
