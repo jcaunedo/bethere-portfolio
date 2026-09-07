@@ -1,7 +1,7 @@
 <!--
 Created: Aug 15, 2026
 Created by: Julio Caunedo
-Last updated: Aug 26, 2026 (scoped v1 onboarding category list down to 6 categories — City tours, Boats & yacht charters, Wellness & beauty, Entertainment & nightlife, Transport, Food & dining; deferred Activities & recreation, Shopping experiences, Family experiences, Art/culture/entertainment, and Professional services as v2 candidates, not eliminated; trimmed the guest/provider table and entry notes to match; narrowed the New Listing subtype-gap list to the v1 set; removed the "Other" fallback per explicit v1 scope decision — flagged the resulting no-fit gap for deferred categories)
+Last updated: Sep 05, 2026 (added cross-reference to taxonomy.md, the new business-category × Experience/Service subtype matrix)
 
 Scope: Provider-side "Create Business" onboarding funnel — currently just the "Tell us about your
 business" screen and its business-category dropdown. Not the Business Profile detail page (see
@@ -37,6 +37,8 @@ Define the "What does your business offer?" dropdown on the "Tell us about your 
 | Tours                         | City tours                      |
 
 ℹ️ This table shows only the 6 v1 categories — see "v1 category scope" below for the deferred categories and their guest-tile pairings.
+
+ℹ️ See [taxonomy.md](taxonomy.md) for the Experience/Service listing subtypes available under each of these business categories.
 
 ✅ **Confirmed usage — both columns ship, in different surfaces.** This isn't just an internal mapping for reference: both label sets are live product copy, each used in a different place in Concierge.
 

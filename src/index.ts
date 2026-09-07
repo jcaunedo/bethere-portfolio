@@ -138,6 +138,12 @@ export {
 export { Switch } from "./components/forms/switch";
 
 export {
+  ChoiceItem,
+  choiceItemVariants,
+  type ChoiceItemProps,
+} from "./components/forms/choice-item";
+
+export {
   NotificationSwitcher,
   notificationSwitcherVariants,
   type NotificationSwitcherProps,
