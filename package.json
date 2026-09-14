@@ -1,6 +1,6 @@
 {
   "name": "@bethere-group/ucl",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "type": "module",
   "description": "BeThere Unified Content Library - shared React component library",
   "main": "./dist/index.js",
