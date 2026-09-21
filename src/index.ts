@@ -144,11 +144,23 @@ export {
 } from "./components/forms/choice-item";
 
 export {
+  ChoiceGroup,
+  type ChoiceGroupProps,
+  type ChoiceGroupOption,
+} from "./components/forms/choice-group";
+
+export {
   NotificationSwitcher,
   notificationSwitcherVariants,
   type NotificationSwitcherProps,
   type NotificationChannel,
 } from "./components/forms/notification-switcher";
+
+export {
+  NotificationToggle,
+  notificationToggleVariants,
+  type NotificationToggleProps,
+} from "./components/forms/notification-toggle";
 
 /* -------------------------------------------------------------------------- */
 /* Forms — Formik-connected fields (require the optional `formik` peer)        */

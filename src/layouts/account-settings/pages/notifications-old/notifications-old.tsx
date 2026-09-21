@@ -142,13 +142,16 @@ const INITIAL_NOTIFICATION_SECTIONS: NotificationSection[] = [
 ];
 
 /**
- * Provider Portal "Notifications" settings page (Figma: Provider-Portal →
- * "Notifications" frame). Renders inside `AccountSettingsLayout`'s content
- * column — a master "Allow Notifications" row (with Email/SMS/WhatsApp
- * column labels above it), then a divided stack of sections, each a
- * title + description followed by its own `NotificationSwitcher` rows.
+ * Superseded by the simplified `NotificationsLayout` (see
+ * `../notifications/notifications.tsx`) — kept as reference for the older,
+ * full per-row channel-selector design (Figma: Provider-Portal →
+ * "Notifications" frame, original version). Renders inside
+ * `AccountSettingsLayout`'s content column — a master "Allow Notifications"
+ * row (with Email/SMS/WhatsApp column labels above it), then a divided stack
+ * of sections, each a title + description followed by its own
+ * `NotificationSwitcher` rows.
  */
-function NotificationsLayout() {
+function NotificationsLayoutOld() {
   // Mobile-only: the header's back arrow (AccountSettingsLayout's onClose) has
   // nowhere to route to in this standalone Storybook reference layout, so it
   // swaps in the mobile "Account Settings" menu in place of this screen
@@ -390,4 +393,4 @@ function NotificationsLayout() {
   );
 }
 
-export { NotificationsLayout };
+export { NotificationsLayoutOld };

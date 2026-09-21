@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
+import { MinusIcon, PlusIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/forms/input";
@@ -16,6 +16,10 @@ function NumericInput({
   className,
   prefix,
   steppers = false,
+  min = 0,
+  onKeyDown,
+  onBlur,
+  onInput,
   ref,
   ...props
 }: NumericInputProps) {
@@ -31,6 +35,21 @@ function NumericInput({
     el.dispatchEvent(new Event("input", { bubbles: true }));
   };
 
+  // Tracks the live input value (controlled or uncontrolled) so the
+  // decrement button can be disabled at `min` without owning the value.
+  const [atMin, setAtMin] = React.useState(false);
+  const checkAtMin = React.useCallback(
+    (el: HTMLInputElement) => {
+      setAtMin(el.value !== "" && el.valueAsNumber <= Number(min));
+    },
+    [min],
+  );
+  React.useEffect(() => {
+    const el = innerRef.current;
+    if (!el) return;
+    checkAtMin(el);
+  }, [checkAtMin, props.value]);
+
   return (
     <div data-slot="numeric-input" className="group relative w-full">
       {prefix != null ? (
@@ -42,33 +61,51 @@ function NumericInput({
         ref={innerRef}
         type="number"
         inputMode="decimal"
+        min={min}
+        onKeyDown={(e) => {
+          if (e.key === "-" || e.key === "Subtract") e.preventDefault();
+          onKeyDown?.(e);
+        }}
+        onBlur={(e) => {
+          const el = e.currentTarget;
+          if (el.value !== "" && el.valueAsNumber < Number(min)) {
+            el.value = String(min);
+            el.dispatchEvent(new Event("input", { bubbles: true }));
+          }
+          onBlur?.(e);
+        }}
+        onInput={(e) => {
+          checkAtMin(e.currentTarget);
+          onInput?.(e);
+        }}
         className={cn(
           "[&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [-moz-appearance:textfield]",
           prefix != null && "pl-9",
-          steppers && "pr-8",
+          steppers && "pr-14",
           className,
         )}
         {...props}
       />
       {steppers ? (
-        <div className="absolute top-1/2 right-1.5 flex -translate-y-1/2 flex-col opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+        <div className="absolute top-1/2 right-2 flex -translate-y-1/2 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+          <button
+            type="button"
+            tabIndex={-1}
+            aria-label="Decrement"
+            disabled={atMin}
+            onClick={() => step(-1)}
+            className="flex size-6 items-center justify-center rounded-lg text-icon-foreground outline-none hover:bg-accent disabled:pointer-events-none disabled:opacity-40"
+          >
+            <MinusIcon className="size-3" />
+          </button>
           <button
             type="button"
             tabIndex={-1}
             aria-label="Increment"
             onClick={() => step(1)}
-            className="flex size-4 items-center justify-center rounded-md text-muted-foreground outline-none hover:text-foreground"
+            className="flex size-6 items-center justify-center rounded-lg text-icon-foreground outline-none hover:bg-accent"
           >
-            <ChevronUpIcon className="size-3" />
-          </button>
-          <button
-            type="button"
-            tabIndex={-1}
-            aria-label="Decrement"
-            onClick={() => step(-1)}
-            className="flex size-4 items-center justify-center rounded-md text-muted-foreground outline-none hover:text-foreground"
-          >
-            <ChevronDownIcon className="size-3" />
+            <PlusIcon className="size-3" />
           </button>
         </div>
       ) : null}
