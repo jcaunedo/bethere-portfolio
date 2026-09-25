@@ -1,12 +1,12 @@
 <!--
 Created: Jun 19, 2026
 Created by: Julio Caunedo
-Last updated: Jul 02, 2026
+Last updated: Sep 25, 2026
 -->
 
 # Service — Category Flow
 
-> See [../master-flow.md](../master-flow.md) for Step 1 (Listing Type) and the master flow principles. See [../experience/yacht-charter.md](../experience/yacht-charter.md) as a reference for how a fully-designed category flow is structured (the Service branch should follow an analogous pattern, adapted per the differences below).
+> See [../onboarding-master-flow.md](../onboarding-master-flow.md) for Step 1 (Listing Type) and the master flow principles. See [../experience/yacht-charter.md](../experience/yacht-charter.md) as a reference for how a fully-designed category flow is structured (the Service branch should follow an analogous pattern, adapted per the differences below).
 
 **Status:** Undesigned beyond Step 1. The Figma file ([link](https://www.figma.com/design/WcuVufMxyCvkEJ2BuxPpX6/Provider-Portal?node-id=72-832)) currently only shows the "Service" option on Step 1 — no Step 2 (service type picker) or later steps exist yet.
 
@@ -47,4 +47,4 @@ These differences likely mean:
 
 ## Steps 3+
 
-> TODO: Entirely undesigned. Once a Step 2 (service type) exists, each service type likely needs its own follow-up (Step 3) and attribute set, mirroring the per-category config pattern in [../master-flow.md](../master-flow.md) Master Flow Principles #2.
+> TODO: Entirely undesigned. Once a Step 2 (service type) exists, each service type likely needs its own follow-up (Step 3) and attribute set, mirroring the per-category config pattern in [../onboarding-master-flow.md](../onboarding-master-flow.md) Master Flow Principles #2.

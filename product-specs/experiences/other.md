@@ -1,12 +1,12 @@
 <!--
 Created: Jun 19, 2026
 Created by: Julio Caunedo
-Last updated: Jul 02, 2026
+Last updated: Sep 25, 2026
 -->
 
 # Other — Experience Flow
 
-> See [master-flow.md](master-flow.md) for Step 2 (category picker) and [../master-flow.md](../master-flow.md) for Step 1 and structural principles. See [yacht-charter.md](yacht-charter.md) as the reference implementation for how a category flow should be structured.
+> See [master-flow-experiences.md](master-flow-experiences.md) for Step 2 (category picker) and [../onboarding-master-flow.md](../onboarding-master-flow.md) for Step 1 and structural principles. See [yacht-charter.md](yacht-charter.md) as the reference implementation for how a category flow should be structured.
 
 **Status:** Not yet designed.
 
@@ -27,4 +27,4 @@ From the original category-tree plan — best starting point for the Step 3 desi
 
 ## Steps 4–14
 
-> TODO: Not yet designed. Define the asset attributes, experience details, pricing add-ons, and required documents per [../master-flow.md](../master-flow.md) Master Flow Principles #2.
+> TODO: Not yet designed. Define the asset attributes, experience details, pricing add-ons, and required documents per [../onboarding-master-flow.md](../onboarding-master-flow.md) Master Flow Principles #2.

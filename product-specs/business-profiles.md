@@ -1,7 +1,7 @@
 <!--
 Created: Aug 05, 2026
 Created by: Julio Caunedo
-Last updated: Aug 24, 2026
+Last updated: Sep 25, 2026
 -->
 
 # Business Profiles — Provider Portal
@@ -193,7 +193,7 @@ The detail page was redesigned after its first build (bethere-ucl `88bc2ea`, "Se
 4. **The Owner row gained a second line** — the owner's email (`johnsmith@email.com`), muted, under the name. That makes Owner compound content *and* a flow-starting action; see [Row shape decisions](#row-shape-decisions).
 5. **Copy and spacing:** "EIN / Tax ID" → "Tax ID (EIN)", and Owner verification's inline "View" link moved from a bare trailing space onto `ml-2`.
 
-⚠️ **Naming trap:** the onboarding flow (`business-onboarding.md`) moved the *opposite* direction in the same commit — `src/layouts/business-compliance/` was renamed back to `src/layouts/business-verification/`. So "Compliance" now names a tab in account settings while "Verification" names a step in onboarding. They are different screens in different flows; don't reconcile the two vocabularies without checking both specs.
+⚠️ **Naming trap:** the onboarding flow (`onboarding-business.md`) moved the *opposite* direction in the same commit — `src/layouts/business-compliance/` was renamed back to `src/layouts/business-verification/`. So "Compliance" now names a tab in account settings while "Verification" names a step in onboarding. They are different screens in different flows; don't reconcile the two vocabularies without checking both specs.
 
 ### Row shape decisions
 

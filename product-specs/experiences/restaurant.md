@@ -1,12 +1,12 @@
 <!--
 Created: Jun 19, 2026
 Created by: Julio Caunedo
-Last updated: Jul 02, 2026
+Last updated: Sep 25, 2026
 -->
 
 # Restaurant — Experience Flow
 
-> See [master-flow.md](master-flow.md) for Step 2 (category picker) and [../master-flow.md](../master-flow.md) for Step 1 and structural principles.
+> See [master-flow-experiences.md](master-flow-experiences.md) for Step 2 (category picker) and [../onboarding-master-flow.md](../onboarding-master-flow.md) for Step 1 and structural principles.
 
 **Status:** Proposed.
 
@@ -21,7 +21,7 @@ flowchart TD
     S7 --> S8["Step 8: Review & Publish"]
 ```
 
-> **Internal note — rationale:** Restaurant is a top-level category because it's one of the most common guest asks and shouldn't be buried inside a broader category. No Step 3 sub-type fork — it's specific enough on its own. Scope is **venue-based dining only**: a private chef at the guest's location is **Service → Chef** ([../service/chef.md](../service/chef.md)); tastings and cooking classes are **Events** ([events.md](events.md)). See the boundary rules in [master-flow.md](master-flow.md) Step 2.
+> **Internal note — rationale:** Restaurant is a top-level category because it's one of the most common guest asks and shouldn't be buried inside a broader category. No Step 3 sub-type fork — it's specific enough on its own. Scope is **venue-based dining only**: a private chef at the guest's location is **Service → Chef** ([../service/chef.md](../service/chef.md)); tastings and cooking classes are **Events** ([events.md](events.md)). See the boundary rules in [master-flow-experiences.md](master-flow-experiences.md) Step 2.
 
 ## Step 3: Restaurant Lookup
 

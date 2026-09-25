@@ -144,6 +144,36 @@ export {
 } from "./components/forms/choice-item";
 
 export {
+  ChoiceButton,
+  choiceButtonVariants,
+  type ChoiceButtonProps,
+} from "./components/forms/choice-button";
+
+export {
+  ChoiceButtonIcon,
+  choiceButtonIconVariants,
+  type ChoiceButtonIconProps,
+} from "./components/forms/choice-button-icon";
+
+export {
+  ChoiceChip,
+  choiceChipVariants,
+  type ChoiceChipProps,
+} from "./components/forms/choice-chip";
+
+export {
+  ChoiceInput,
+  choiceInputVariants,
+  type ChoiceInputProps,
+} from "./components/forms/choice-input";
+
+export {
+  ChoiceCard,
+  choiceCardVariants,
+  type ChoiceCardProps,
+} from "./components/forms/choice-card";
+
+export {
   ChoiceGroup,
   type ChoiceGroupProps,
   type ChoiceGroupOption,
@@ -424,6 +454,12 @@ export {
   type IntegrationCardDetail,
 } from "./components/cards/integration-card";
 
+export {
+  MatchCard,
+  matchCardVariants,
+  type MatchCardProps,
+} from "./components/cards/match-card";
+
 /* -------------------------------------------------------------------------- */
 /* Typography                                                                 */
 /* -------------------------------------------------------------------------- */
@@ -445,6 +481,12 @@ export {
   addIndicatorVariants,
   type AddIndicatorProps,
 } from "./components/primitives/add-indicator";
+
+export {
+  ChoiceButtonIndicator,
+  choiceButtonIndicatorVariants,
+  type ChoiceButtonIndicatorProps,
+} from "./components/primitives/choice-button-indicator";
 
 /* -------------------------------------------------------------------------- */
 /* Stepper                                                                    */

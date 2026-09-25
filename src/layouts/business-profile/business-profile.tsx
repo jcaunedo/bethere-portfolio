@@ -9,7 +9,7 @@ import { StepperOnboarding } from "@/components/stepper/stepper-onboarding";
 import { Logo } from "@/components/data-display/logo";
 
 // Business category taxonomy — provider-facing labels. See
-// product-specs/business-onboarding.md "Category list" / "v1 category scope"
+// product-specs/onboarding-business.md "Category list" / "v1 category scope"
 // for the source of truth (paired against the guest-facing Concierge tile
 // taxonomy) and notes on individual entries. v1 ships exactly these 6
 // categories, no "Other" fallback; the rest are deferred to v2 — see that

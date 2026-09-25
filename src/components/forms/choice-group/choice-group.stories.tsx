@@ -6,9 +6,12 @@ const meta: Meta<typeof ChoiceGroup> = {
 	title: "Forms/ChoiceGroup",
 	component: ChoiceGroup,
 	tags: ["autodocs"],
+	// Preview on the app surface these sit on — Figma color/background/accent/background (#f9f8f5) = --background.
 	parameters: {
 		layout: "padded",
+		backgrounds: { options: { app: { name: "App background", value: "var(--background)" } } },
 	},
+	globals: { backgrounds: { value: "app" } },
 };
 export default meta;
 type Story = StoryObj<typeof ChoiceGroup>;
@@ -43,21 +46,6 @@ export const ThreeOptions: Story = {
 	},
 	render: (args) => (
 		<div className="w-[400px]">
-			<ChoiceGroup {...args} />
-		</div>
-	),
-};
-
-export const WithDescription: Story = {
-	args: {
-		options: [
-			{ value: "solo", label: "Solo", description: "Just you" },
-			{ value: "group", label: "Group", description: "Bring friends" },
-		],
-		defaultValue: "solo",
-	},
-	render: (args) => (
-		<div className="w-[420px]">
 			<ChoiceGroup {...args} />
 		</div>
 	),

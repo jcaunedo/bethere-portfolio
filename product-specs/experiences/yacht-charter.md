@@ -1,12 +1,12 @@
 <!--
 Created: Jun 19, 2026
 Created by: Julio Caunedo
-Last updated: Jul 02, 2026
+Last updated: Sep 25, 2026
 -->
 
 # Yacht Charter — Experience Flow
 
-> See [master-flow.md](master-flow.md) for Step 2 (Experience Category) and [../master-flow.md](../master-flow.md) for Step 1 (Listing Type) and the structural principles referenced below.
+> See [master-flow-experiences.md](master-flow-experiences.md) for Step 2 (Experience Category) and [../onboarding-master-flow.md](../onboarding-master-flow.md) for Step 1 (Listing Type) and the structural principles referenced below.
 
 This is the **first concrete pass at a master flow** (a 14-step linear wizard) — the rationale and rules below call out which parts are yacht-specific vs. structural, so the same skeleton can be reused for other categories with different vocabulary and attribute sets.
 
@@ -58,7 +58,7 @@ This matches the original "Yacht Charter Follow-Up" exactly.
 
 **Title:** Which yacht will host this experience?
 
-**Description:** Enter your yacht's brand, model, and year to find matching details. Includes a "Can't find your yacht? Add yacht manually" fallback.
+**Description:** Enter your yacht's brand, model, and year to find matching details. Includes an "Add yacht manually" fallback.
 
 **Status:** New — from this point on, the flow is no longer category-specific; it's about the listing's attributes. Includes an "Images enlarged" modal showing yacht photos matched online (reference only) for the user to confirm/select.
 

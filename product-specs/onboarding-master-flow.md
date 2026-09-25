@@ -1,7 +1,7 @@
 <!--
 Created: Jun 19, 2026
 Created by: Julio Caunedo
-Last updated: Jul 02, 2026
+Last updated: Sep 25, 2026
 -->
 
 # Master Flow — Provider Onboarding
@@ -10,13 +10,13 @@ This reflects the current Figma design (Provider Portal, "New Experience" page, 
 
 Step 1 is the highest-level fork in the master flow: **Experience** vs. **Service**. Each branch has its own category set, vocabulary, and step structure — see:
 
-- [experience/master-flow.md](experience/master-flow.md) — Step 2 (category picker) and links to each Experience category's flow.
-- [service/master-flow.md](service/master-flow.md) — Step 2-equivalent (service type picker) and links to each Service type's flow.
+- [experiences/master-flow-experiences.md](experiences/master-flow-experiences.md) — Step 2 (category picker) and links to each Experience category's flow.
+- [services/master-flow-services.md](services/master-flow-services.md) — Step 2-equivalent (service type picker) and links to each Service type's flow.
 
 ```mermaid
 flowchart TD
-    S1["Step 1: What would you like to offer?"] --> EXP["Experience -> experience/master-flow.md"]
-    S1 --> SVC["Service -> service/master-flow.md"]
+    S1["Step 1: What would you like to offer?"] --> EXP["Experience -> experiences/master-flow-experiences.md"]
+    S1 --> SVC["Service -> services/master-flow-services.md"]
 ```
 
 ## Master Flow Principles
@@ -36,8 +36,8 @@ These are the structural ideas the yacht-charter pass establishes, which should 
 
 | Option     | Description                                                                                | Branch flow |
 | ---------- | -------------------------------------------------------------------------------------------- | ------------- |
-| Experience | Hosted activities, tours, events, classes, adventures, or group experiences.              | [experience/master-flow.md](experience/master-flow.md) |
-| Service    | Professional services performed for guests or clients (e.g. Private Driver, Concierge, Photographer, Massage Therapist, Makeup Artist, Chef, Security, Event Planner). | [service/master-flow.md](service/master-flow.md) |
+| Experience | Hosted activities, tours, events, classes, adventures, or group experiences.              | [experiences/master-flow-experiences.md](experiences/master-flow-experiences.md) |
+| Service    | Professional services performed for guests or clients (e.g. Private Driver, Concierge, Photographer, Massage Therapist, Makeup Artist, Chef, Security, Event Planner). | [services/master-flow-services.md](services/master-flow-services.md) |
 
 **Rationale:** This is the highest-level fork in the master flow. It determines the entire downstream vocabulary, step set, and stepper length. The two branches differ along structural axes:
 
@@ -58,10 +58,10 @@ These are the structural ideas the yacht-charter pass establishes, which should 
 
 ## Open Items / TODOs
 
-1. **Service flow** (Step 1 → "Service" branch) is undesigned beyond Step 1 itself — see [service/master-flow.md](service/master-flow.md).
+1. **Service flow** (Step 1 → "Service" branch) is undesigned beyond Step 1 itself — see [services/master-flow-services.md](services/master-flow-services.md).
 2. **6 of 8 Experience category follow-ups** (Step 3) are undesigned: Water Activities, Tours, Nightlife, Wellness, Events, Other — see each category's flow file under [experience/](experience/). Restaurant intentionally has no Step 3 ([experience/restaurant.md](experience/restaurant.md)).
 3. Steps 4–14 are currently fully designed only for **Yacht Charter** ([experience/yacht-charter.md](experience/yacht-charter.md)). **Restaurant** has a proposed lightweight flow ([experience/restaurant.md](experience/restaurant.md)) that intentionally deviates from the 14-step skeleton: it's a venue profile with external reservation links (no pricing/availability steps), not a priced bookable product. Its "Rationale" notes flag which parts are structural (reusable as-is) vs. yacht-specific (need a category-config equivalent) — use those notes when designing the other category/service files.
 4. The **per-category configuration** referenced throughout (attribute sets, included/add-on catalogs, document requirements, policy templates, tag suggestions) doesn't exist yet as a concrete data model — formalizing it is likely the highest-leverage next step for turning the yacht-charter pass into the actual master flow.
 5. **Pricing layering order of operations** (base × day adjustment × seasonal/holiday) is implied by the Yacht Charter screens but not explicitly specified — needs confirmation/definition.
 6. **Asset reuse** (one asset → multiple experience listings) is implied by the Step 4 lookup in the yacht flow but the actual data model/UI for managing an existing asset vs. creating a new one isn't designed yet.
-7. **Service branch structure** (Step 2-equivalent categories, asset-vs-provider attributes, hourly/fixed pricing model, location handling) needs its own pass analogous to the yacht-charter reference — see [service/master-flow.md](service/master-flow.md) for a starting framework based on the Experience/Service comparison above.
+7. **Service branch structure** (Step 2-equivalent categories, asset-vs-provider attributes, hourly/fixed pricing model, location handling) needs its own pass analogous to the yacht-charter reference — see [services/master-flow-services.md](services/master-flow-services.md) for a starting framework based on the Experience/Service comparison above.

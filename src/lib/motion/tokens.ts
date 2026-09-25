@@ -43,6 +43,12 @@ const motionScale = {
 	mediaHover: 1.03,
 	/** Menu/dropdown content entering (Menus and Dropdowns). */
 	popIn: 0.98,
+	/**
+	 * Side-by-side choice cards: the hovered card grows while its sibling
+	 * recedes by the same amount, so the gap between them stays put.
+	 */
+	spotlight: 1.025,
+	recede: 0.975,
 } as const;
 
 /** Seconds, for `staggerChildren`/`delayChildren`. CLAUDE.md "Flow". */

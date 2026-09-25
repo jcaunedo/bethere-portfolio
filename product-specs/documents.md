@@ -1,14 +1,14 @@
 <!--
 Created: Aug 07, 2026
 Created by: Julio Caunedo
-Last updated: Aug 07, 2026
+Last updated: Sep 25, 2026
 -->
 
 # Required Documentation — Business & Listing Verification
 
 **Location:** Provider Portal → Settings → Business profiles → a business's Documents tab
 **Audience:** Business owner / provider (documents are collected here); BeThere trust & safety / ops (documents are reviewed here)
-**Description:** Defines the per-category-config "required documents" referenced in [master-flow.md](master-flow.md) Master Flow Principles #2 and in [experiences/yacht-charter.md](experiences/yacht-charter.md) Steps 11–14 — what a provider must submit, at minimum, before BeThere approves their business and lets them publish a listing. Two purposes: (1) verify the business is legitimate and legally allowed to operate the service it's listing, (2) protect BeThere legally by confirming valid licensing and insurance sit behind every listing.
+**Description:** Defines the per-category-config "required documents" referenced in [onboarding-master-flow.md](onboarding-master-flow.md) Master Flow Principles #2 and in [experiences/yacht-charter.md](experiences/yacht-charter.md) Steps 11–14 — what a provider must submit, at minimum, before BeThere approves their business and lets them publish a listing. Two purposes: (1) verify the business is legitimate and legally allowed to operate the service it's listing, (2) protect BeThere legally by confirming valid licensing and insurance sit behind every listing.
 **Source (current implementation):** `src/layouts/account-settings/pages/business-profile/documents-tab.tsx` — see [business-profiles.md](business-profiles.md) Documents tab section for the UI spec. This file defines the _content_ of the requirement matrix; that file defines how it's _displayed_.
 
 ---
@@ -26,7 +26,7 @@ Two provider paths, both landing on the same document categories below:
 
 ## Two-tier model
 
-Every business on BeThere must satisfy **Tier 1** to be approved at all. **Tier 2** adds the documents specific to what the business actually does — driven by the experience/service category picked in Step 2/3 of the listing flow ([master-flow.md](master-flow.md)), the same "per-category config" the master flow already calls for.
+Every business on BeThere must satisfy **Tier 1** to be approved at all. **Tier 2** adds the documents specific to what the business actually does — driven by the experience/service category picked in Step 2/3 of the listing flow ([onboarding-master-flow.md](onboarding-master-flow.md)), the same "per-category config" the master flow already calls for.
 
 ```mermaid
 flowchart TD
@@ -67,7 +67,7 @@ Required to approve **any** business for publishing, regardless of category. Thi
 
 ## Tier 2 — Category-specific requirements
 
-Additional documents layered on top of Tier 1, keyed to the experience/service category selected in the listing flow. This realizes the "required documents" field in the per-category config called for in [master-flow.md](master-flow.md) Master Flow Principles #2.
+Additional documents layered on top of Tier 1, keyed to the experience/service category selected in the listing flow. This realizes the "required documents" field in the per-category config called for in [onboarding-master-flow.md](onboarding-master-flow.md) Master Flow Principles #2.
 
 ### Yacht Charter / Water Activities (boat-based: jet ski, parasailing, wakeboarding, etc.)
 
@@ -174,7 +174,7 @@ Carried forward from [experiences/yacht-charter.md](experiences/yacht-charter.md
 
 ## Open items / TODOs
 
-1. ⚠️ **No backing data model yet.** `DOCUMENT_GROUPS` in `documents-tab.tsx` is hardcoded seed data for one example yacht-charter business — see [business-profiles.md](business-profiles.md) Open items. This spec defines _what_ the categories/rows should be; turning it into a real per-category config (keyed by experience/service type, feeding both the Documents tab and the Step 13–14 "suggested documents" list in the listing flow) is the next step referenced in [master-flow.md](master-flow.md) Open Items #4.
+1. ⚠️ **No backing data model yet.** `DOCUMENT_GROUPS` in `documents-tab.tsx` is hardcoded seed data for one example yacht-charter business — see [business-profiles.md](business-profiles.md) Open items. This spec defines _what_ the categories/rows should be; turning it into a real per-category config (keyed by experience/service type, feeding both the Documents tab and the Step 13–14 "suggested documents" list in the listing flow) is the next step referenced in [onboarding-master-flow.md](onboarding-master-flow.md) Open Items #4.
 2. ⚠️ **Verification/approval workflow undefined.** Who reviews an uploaded document, what "approved" vs. "pending review" looks like (the existing `Pending review` badge color suggests this exists conceptually), and what happens if a document is rejected — not specified here or in `business-profiles.md`.
 3. ✅ **Every category in [experiences/](experiences/) and [services/](services/) now has a Tier 2 assessment** — several land on "Tier 1 only" as a reviewed conclusion (Makeup Artist, Photographer, Concierge, on-foot Tours) rather than an unreviewed placeholder. ⚠️ **Remaining sub-gaps within specific categories:** Water Activities' unpowered subtypes (paddleboard, kayak, snorkeling) vs. powered ones; Wellness's non-massage subtypes (Yoga, Meditation, Spa, Recovery, Retreat); Event Planner/Nightlife's venue-vs-standalone licensing question; Food Tours' "guides to vendors" vs. "prepares food directly" split. These need a narrower product/legal decision each, not a full category-level pass — see the inline ⚠️ notes in each section above.
 4. ⚠️ **International/non-US providers** are out of scope for this pass (see [Scope](#scope)) — will need an equivalent-document mapping (foreign tax ID, foreign professional licenses) before BeThere expands beyond the US.

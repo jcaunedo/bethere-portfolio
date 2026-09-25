@@ -1,7 +1,7 @@
 <!--
 Created: Sep 05, 2026
 Created by: Julio Caunedo
-Last updated: Sep 05, 2026 (linked taxonomy.md for the full business-category × Experience/Service subtype matrix)
+Last updated: Sep 25, 2026 (updated link: business-onboarding.md → onboarding-business.md)
 Scope: the New Listing creation flow for providers.
 Purpose: record the design rationale for keeping Experience/Service as the two primary listing-type paths and removing the redundant category step.
 -->
@@ -13,7 +13,7 @@ Purpose: record the design rationale for keeping Experience/Service as the two p
 Keep **Experience** and **Service** as the two primary paths when a provider creates a new listing.
 
 The provider's onboarding selection answers _what kind of business they are_, while the New Listing choice answers _what type of offering they are creating_. These are related, but they should remain separate because the same business category can support both listing types.
-See [business-onboarding.md](business-onboarding.md) for the business-category taxonomy set during onboarding.
+See [onboarding-business.md](onboarding-business.md) for the business-category taxonomy set during onboarding.
 
 Example:
 

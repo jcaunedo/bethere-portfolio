@@ -1,12 +1,12 @@
 <!--
 Created: Jun 19, 2026
 Created by: Julio Caunedo
-Last updated: Jul 02, 2026
+Last updated: Sep 25, 2026
 -->
 
 # Experience — Category Flow
 
-> See [../master-flow.md](../master-flow.md) for Step 1 (Listing Type) and the master flow principles referenced below.
+> See [../onboarding-master-flow.md](../onboarding-master-flow.md) for Step 1 (Listing Type) and the master flow principles referenced below.
 
 ## Step 2: Experience Category
 
@@ -44,6 +44,6 @@ Each category answers one question about the guest's core activity, with no over
 
 ## Step 3: Category Follow-Up
 
-A single-select sub-type that **seeds defaults** for later steps without changing the overall step structure — this is the model for how every category's Step 3 should behave (see [../master-flow.md](../master-flow.md) Master Flow Principles #2/#3). Only the **Yacht Charter** follow-up has been designed so far ([yacht-charter.md](yacht-charter.md)).
+A single-select sub-type that **seeds defaults** for later steps without changing the overall step structure — this is the model for how every category's Step 3 should behave (see [../onboarding-master-flow.md](../onboarding-master-flow.md) Master Flow Principles #2/#3). Only the **Yacht Charter** follow-up has been designed so far ([yacht-charter.md](yacht-charter.md)).
 
 > TODO: Follow-up screens for 6 categories (Water Activities, Tours, Nightlife, Wellness, Events, Other) have not been designed yet. Each category's flow file contains a sub-category table as the best starting reference for its Step 3. **Restaurant** intentionally has no Step 3 — see [restaurant.md](restaurant.md).
