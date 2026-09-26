@@ -136,7 +136,7 @@ function BusinessVerification() {
 
         <div className="flex flex-col items-center py-4 text-center">
           <Typography size="xs" className="text-muted-foreground">
-            © 2026 BeThere Corp. All Rights Reserved
+            © 2026 Bethere Corp. All Rights Reserved
           </Typography>
         </div>
       </div>
