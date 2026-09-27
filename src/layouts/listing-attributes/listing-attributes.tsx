@@ -296,7 +296,13 @@ function ChipSection({
 		setAddId(nextId.current++);
 	};
 
-	const removeCustom = (id: number) => setCustom((items) => items.filter((item) => item.id !== id));
+	// Edited in place (click an added value), or removed when cleared via its × button.
+	const updateCustom = (id: number, value: string) =>
+		setCustom((items) =>
+			value === ""
+				? items.filter((item) => item.id !== id)
+				: items.map((item) => (item.id === id ? { ...item, value } : item)),
+		);
 
 	// Custom tiles Reveal in / fade out, and siblings glide to their new cell (layout).
 	// Reduced motion: opacity only, no movement.
@@ -336,9 +342,7 @@ function ChipSection({
 								<motion.div key={item.id} {...tileMotion}>
 									<ChoiceInput
 										value={item.value}
-										onValueChange={(value) => {
-											if (value === "") removeCustom(item.id);
-										}}
+										onValueChange={(value) => updateCustom(item.id, value)}
 										className="h-full"
 									/>
 								</motion.div>

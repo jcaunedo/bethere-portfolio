@@ -20,8 +20,9 @@ const choiceInputVariants = cva(
 				// Figma State=Focus — same focus treatment as Input.
 				focus:
 					"gap-1.5 rounded-input border-input-ring-focus bg-input-fill py-2 pr-2 pl-3 text-foreground ring-[3px] ring-input-ring-outside",
-				// Figma State=Added.
-				added: "gap-2 border-transparent bg-input-fill py-2 pr-2 pl-3 text-foreground shadow-card",
+				// Figma State=Added. Keyboard focus on the (editable) value shows the same ring as the Add trigger.
+				added:
+					"gap-2 border-transparent bg-input-fill py-2 pr-2 pl-3 text-foreground shadow-card has-[[data-slot=choice-input-edit]:focus-visible]:ring-[3px] has-[[data-slot=choice-input-edit]:focus-visible]:ring-input-ring-outside",
 			},
 		},
 		defaultVariants: {
@@ -85,18 +86,26 @@ function ChoiceInput({
 		onValueChange?.(next);
 	};
 
-	const startEditing = () => {
+	// From the Add trigger (empty draft) or an added value (pre-filled, to edit it).
+	const startEditing = (initial = "") => {
 		skipBlur.current = false;
-		setDraft("");
+		setDraft(initial);
 		setEditing(true);
 	};
 
+	// Hand focus back after the field unmounts: to the remove button when a value
+	// remains (quietly — see `quietRemoveFocus`), otherwise to the Add trigger.
+	const refocusAfterEdit = (hasValue: boolean) => {
+		focusNext.current = hasValue ? "remove" : "add";
+		if (hasValue) setQuietRemoveFocus(true);
+	};
+
+	// An emptied draft never clears an existing value — removal is the × button's job.
 	const commit = (refocus: boolean) => {
 		const next = draft.trim();
 		setEditing(false);
-		if (next) setValue(next);
-		if (refocus) focusNext.current = next ? "remove" : "add";
-		if (refocus && next) setQuietRemoveFocus(true);
+		if (next && next !== committed) setValue(next);
+		if (refocus) refocusAfterEdit(Boolean(next || committed));
 	};
 
 	const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -107,7 +116,7 @@ function ChoiceInput({
 		} else if (event.key === "Escape") {
 			skipBlur.current = true;
 			setEditing(false);
-			focusNext.current = "add";
+			refocusAfterEdit(Boolean(committed));
 		}
 	};
 
@@ -139,7 +148,7 @@ function ChoiceInput({
 					ref={addRef}
 					type="button"
 					disabled={disabled}
-					onClick={startEditing}
+					onClick={() => startEditing()}
 					className="flex size-full items-center gap-2 px-3 py-2 text-left outline-none"
 				>
 					<PlusIcon aria-hidden="true" className="size-[18px] shrink-0 text-icon-muted" />
@@ -156,6 +165,11 @@ function ChoiceInput({
 						value={draft}
 						disabled={disabled}
 						onChange={(event) => setDraft(event.target.value)}
+						// Editing an added value: caret at the end of the pre-filled text.
+						onFocus={(event) => {
+							const end = event.currentTarget.value.length;
+							event.currentTarget.setSelectionRange(end, end);
+						}}
 						onKeyDown={onKeyDown}
 						onBlur={onBlur}
 						className="min-w-0 flex-1 bg-transparent outline-none"
@@ -181,8 +195,18 @@ function ChoiceInput({
 
 			{state === "added" ? (
 				<>
-					<ChoiceButtonIndicator isSelected />
-					<span className="min-w-0 flex-1 truncate">{committed}</span>
+					{/* Clicking the value re-opens it for editing, pre-filled. */}
+					<button
+						type="button"
+						data-slot="choice-input-edit"
+						aria-label={`Edit ${committed}`}
+						disabled={disabled}
+						onClick={() => startEditing(committed)}
+						className="flex min-w-0 flex-1 items-center gap-2 self-stretch text-left outline-none"
+					>
+						<ChoiceButtonIndicator isSelected />
+						<span className="min-w-0 flex-1 truncate">{committed}</span>
+					</button>
 					<Button
 						ref={removeRef}
 						variant="ghost"
