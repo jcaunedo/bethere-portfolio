@@ -209,6 +209,8 @@ function ChoiceInput({
 					</button>
 					<Button
 						ref={removeRef}
+						// Explicit: inside a <form> a typeless button submits it.
+						type="button"
 						variant="ghost"
 						size="icon-xs"
 						aria-label={`Remove ${committed}`}

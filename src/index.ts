@@ -180,6 +180,13 @@ export {
 } from "./components/forms/choice-group";
 
 export {
+  SortableList,
+  sortableListItemVariants,
+  type SortableListProps,
+  type SortableListItemValue,
+} from "./components/forms/sortable-list";
+
+export {
   NotificationSwitcher,
   notificationSwitcherVariants,
   type NotificationSwitcherProps,
@@ -459,6 +466,13 @@ export {
   matchCardVariants,
   type MatchCardProps,
 } from "./components/cards/match-card";
+
+export {
+  ExperienceLocation,
+  experienceLocationVariants,
+  type ExperienceLocationProps,
+  type ExperienceLocationValue,
+} from "./components/cards/experience-location";
 
 /* -------------------------------------------------------------------------- */
 /* Typography                                                                 */

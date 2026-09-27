@@ -4,6 +4,7 @@ import * as React from "react";
 
 import { StepperExperience } from "@/components/stepper/stepper-experience";
 import { ExperienceCategorySelector } from "@/layouts/experience-category-selector/experience-category-selector";
+import { ExperienceExpectations } from "@/layouts/experience-expectations/experience-expectations";
 import { ListingAttributes } from "@/layouts/listing-attributes/listing-attributes";
 import { ListingDetails } from "@/layouts/listing-details/listing-details";
 import {
@@ -42,6 +43,7 @@ const screens = {
 	"listing-details": { step: 3, previous: "experience-category" },
 	"listing-details-matches": { step: 4, previous: "listing-details" },
 	"listing-attributes": { step: 5, previous: "listing-details-matches" },
+	"experience-expectations": { step: 6, previous: "listing-attributes" },
 } as const;
 type Screen = keyof typeof screens;
 
@@ -56,6 +58,11 @@ function NewListingFlow() {
 	const [attributesFrom, setAttributesFrom] = React.useState<Screen>("listing-details-matches");
 	const { prefersReducedMotion } = useMotionPreference();
 	const { step } = screens[screen];
+
+	// Later steps are long pages — each new screen starts at the top, not where Continue was clicked.
+	React.useEffect(() => {
+		window.scrollTo({ top: 0 });
+	}, [screen]);
 	const previous = screen === "listing-attributes" ? attributesFrom : screens[screen].previous;
 
 	const openAttributes = (from: Screen, selected: ListingMatch | null) => {
@@ -63,8 +70,9 @@ function NewListingFlow() {
 		setAttributesFrom(from);
 		setScreen("listing-attributes");
 	};
+	// From the attributes step on, the listing is named in the label (Figma).
 	const stepLabel =
-		screen === "listing-attributes" && match
+		(screen === "listing-attributes" || screen === "experience-expectations") && match
 			? `${match.name} · Step ${step} of ${STEPS}`
 			: `Step ${step} of ${STEPS}`;
 
@@ -130,7 +138,15 @@ function NewListingFlow() {
 							onAddManually={() => openAttributes("listing-details-matches", null)}
 						/>
 					) : (
-						<ListingAttributes showStepper={false} className={screenClassName} />
+						screen === "listing-attributes" ? (
+							<ListingAttributes
+								showStepper={false}
+								className={screenClassName}
+								onContinue={() => setScreen("experience-expectations")}
+							/>
+						) : (
+							<ExperienceExpectations showStepper={false} className={screenClassName} />
+						)
 					)}
 				</motion.div>
 			</AnimatePresence>
@@ -138,7 +154,7 @@ function NewListingFlow() {
 	);
 }
 
-/** Steps 1 → 5: Experience → yacht type → yacht lookup → matches → attributes; the stepper's back button steps back. */
+/** Steps 1 → 6: Experience → yacht type → yacht lookup → matches → attributes → expectations; the stepper's back button steps back. */
 export const Default: Story = {
 	render: () => <NewListingFlow />,
 };

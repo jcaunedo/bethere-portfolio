@@ -1,16 +1,13 @@
 import * as React from "react";
-import { AnimatePresence, motion } from "motion/react";
 
 import { Button } from "@/components/buttons/button";
-import { ChoiceChip } from "@/components/forms/choice-chip";
 import { ChoiceGroup } from "@/components/forms/choice-group";
-import { ChoiceInput } from "@/components/forms/choice-input";
 import { FormField } from "@/components/forms/field";
 import { Input } from "@/components/forms/input";
 import { NumericInput } from "@/components/forms/numeric-input";
 import { StepperExperience } from "@/components/stepper/stepper-experience";
 import { Typography } from "@/components/typography";
-import { fadeVariants, layoutSpring, revealVariants, useMotionPreference } from "@/lib/motion";
+import { ChoiceChipGrid } from "@/layouts/shared/choice-chip-grid";
 import { cn } from "@/lib/utils";
 
 const onBoardFeatures = [
@@ -126,8 +123,9 @@ function ListingAttributes({
 						</Typography>
 					</div>
 
+					{/* Standard 48px (spacing/12) gap between form sections. */}
 					<form
-						className="flex w-full flex-col gap-10"
+						className="flex w-full flex-col gap-12"
 						onSubmit={(event) => {
 							event.preventDefault();
 							onContinue?.();
@@ -276,84 +274,16 @@ function ChipSection({
 	onSelectedChange: (next: Set<string>) => void;
 	allowCustom?: boolean;
 }) {
-	const toggle = (option: string) => {
-		const next = new Set(selected);
-		if (next.has(option)) next.delete(option);
-		else next.add(option);
-		onSelectedChange(next);
-	};
-
-	// Custom options added through the trailing "Add" tile. Committing a value moves
-	// that tile into this list (same key → same instance, so its focus hands off to
-	// the remove button) and a fresh empty "Add" tile takes its place.
-	const nextId = React.useRef(0);
-	const [custom, setCustom] = React.useState<{ id: number; value: string }[]>([]);
-	const [addId, setAddId] = React.useState(() => nextId.current++);
-
-	const addCustom = (value: string) => {
-		if (!value) return;
-		setCustom((items) => [...items, { id: addId, value }]);
-		setAddId(nextId.current++);
-	};
-
-	// Edited in place (click an added value), or removed when cleared via its × button.
-	const updateCustom = (id: number, value: string) =>
-		setCustom((items) =>
-			value === ""
-				? items.filter((item) => item.id !== id)
-				: items.map((item) => (item.id === id ? { ...item, value } : item)),
-		);
-
-	// Custom tiles Reveal in / fade out, and siblings glide to their new cell (layout).
-	// Reduced motion: opacity only, no movement.
-	const { prefersReducedMotion, resolve } = useMotionPreference();
-	const tileMotion = {
-		layout: prefersReducedMotion ? false : ("position" as const),
-		variants: prefersReducedMotion ? fadeVariants : revealVariants,
-		initial: "initial",
-		animate: "animate",
-		exit: "exit",
-		transition: { layout: resolve(layoutSpring) },
-		className: "h-full",
-	};
-
 	return (
 		<section className="flex flex-col gap-3">
 			<SectionHeading id={id}>{title}</SectionHeading>
-			{/* Figma: 3 equal columns, 8px gaps, 38px rows (instances stretch to the row).
-			    `relative` anchors exiting tiles popped out of flow by AnimatePresence. */}
-			<div role="group" aria-labelledby={id} className="relative grid auto-rows-[38px] grid-cols-3 gap-2">
-				{options.map((option) => (
-					<ChoiceChip
-						key={option}
-						role="checkbox"
-						label={option}
-						isSelected={selected.has(option)}
-						onClick={() => toggle(option)}
-						className="h-full"
-					/>
-				))}
-				{/* One flat keyed array, so the committed "Add" tile is moved (not remounted) into the list.
-				    popLayout: a removed tile leaves the grid flow at once, so the rest reflow while it fades. */}
-				{allowCustom ? (
-					<AnimatePresence initial={false} mode="popLayout">
-						{[
-							...custom.map((item) => (
-								<motion.div key={item.id} {...tileMotion}>
-									<ChoiceInput
-										value={item.value}
-										onValueChange={(value) => updateCustom(item.id, value)}
-										className="h-full"
-									/>
-								</motion.div>
-							)),
-							<motion.div key={addId} {...tileMotion}>
-								<ChoiceInput value="" onValueChange={addCustom} className="h-full" />
-							</motion.div>,
-						]}
-					</AnimatePresence>
-				) : null}
-			</div>
+			<ChoiceChipGrid
+				labelledBy={id}
+				options={options}
+				selected={selected}
+				onSelectedChange={onSelectedChange}
+				allowCustom={allowCustom}
+			/>
 		</section>
 	);
 }
