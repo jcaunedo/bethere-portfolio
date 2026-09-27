@@ -1,8 +1,10 @@
 import * as React from "react";
 import { cva } from "class-variance-authority";
+import { motion } from "motion/react";
 
 import { StepperExperience } from "@/components/stepper/stepper-experience";
 import { Typography } from "@/components/typography";
+import { layoutSpring, useMotionPreference } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 /**
@@ -30,20 +32,24 @@ type NewListingStepProps = {
 
 const frameVariants = cva("flex w-full flex-1 flex-col items-center", {
 	variants: {
-		// Short steps center their body between stepper and footer; long forms start 40px under the stepper.
 		align: {
 			center: "h-full min-h-0 justify-between",
-			top: "gap-10",
+			top: "",
 		},
 	},
 	defaultVariants: { align: "center" },
 });
 
+// Content always sits at least 48px under the stepper header. The space is padding on the body
+// (not a frame gap) so it also holds inside a flow that renders one shared stepper above the steps.
 const bodyVariants = cva("flex w-full flex-1 flex-col items-center gap-8", {
 	variants: {
 		align: {
-			center: "justify-center",
-			top: "",
+			// Short steps: centered between stepper and footer. Symmetric 48px keeps the centered
+			// position unchanged while guaranteeing the minimum when space runs short.
+			center: "justify-center py-12",
+			// Long forms: start 48px under the stepper; 40px before the footer.
+			top: "pt-12 pb-10",
 		},
 		// Body column width: 640px (Figma form column) by default.
 		width: {
@@ -91,6 +97,8 @@ function NewListingLayout({
 	bodyClassName,
 	children,
 }: NewListingLayoutProps) {
+	const { prefersReducedMotion, resolve } = useMotionPreference();
+
 	return (
 		<div
 			data-slot="new-listing-layout"
@@ -108,7 +116,13 @@ function NewListingLayout({
 				) : null}
 
 				<div className={cn(bodyVariants({ align, width }), bodyClassName)}>
-					<div className="flex flex-col items-center gap-2 text-center">
+					{/* Glides (layout) when a centered step re-centers because its content changed height,
+					    e.g. Availability adding a day's row. Reduced motion: no movement. */}
+					<motion.div
+						layout={prefersReducedMotion ? false : "position"}
+						transition={{ layout: resolve(layoutSpring) }}
+						className="flex flex-col items-center gap-2 text-center"
+					>
 						<Typography as="h1" size="3xl" weight="semibold">
 							{title}
 						</Typography>
@@ -117,7 +131,7 @@ function NewListingLayout({
 								{description}
 							</Typography>
 						) : null}
-					</div>
+					</motion.div>
 					{children}
 				</div>
 

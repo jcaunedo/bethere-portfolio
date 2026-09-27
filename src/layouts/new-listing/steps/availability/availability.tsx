@@ -1,4 +1,5 @@
 import * as React from "react";
+import { AnimatePresence, motion } from "motion/react";
 
 import { Button } from "@/components/buttons/button";
 import { DaySelectorGroup } from "@/components/forms/day-selector";
@@ -7,6 +8,7 @@ import {
 	type TimeSlotAccordionValue,
 } from "@/components/forms/time-slot-accordion";
 import { Typography } from "@/components/typography";
+import { fadeVariants, layoutSpring, useMotionPreference } from "@/lib/motion";
 import { NewListingLayout, type NewListingStepProps } from "../../new-listing";
 
 /** Week in display order: short labels for the day tiles, full names for the time-window rows. */
@@ -57,6 +59,19 @@ function AvailabilityStep({
 	const selectedDays = week.filter((day) => days.includes(day.value));
 	const allSelected = days.length === week.length;
 
+	// Selecting/deselecting a day adds/removes its time-window row (TimeSlotAccordion animates the
+	// rows); the form and what follows the rows glide to their new place instead of jumping.
+	const { prefersReducedMotion, resolve } = useMotionPreference();
+	const glide = prefersReducedMotion
+		? {}
+		: { layout: "position" as const, transition: { layout: resolve(layoutSpring) } };
+	const fade = {
+		variants: fadeVariants,
+		initial: "initial",
+		animate: "animate",
+		exit: "exit",
+	};
+
 	return (
 		<NewListingLayout
 			{...frame}
@@ -67,7 +82,8 @@ function AvailabilityStep({
 			description="Set the days and times your experience is available for booking."
 		>
 			{/* Figma: sections split by border-soft dividers, 24px either side (= the 48px section standard). */}
-			<form
+			<motion.form
+				{...glide}
 				className="flex w-full flex-col gap-6"
 				onSubmit={(event) => {
 					event.preventDefault();
@@ -112,25 +128,35 @@ function AvailabilityStep({
 							Set the hours guests can reserve and begin this experience each day.
 						</Typography>
 					</div>
-					{selectedDays.length > 0 ? (
-						<TimeSlotAccordion
-							days={selectedDays.map(({ value, label }) => ({ value, label }))}
-							value={windows}
-							onValueChange={setWindows}
-						/>
-					) : (
-						<Typography size="sm" className="text-muted-foreground">
-							Select at least one day above to set its hours.
-						</Typography>
-					)}
+					{/* No days ↔ some days: the list and the empty note crossfade (the note waits for
+					    the list to fade out, so they never overlap). */}
+					<AnimatePresence initial={false} mode="wait">
+						{selectedDays.length > 0 ? (
+							<motion.div key="windows" {...fade}>
+								<TimeSlotAccordion
+									days={selectedDays.map(({ value, label }) => ({ value, label }))}
+									value={windows}
+									onValueChange={setWindows}
+								/>
+							</motion.div>
+						) : (
+							<motion.div key="empty" {...fade}>
+								<Typography size="sm" className="text-muted-foreground">
+									Select at least one day above to set its hours.
+								</Typography>
+							</motion.div>
+						)}
+					</AnimatePresence>
 				</section>
 
-				<hr className="border-border-soft" />
+				<motion.hr {...glide} className="border-border-soft" />
 
-				<Button type="submit" size="xl" className="w-full">
-					Continue
-				</Button>
-			</form>
+				<motion.div {...glide}>
+					<Button type="submit" size="xl" className="w-full">
+						Continue
+					</Button>
+				</motion.div>
+			</motion.form>
 		</NewListingLayout>
 	);
 }

@@ -28,6 +28,8 @@ background, Stepper Experience header, the step's title and description, the con
 footer. A step passes its content as `children`, plus a few frame options:
 
 - `align`: `"center"` for short steps (body centered between stepper and footer) or `"top"` for long forms.
+  Either way, content stays at least 48px below the stepper header (short screens, expanded content,
+  or a flow that renders one shared stepper above the steps).
 - `width`: `"default"` 640px, `"wide"` 800px, or `"full"`.
 - `bodyClassName`: a step-specific title → content gap when Figma differs from the 32px default.
 

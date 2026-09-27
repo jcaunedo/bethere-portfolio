@@ -1,7 +1,7 @@
 <!--
 Created: Sep 05, 2026
 Created by: Julio Caunedo
-Last updated: Sep 27, 2026 (Implementation notes: one-word step naming convention + rationale)
+Last updated: Sep 27, 2026 (Implementation notes: one-word step naming + rationale; 48px minimum stepper → content gap)
 Scope: the New Listing creation flow for providers.
 Purpose: record the design rationale for keeping Experience/Service as the two primary listing-type paths and removing the redundant category step.
 -->
@@ -81,7 +81,7 @@ Each step folder holds `<step>.tsx` (exports `<Name>Step` and `<Name>StepProps`)
 
 ### Shared shell
 
-`NewListingLayout` is the New Listing counterpart of `AccountSettingsLayout`: it renders the stepper, the step title and description, the content column, and the footer, and each step passes only its own content as `children`. Frame options cover the variations between steps: `align` (`center` for short steps, `top` for long forms), `width` (640px default, 800px `wide`, or `full`), and `bodyClassName` for a step-specific title → content gap. Step props extend `NewListingStepProps` (`showStepper`, `steps`, `currentStep`, `stepLabel`, `onBack`, `onClose`, `className`).
+`NewListingLayout` is the New Listing counterpart of `AccountSettingsLayout`: it renders the stepper, the step title and description, the content column, and the footer, and each step passes only its own content as `children`. Frame options cover the variations between steps: `align` (`center` for short steps, `top` for long forms) — in both, step content stays at least 48px below the stepper header, `width` (640px default, 800px `wide`, or `full`), and `bodyClassName` for a step-specific title → content gap. Step props extend `NewListingStepProps` (`showStepper`, `steps`, `currentStep`, `stepLabel`, `onBack`, `onClose`, `className`).
 
 ℹ️ In Storybook the New Listing group reads in wizard order (Flow, Shell, then each step), set in `.storybook/preview.ts` → `storySort`; every other section keeps its existing order.
 

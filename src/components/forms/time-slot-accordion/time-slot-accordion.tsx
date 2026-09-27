@@ -1,9 +1,11 @@
 import * as React from "react";
 import { cva } from "class-variance-authority";
+import { AnimatePresence, motion } from "motion/react";
 import { Accordion as AccordionPrimitive } from "radix-ui";
 import { ChevronDownIcon, CircleAlertIcon, Clock4Icon, PlusIcon, XIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { fadeVariants, layoutSpring, revealVariants, useMotionPreference } from "@/lib/motion";
 import { Button } from "@/components/buttons/button";
 import {
 	Select,
@@ -99,6 +101,7 @@ function TimeSlotAccordion({
 }: TimeSlotAccordionProps) {
 	const [uncontrolled, setUncontrolled] = React.useState(defaultValue);
 	const windowsByDay = value ?? uncontrolled;
+	const { prefersReducedMotion, resolve } = useMotionPreference();
 
 	const setDay = (day: string, windows: TimeWindow[]) => {
 		const next = { ...windowsByDay, [day]: windows };
@@ -112,17 +115,32 @@ function TimeSlotAccordion({
 			collapsible
 			defaultValue={defaultOpenDay}
 			data-slot="time-slot-accordion"
-			className={cn("flex w-full flex-col gap-2", className)}
+			// `relative` anchors a leaving row popped out of flow by AnimatePresence.
+			className={cn("relative flex w-full flex-col gap-2", className)}
 			{...props}
 		>
-			{days.map((day) => (
-				<TimeSlotAccordionItem
-					key={day.value}
-					day={day}
-					windows={windowsByDay[day.value] ?? []}
-					onWindowsChange={(windows) => setDay(day.value, windows)}
-				/>
-			))}
+			{/* Days added/removed (e.g. from a day picker): the new row Reveals in, a removed row
+			    fades out while leaving the flow at once (popLayout), and the rows below glide to
+			    their new place. Reduced motion: opacity only, no movement. */}
+			<AnimatePresence initial={false} mode="popLayout">
+				{days.map((day) => (
+					<motion.div
+						key={day.value}
+						layout={prefersReducedMotion ? false : "position"}
+						variants={prefersReducedMotion ? fadeVariants : revealVariants}
+						initial="initial"
+						animate="animate"
+						exit="exit"
+						transition={{ layout: resolve(layoutSpring) }}
+					>
+						<TimeSlotAccordionItem
+							day={day}
+							windows={windowsByDay[day.value] ?? []}
+							onWindowsChange={(windows) => setDay(day.value, windows)}
+						/>
+					</motion.div>
+				))}
+			</AnimatePresence>
 		</AccordionPrimitive.Root>
 	);
 }

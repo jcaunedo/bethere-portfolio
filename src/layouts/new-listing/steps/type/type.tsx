@@ -62,9 +62,10 @@ function TypeStep({
 			currentStep={currentStep}
 			stepLabel={stepLabel}
 			title="What type of listing are you creating?"
-			// Two large cards side by side: 800px column, 56px title → cards gap, 56px bottom breathing room.
+			// Two large cards side by side: 800px column, 56px title → cards gap, and 56px extra bottom
+			// breathing room on top of the shell's symmetric 48px (48 + 56 = 104px) so it stays centered as designed.
 			width="wide"
-			bodyClassName="gap-14 pb-14"
+			bodyClassName="gap-14 pb-26"
 		>
 			<div
 				className="flex w-full items-center justify-center gap-6 rounded-xl"
