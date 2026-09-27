@@ -3,9 +3,9 @@
 import yacht1 from "@/components/cards/match-card/images/yacht-1.webp";
 import yacht2 from "@/components/cards/match-card/images/yacht-2.webp";
 import yacht3 from "@/components/cards/match-card/images/yacht-3.webp";
-import type { ListingMatch } from "./listing-details-matches";
+import type { Match } from "./matches";
 
-export const sampleMatches: ListingMatch[] = [
+export const sampleMatches: Match[] = [
 	{
 		id: "azimut-55-fly-2021",
 		name: "Azimut 55 Fly (2021)",

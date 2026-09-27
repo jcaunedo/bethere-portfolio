@@ -4,10 +4,9 @@ import { PlusIcon } from "lucide-react";
 import { Button } from "@/components/buttons/button";
 import { ExperienceLocation, type ExperienceLocationValue } from "@/components/cards/experience-location";
 import { SortableList, type SortableListItemValue } from "@/components/forms/sortable-list";
-import { StepperExperience } from "@/components/stepper/stepper-experience";
 import { Typography } from "@/components/typography";
-import { ChoiceChipGrid } from "@/layouts/shared/choice-chip-grid";
-import { cn } from "@/lib/utils";
+import { ChoiceChipGrid } from "../../shared/choice-chip-grid";
+import { NewListingLayout, type NewListingStepProps } from "../../new-listing";
 
 const durations = ["1 hr", "2 hr", "4 hr", "6 hr", "8 hr", "10 hr", "Full Day", "Multi-Day"];
 
@@ -53,25 +52,9 @@ const destinations: SortableListItemValue[] = [
 	{ id: "marine-stadium", label: "Marine Stadium" },
 ];
 
-type ExperienceExpectationsProps = {
-	className?: string;
-	/**
-	 * Render the built-in stepper. Set `false` when a parent flow owns a single
-	 * persistent stepper across screens (so it advances in place instead of remounting).
-	 */
-	showStepper?: boolean;
-	/** Total step count for the stepper track. */
-	steps?: number;
-	/** 1-indexed current step. */
-	currentStep?: number;
-	/** Stepper center label. */
-	stepLabel?: string;
+type ExpectationsStepProps = NewListingStepProps & {
 	/** Called when "Continue" is submitted. */
 	onContinue?: () => void;
-	/** Called when the back control is activated. */
-	onBack?: () => void;
-	/** Called when the close control is activated. */
-	onClose?: () => void;
 };
 
 /**
@@ -79,16 +62,13 @@ type ExperienceExpectationsProps = {
  * boarding location, destinations, experience type and inclusions.
  * Figma origin: Provider Portal, "7. Experience Expectations" frame (node 94:3243).
  */
-function ExperienceExpectations({
-	className,
-	showStepper = true,
+function ExpectationsStep({
 	steps = 14,
 	currentStep = 7,
 	stepLabel = "Little Atocha · Step 7 of 14",
 	onContinue,
-	onBack = () => {},
-	onClose = () => {},
-}: ExperienceExpectationsProps) {
+	...frame
+}: ExpectationsStepProps) {
 	const id = React.useId();
 	const [selectedDurations, setSelectedDurations] = React.useState(
 		() => new Set(["2 hr", "4 hr", "6 hr", "Full Day"]),
@@ -123,119 +103,98 @@ function ExperienceExpectations({
 	};
 
 	return (
-		<div className={cn("flex min-h-screen flex-col items-center bg-background p-2", className)}>
-			<div className="flex w-full flex-1 flex-col items-center gap-10">
-				{showStepper ? (
-					<StepperExperience
-						steps={steps}
-						currentStep={currentStep}
-						label={stepLabel}
-						onBack={onBack}
-						onClose={onClose}
+		<NewListingLayout
+			{...frame}
+			steps={steps}
+			currentStep={currentStep}
+			stepLabel={stepLabel}
+			align="top"
+			title="Tell guests what to expect"
+			description="Help guests understand what to expect from their charter."
+		>
+			{/* Standard 48px (spacing/12) gap between form sections. */}
+			<form
+				className="flex w-full flex-col gap-12"
+				onSubmit={(event) => {
+					event.preventDefault();
+					onContinue?.();
+				}}
+			>
+				{/* Durations: heading only, 4-column grid ending with the "Add" tile for custom durations. */}
+				<section aria-labelledby={`${id}-durations`} className="flex flex-col gap-4">
+					<SectionHeading id={`${id}-durations`}>What charter durations do you offer?</SectionHeading>
+					<ChoiceChipGrid
+						labelledBy={`${id}-durations`}
+						columns={4}
+						options={durations}
+						selected={selectedDurations}
+						onSelectedChange={setSelectedDurations}
+						allowCustom
 					/>
-				) : null}
+				</section>
 
-				<div className="flex w-full max-w-[640px] flex-1 flex-col items-center gap-8">
-					<div className="flex flex-col items-center gap-2 text-center">
-						<Typography as="h1" size="3xl" weight="semibold">
-							Tell guests what to expect
-						</Typography>
-						<Typography size="xl" className="text-muted-foreground">
-							Help guests understand what to expect from their charter.
-						</Typography>
-					</div>
+				<section aria-labelledby={`${id}-boarding`} className="flex flex-col gap-4">
+					<SectionHeader id={`${id}-boarding`} description="Choose the primary departure marina.">
+						Where will guests board your yacht?
+					</SectionHeader>
+					<ExperienceLocation defaultValue={boardingLocation} />
+				</section>
 
-					{/* Standard 48px (spacing/12) gap between form sections. */}
-					<form
-						className="flex w-full flex-col gap-12"
-						onSubmit={(event) => {
-							event.preventDefault();
-							onContinue?.();
-						}}
+				<section aria-labelledby={`${id}-places`} className="flex flex-col gap-4">
+					<SectionHeader
+						id={`${id}-places`}
+						description="Select the destinations and routes available with this charter."
 					>
-						{/* Durations: heading only, 4-column grid ending with the "Add" tile for custom durations. */}
-						<section aria-labelledby={`${id}-durations`} className="flex flex-col gap-4">
-							<SectionHeading id={`${id}-durations`}>What charter durations do you offer?</SectionHeading>
-							<ChoiceChipGrid
-								labelledBy={`${id}-durations`}
-								columns={4}
-								options={durations}
-								selected={selectedDurations}
-								onSelectedChange={setSelectedDurations}
-								allowCustom
-							/>
-						</section>
+						Where can guests go?
+					</SectionHeader>
+					<div ref={placesRef}>
+						<SortableList
+							aria-labelledby={`${id}-places`}
+							value={places}
+							onValueChange={setPlaces}
+							placeholder="Place name"
+						/>
+					</div>
+					<AddLink onClick={addPlace}>Add place</AddLink>
+				</section>
 
-						<section aria-labelledby={`${id}-boarding`} className="flex flex-col gap-4">
-							<SectionHeader id={`${id}-boarding`} description="Choose the primary departure marina.">
-								Where will guests board your yacht?
-							</SectionHeader>
-							<ExperienceLocation defaultValue={boardingLocation} />
-						</section>
+				<section aria-labelledby={`${id}-types`} className="flex flex-col gap-4">
+					<SectionHeader
+						id={`${id}-types`}
+						description="Select all the options that help guests find your charter."
+					>
+						What best describes this experience?
+					</SectionHeader>
+					<ChoiceChipGrid
+						labelledBy={`${id}-types`}
+						options={experienceTypes}
+						selected={types}
+						onSelectedChange={setTypes}
+						allowCustom
+					/>
+				</section>
 
-						<section aria-labelledby={`${id}-places`} className="flex flex-col gap-4">
-							<SectionHeader
-								id={`${id}-places`}
-								description="Select the destinations and routes available with this charter."
-							>
-								Where can guests go?
-							</SectionHeader>
-							<div ref={placesRef}>
-								<SortableList
-									aria-labelledby={`${id}-places`}
-									value={places}
-									onValueChange={setPlaces}
-									placeholder="Place name"
-								/>
-							</div>
-							<AddLink onClick={addPlace}>Add place</AddLink>
-						</section>
+				<section aria-labelledby={`${id}-included`} className="flex flex-col gap-4">
+					<SectionHeader
+						id={`${id}-included`}
+						description="Select all the options that help guests find your charter."
+					>
+						What’s included?
+					</SectionHeader>
+					<ChoiceChipGrid
+						labelledBy={`${id}-included`}
+						options={inclusions}
+						selected={included}
+						onSelectedChange={setIncluded}
+						allowCustom
+					/>
+				</section>
 
-						<section aria-labelledby={`${id}-types`} className="flex flex-col gap-4">
-							<SectionHeader
-								id={`${id}-types`}
-								description="Select all the options that help guests find your charter."
-							>
-								What best describes this experience?
-							</SectionHeader>
-							<ChoiceChipGrid
-								labelledBy={`${id}-types`}
-								options={experienceTypes}
-								selected={types}
-								onSelectedChange={setTypes}
-								allowCustom
-							/>
-						</section>
-
-						<section aria-labelledby={`${id}-included`} className="flex flex-col gap-4">
-							<SectionHeader
-								id={`${id}-included`}
-								description="Select all the options that help guests find your charter."
-							>
-								What’s included?
-							</SectionHeader>
-							<ChoiceChipGrid
-								labelledBy={`${id}-included`}
-								options={inclusions}
-								selected={included}
-								onSelectedChange={setIncluded}
-								allowCustom
-							/>
-						</section>
-
-						<Button type="submit" size="xl" className="w-full">
-							Continue
-						</Button>
-					</form>
-				</div>
-
-				<div className="flex flex-col items-center py-4 text-center">
-					<Typography size="xs" className="text-muted-foreground">
-						© 2026 Bethere Corp. All Rights Reserved
-					</Typography>
-				</div>
-			</div>
-		</div>
+				<Button type="submit" size="xl" className="w-full">
+					Continue
+				</Button>
+			</form>
+		</NewListingLayout>
 	);
 }
 
@@ -271,7 +230,7 @@ function SectionHeader({
 /**
  * Figma `button` (link, 32px, no side padding): 16px plus in a 4px-padded slot, 4px gap,
  * sm/medium label in the link color. Hover/focus: label + icon turn foreground (same as the
- * sibling ListingDetails "Add yacht manually" CTA).
+ * sibling SearchStep "Add yacht manually" CTA).
  */
 function AddLink({ onClick, children }: { onClick: () => void; children: React.ReactNode }) {
 	return (
@@ -293,4 +252,4 @@ function AddLink({ onClick, children }: { onClick: () => void; children: React.R
 	);
 }
 
-export { ExperienceExpectations };
+export { ExpectationsStep };

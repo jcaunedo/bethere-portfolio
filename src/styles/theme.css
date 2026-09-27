@@ -94,6 +94,9 @@
 	--color-warning-muted: var(--warning-muted);
 	--color-info-subtle: var(--info-subtle);
 	--color-info-muted: var(--info-muted);
+	--color-info-05: var(--info-05);
+	--color-danger: var(--danger);
+	--color-danger-05: var(--danger-05);
 
 	/* Fill surfaces (color/fill/*) */
 	--color-fill: var(--fill);
@@ -367,6 +370,34 @@
 	   `animate-caret-blink` utility, duplicated here because tw-animate-css is
 	   Storybook-only (globals.css) and not shipped in dist/styles.css. */
 	--animate-caret-blink: caret-blink 1.25s ease-out infinite;
+
+	/* Accordion expand/collapse (Radix sets --radix-accordion-content-height). shadcn relies on
+	   tw-animate-css for these, which isn't shipped — defined here like caret-blink. Timings
+	   mirror the motion tokens: open = standard (300ms), close = exit (160ms). */
+	--animate-accordion-down: accordion-down 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	--animate-accordion-up: accordion-up 0.16s cubic-bezier(0.4, 0, 1, 1);
+}
+
+@keyframes accordion-down {
+	from {
+		height: 0;
+		opacity: 0;
+	}
+	to {
+		height: var(--radix-accordion-content-height);
+		opacity: 1;
+	}
+}
+
+@keyframes accordion-up {
+	from {
+		height: var(--radix-accordion-content-height);
+		opacity: 1;
+	}
+	to {
+		height: 0;
+		opacity: 0;
+	}
 }
 
 @keyframes caret-blink {
@@ -492,6 +523,10 @@
 	--info: #0072ca;
 	--info-subtle: var(--info-50); /* Figma color/tone/info/subtle */
 	--info-muted: var(--info-100); /* Figma color/tone/info/muted */
+	--info-05: #0072ca14; /* Figma color/tone/info/info-05 — info @ 8% alpha */
+	/* Figma color/tone/danger/* — its own family in Figma, distinct from --destructive (#e43232). */
+	--danger: #e22323; /* Figma color/tone/danger/danger */
+	--danger-05: #e223230d; /* Figma color/tone/danger/danger-05 — danger @ 5% alpha */
 
 	/* ===========================================================================
      EXTENDED SEMANTIC — additional role tokens imported from Figma `semantic`

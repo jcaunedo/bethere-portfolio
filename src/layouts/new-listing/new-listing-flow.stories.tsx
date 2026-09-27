@@ -3,28 +3,30 @@ import { AnimatePresence, motion } from "motion/react";
 import * as React from "react";
 
 import { StepperExperience } from "@/components/stepper/stepper-experience";
-import { ExperienceCategorySelector } from "@/layouts/experience-category-selector/experience-category-selector";
-import { ExperienceExpectations } from "@/layouts/experience-expectations/experience-expectations";
-import { ListingAttributes } from "@/layouts/listing-attributes/listing-attributes";
-import { ListingDetails } from "@/layouts/listing-details/listing-details";
-import {
-	ListingDetailsMatches,
-	type ListingMatch,
-} from "@/layouts/listing-details-matches/listing-details-matches";
-import { sampleMatches } from "@/layouts/listing-details-matches/sample-matches";
 import { fadeVariants, revealVariants, useMotionPreference } from "@/lib/motion";
-import { NewListing } from "./new-listing";
+// Steps, in flow order.
+import { TypeStep } from "./steps/type/type";
+import { CategoryStep } from "./steps/category/category";
+import { SearchStep } from "./steps/search/search";
+import { MatchesStep, type Match } from "./steps/matches/matches";
+import { sampleMatches } from "./steps/matches/sample-matches";
+import { AttributesStep } from "./steps/attributes/attributes";
+import { ExpectationsStep } from "./steps/expectations/expectations";
+import { AvailabilityStep } from "./steps/availability/availability";
 
-const meta: Meta<typeof NewListing> = {
-	title: "Layouts/NewListing",
-	component: NewListing,
-	tags: ["autodocs"],
+/**
+ * The whole New Listing flow, stitched from the step layouts in `./steps/`. Each step is
+ * named for what it collects (search, attributes, expectations…), not for one listing type;
+ * the order below is the Experience → yacht charter path from product-specs.
+ */
+const meta: Meta = {
+	title: "Layouts/NewListing/Flow",
 	parameters: {
 		layout: "fullscreen",
 	},
 };
 export default meta;
-type Story = StoryObj<typeof NewListing>;
+type Story = StoryObj;
 
 const yachtOptions = [
 	"Motor Yacht",
@@ -38,24 +40,25 @@ const yachtOptions = [
 
 const STEPS = 13;
 const screens = {
-	"listing-type": { step: 1, previous: null },
-	"experience-category": { step: 2, previous: "listing-type" },
-	"listing-details": { step: 3, previous: "experience-category" },
-	"listing-details-matches": { step: 4, previous: "listing-details" },
-	"listing-attributes": { step: 5, previous: "listing-details-matches" },
-	"experience-expectations": { step: 6, previous: "listing-attributes" },
+	"type": { step: 1, previous: null },
+	"category": { step: 2, previous: "type" },
+	"search": { step: 3, previous: "category" },
+	"matches": { step: 4, previous: "search" },
+	"attributes": { step: 5, previous: "matches" },
+	"expectations": { step: 6, previous: "attributes" },
+	"availability": { step: 7, previous: "expectations" },
 } as const;
 type Screen = keyof typeof screens;
 
 function NewListingFlow() {
-	const [screen, setScreen] = React.useState<Screen>("listing-type");
+	const [screen, setScreen] = React.useState<Screen>("type");
 	// Last lookup query, so "Refine search" (or Back) returns to the lookup as it was left.
 	const [searchDetails, setSearchDetails] = React.useState("");
 	// Match picked on the results screen — named in the stepper label from then on (Figma).
-	const [match, setMatch] = React.useState<ListingMatch | null>(null);
+	const [match, setMatch] = React.useState<Match | null>(null);
 	// Attributes is reachable from the lookup ("Add yacht manually") or the results (a match
 	// or "Add manually"); Back returns to whichever screen it was opened from.
-	const [attributesFrom, setAttributesFrom] = React.useState<Screen>("listing-details-matches");
+	const [attributesFrom, setAttributesFrom] = React.useState<Screen>("matches");
 	const { prefersReducedMotion } = useMotionPreference();
 	const { step } = screens[screen];
 
@@ -63,16 +66,19 @@ function NewListingFlow() {
 	React.useEffect(() => {
 		window.scrollTo({ top: 0 });
 	}, [screen]);
-	const previous = screen === "listing-attributes" ? attributesFrom : screens[screen].previous;
+	const previous = screen === "attributes" ? attributesFrom : screens[screen].previous;
 
-	const openAttributes = (from: Screen, selected: ListingMatch | null) => {
+	const openAttributes = (from: Screen, selected: Match | null) => {
 		setMatch(selected);
 		setAttributesFrom(from);
-		setScreen("listing-attributes");
+		setScreen("attributes");
 	};
 	// From the attributes step on, the listing is named in the label (Figma).
 	const stepLabel =
-		(screen === "listing-attributes" || screen === "experience-expectations") && match
+		(screen === "attributes" ||
+			screen === "expectations" ||
+			screen === "availability") &&
+		match
 			? `${match.name} · Step ${step} of ${STEPS}`
 			: `Step ${step} of ${STEPS}`;
 
@@ -104,48 +110,56 @@ function NewListingFlow() {
 					exit="exit"
 					className="flex w-full flex-1 flex-col"
 				>
-					{screen === "listing-type" ? (
-						<NewListing
+					{screen === "type" ? (
+						<TypeStep
 							showStepper={false}
 							className={screenClassName}
-							onSelectExperience={() => setScreen("experience-category")}
+							onSelectExperience={() => setScreen("category")}
 						/>
-					) : screen === "experience-category" ? (
-						<ExperienceCategorySelector
+					) : screen === "category" ? (
+						<CategoryStep
 							showStepper={false}
 							className={screenClassName}
 							options={yachtOptions}
-							onSelect={() => setScreen("listing-details")}
+							onSelect={() => setScreen("search")}
 						/>
-					) : screen === "listing-details" ? (
-						<ListingDetails
+					) : screen === "search" ? (
+						<SearchStep
 							showStepper={false}
 							className={screenClassName}
 							defaultDetails={searchDetails}
 							onFind={(details) => {
 								setSearchDetails(details);
-								setScreen("listing-details-matches");
+								setScreen("matches");
 							}}
-							onAddManually={() => openAttributes("listing-details", null)}
+							onAddManually={() => openAttributes("search", null)}
 						/>
-					) : screen === "listing-details-matches" ? (
-						<ListingDetailsMatches
+					) : screen === "matches" ? (
+						<MatchesStep
 							showStepper={false}
 							className={screenClassName}
 							matches={sampleMatches}
-							onRefineSearch={() => setScreen("listing-details")}
-							onSelectMatch={(selected) => openAttributes("listing-details-matches", selected)}
-							onAddManually={() => openAttributes("listing-details-matches", null)}
+							onRefineSearch={() => setScreen("search")}
+							onSelectMatch={(selected) => openAttributes("matches", selected)}
+							onAddManually={() => openAttributes("matches", null)}
 						/>
 					) : (
-						screen === "listing-attributes" ? (
-							<ListingAttributes
+						screen === "attributes" ? (
+							<AttributesStep
 								showStepper={false}
 								className={screenClassName}
-								onContinue={() => setScreen("experience-expectations")}
+								onContinue={() => setScreen("expectations")}
 							/>
 						) : (
-							<ExperienceExpectations showStepper={false} className={screenClassName} />
+							screen === "expectations" ? (
+								<ExpectationsStep
+									showStepper={false}
+									className={screenClassName}
+									onContinue={() => setScreen("availability")}
+								/>
+							) : (
+								<AvailabilityStep showStepper={false} className={screenClassName} />
+							)
 						)
 					)}
 				</motion.div>
@@ -154,7 +168,7 @@ function NewListingFlow() {
 	);
 }
 
-/** Steps 1 → 6: Experience → yacht type → yacht lookup → matches → attributes → expectations; the stepper's back button steps back. */
+/** Steps 1 → 7: Experience → yacht type → yacht lookup → matches → attributes → expectations → availability; the stepper's back button steps back. */
 export const Default: Story = {
 	render: () => <NewListingFlow />,
 };

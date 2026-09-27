@@ -1,16 +1,16 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { ExperienceCategorySelector } from "./experience-category-selector";
+import { CategoryStep } from "./category";
 
-const meta: Meta<typeof ExperienceCategorySelector> = {
-	title: "Layouts/ExperienceCategorySelector",
-	component: ExperienceCategorySelector,
+const meta: Meta<typeof CategoryStep> = {
+	title: "Layouts/NewListing/Category",
+	component: CategoryStep,
 	tags: ["autodocs"],
 	parameters: {
 		layout: "fullscreen",
 	},
 };
 export default meta;
-type Story = StoryObj<typeof ExperienceCategorySelector>;
+type Story = StoryObj<typeof CategoryStep>;
 
 export const Default: Story = {
 	args: {

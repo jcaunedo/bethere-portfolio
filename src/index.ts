@@ -187,6 +187,24 @@ export {
 } from "./components/forms/sortable-list";
 
 export {
+  DaySelector,
+  DaySelectorGroup,
+  daySelectorVariants,
+  type DaySelectorProps,
+  type DaySelectorGroupProps,
+  type DaySelectorOption,
+} from "./components/forms/day-selector";
+
+export {
+  TimeSlotAccordion,
+  timeSlotItemVariants,
+  type TimeSlotAccordionProps,
+  type TimeSlotAccordionValue,
+  type TimeSlotDay,
+  type TimeWindow,
+} from "./components/forms/time-slot-accordion";
+
+export {
   NotificationSwitcher,
   notificationSwitcherVariants,
   type NotificationSwitcherProps,
@@ -320,6 +338,8 @@ export {
   AlertDescription,
   alertVariants,
 } from "./components/feedback/alert";
+
+export { Toaster, toast, type ToasterProps } from "./components/feedback/sonner";
 
 /* -------------------------------------------------------------------------- */
 /* Overlays                                                                   */

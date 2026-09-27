@@ -1,15 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { ListingDetails } from "./listing-details";
+import { SearchStep } from "./search";
 
-const meta: Meta<typeof ListingDetails> = {
-	title: "Layouts/ListingDetails",
-	component: ListingDetails,
+const meta: Meta<typeof SearchStep> = {
+	title: "Layouts/NewListing/Search",
+	component: SearchStep,
 	tags: ["autodocs"],
 	parameters: {
 		layout: "fullscreen",
 	},
 };
 export default meta;
-type Story = StoryObj<typeof ListingDetails>;
+type Story = StoryObj<typeof SearchStep>;
 
 export const Default: Story = {};
