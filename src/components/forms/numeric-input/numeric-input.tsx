@@ -64,6 +64,18 @@ function NumericInput({
         min={min}
         onKeyDown={(e) => {
           if (e.key === "-" || e.key === "Subtract") e.preventDefault();
+          // Arrow keys step the value: Right/Up increment, Left/Down decrement.
+          // Handled here (not natively) so every arrow goes through `step`, same as the steppers.
+          const direction =
+            e.key === "ArrowRight" || e.key === "ArrowUp"
+              ? 1
+              : e.key === "ArrowLeft" || e.key === "ArrowDown"
+                ? -1
+                : 0;
+          if (direction !== 0) {
+            e.preventDefault();
+            if (!(direction === -1 && atMin)) step(direction);
+          }
           onKeyDown?.(e);
         }}
         onBlur={(e) => {

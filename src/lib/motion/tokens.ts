@@ -49,6 +49,8 @@ const motionScale = {
 	 */
 	spotlight: 1.025,
 	recede: 0.975,
+	/** Small inline icons (e.g. a selection check) appearing in place. */
+	iconIn: 0.6,
 } as const;
 
 /** Seconds, for `staggerChildren`/`delayChildren`. CLAUDE.md "Flow". */

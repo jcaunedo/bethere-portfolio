@@ -70,6 +70,9 @@ function ChoiceInput({
 	const focusNext = React.useRef<"add" | "remove" | null>(null);
 	// Enter/Escape already resolved the edit — ignore the blur that may follow the unmount.
 	const skipBlur = React.useRef(false);
+	// Focus handed to the remove button after Enter is programmatic — hide its ring until
+	// it blurs, so it only shows when the user navigates to it themselves.
+	const [quietRemoveFocus, setQuietRemoveFocus] = React.useState(false);
 
 	React.useEffect(() => {
 		if (focusNext.current === "add") addRef.current?.focus();
@@ -93,6 +96,7 @@ function ChoiceInput({
 		setEditing(false);
 		if (next) setValue(next);
 		if (refocus) focusNext.current = next ? "remove" : "add";
+		if (refocus && next) setQuietRemoveFocus(true);
 	};
 
 	const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -186,7 +190,11 @@ function ChoiceInput({
 						aria-label={`Remove ${committed}`}
 						disabled={disabled}
 						onClick={remove}
-						className="shrink-0 rounded-full text-icon-subtle"
+						onBlur={() => setQuietRemoveFocus(false)}
+						className={cn(
+							"shrink-0 rounded-full text-icon-subtle",
+							quietRemoveFocus && "focus-visible:ring-0",
+						)}
 					>
 						<XIcon />
 					</Button>

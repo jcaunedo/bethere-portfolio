@@ -4,8 +4,12 @@ import * as React from "react";
 
 import { StepperExperience } from "@/components/stepper/stepper-experience";
 import { ExperienceCategorySelector } from "@/layouts/experience-category-selector/experience-category-selector";
+import { ListingAttributes } from "@/layouts/listing-attributes/listing-attributes";
 import { ListingDetails } from "@/layouts/listing-details/listing-details";
-import { ListingDetailsMatches } from "@/layouts/listing-details-matches/listing-details-matches";
+import {
+	ListingDetailsMatches,
+	type ListingMatch,
+} from "@/layouts/listing-details-matches/listing-details-matches";
 import { sampleMatches } from "@/layouts/listing-details-matches/sample-matches";
 import { fadeVariants, revealVariants, useMotionPreference } from "@/lib/motion";
 import { NewListing } from "./new-listing";
@@ -37,6 +41,7 @@ const screens = {
 	"experience-category": { step: 2, previous: "listing-type" },
 	"listing-details": { step: 3, previous: "experience-category" },
 	"listing-details-matches": { step: 4, previous: "listing-details" },
+	"listing-attributes": { step: 5, previous: "listing-details-matches" },
 } as const;
 type Screen = keyof typeof screens;
 
@@ -44,8 +49,24 @@ function NewListingFlow() {
 	const [screen, setScreen] = React.useState<Screen>("listing-type");
 	// Last lookup query, so "Refine search" (or Back) returns to the lookup as it was left.
 	const [searchDetails, setSearchDetails] = React.useState("");
+	// Match picked on the results screen — named in the stepper label from then on (Figma).
+	const [match, setMatch] = React.useState<ListingMatch | null>(null);
+	// Attributes is reachable from the lookup ("Add yacht manually") or the results (a match
+	// or "Add manually"); Back returns to whichever screen it was opened from.
+	const [attributesFrom, setAttributesFrom] = React.useState<Screen>("listing-details-matches");
 	const { prefersReducedMotion } = useMotionPreference();
-	const { step, previous } = screens[screen];
+	const { step } = screens[screen];
+	const previous = screen === "listing-attributes" ? attributesFrom : screens[screen].previous;
+
+	const openAttributes = (from: Screen, selected: ListingMatch | null) => {
+		setMatch(selected);
+		setAttributesFrom(from);
+		setScreen("listing-attributes");
+	};
+	const stepLabel =
+		screen === "listing-attributes" && match
+			? `${match.name} · Step ${step} of ${STEPS}`
+			: `Step ${step} of ${STEPS}`;
 
 	// Screen content sits in the same slot either way: the layouts' own
 	// stepper is off, so drop their full-page sizing/padding in favor of the flow's.
@@ -58,7 +79,7 @@ function NewListingFlow() {
 			<StepperExperience
 				steps={STEPS}
 				currentStep={step}
-				label={`Step ${step} of ${STEPS}`}
+				label={stepLabel}
 				onBack={() => {
 					if (previous) setScreen(previous);
 				}}
@@ -97,14 +118,19 @@ function NewListingFlow() {
 								setSearchDetails(details);
 								setScreen("listing-details-matches");
 							}}
+							onAddManually={() => openAttributes("listing-details", null)}
 						/>
-					) : (
+					) : screen === "listing-details-matches" ? (
 						<ListingDetailsMatches
 							showStepper={false}
 							className={screenClassName}
 							matches={sampleMatches}
 							onRefineSearch={() => setScreen("listing-details")}
+							onSelectMatch={(selected) => openAttributes("listing-details-matches", selected)}
+							onAddManually={() => openAttributes("listing-details-matches", null)}
 						/>
+					) : (
+						<ListingAttributes showStepper={false} className={screenClassName} />
 					)}
 				</motion.div>
 			</AnimatePresence>
@@ -112,7 +138,7 @@ function NewListingFlow() {
 	);
 }
 
-/** Steps 1 → 4: Experience → yacht type → yacht lookup → matches; the stepper's back button steps back. */
+/** Steps 1 → 5: Experience → yacht type → yacht lookup → matches → attributes; the stepper's back button steps back. */
 export const Default: Story = {
 	render: () => <NewListingFlow />,
 };
