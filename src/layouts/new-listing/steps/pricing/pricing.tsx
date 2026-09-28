@@ -103,7 +103,10 @@ function PricingStep({
 	const [holidayPercent, setHolidayPercent] = React.useState(0);
 	const [holidayOverrides, setHolidayOverrides] = React.useState<Record<string, number | undefined>>({});
 
+	// Seasonal pricing: same content as holiday, with its own % and overrides.
 	const [seasonalOn, setSeasonalOn] = React.useState(false);
+	const [seasonalPercent, setSeasonalPercent] = React.useState(0);
+	const [seasonalOverrides, setSeasonalOverrides] = React.useState<Record<string, number | undefined>>({});
 
 	// Add-on services.
 	const [addOnsOn, setAddOnsOn] = React.useState(false);
@@ -236,32 +239,18 @@ function PricingStep({
 						Holiday pricing
 					</SectionHeader>
 					<Reveal show={holidayOn}>
-						<div className="flex flex-col gap-4">
-							<PercentSlider
-								label="Adjust rate by percentage"
-								value={holidayPercent}
-								onValueChange={setHolidayPercent}
-							/>
-							{/* Figma: two equal columns; the rate column is the holiday rate (base × %). */}
-							<RateTable
-								firstColumn="Duration"
-								rows={durations.map((row) => ({ ...row, adjustedOverride: holidayOverrides[row.id] }))}
-								onRowsChange={(rows) => {
-									setDurations((current) =>
-										current.map((row) => ({
-											...row,
-											included: rows.find((r) => r.id === row.id)?.included ?? row.included,
-										})),
-									);
-									setHolidayOverrides(Object.fromEntries(rows.map((row) => [row.id, row.adjustedOverride])));
-								}}
-								adjust={{ label: "Base rate", percent: holidayPercent }}
-							/>
-						</div>
+						<DurationAdjustment
+							durations={durations}
+							onDurationsChange={setDurations}
+							percent={holidayPercent}
+							onPercentChange={setHolidayPercent}
+							overrides={holidayOverrides}
+							onOverridesChange={setHolidayOverrides}
+						/>
 					</Reveal>
 				</section>
 
-				<section aria-labelledby={`${id}-seasonal`}>
+				<section aria-labelledby={`${id}-seasonal`} className="flex flex-col gap-4">
 					<SectionHeader
 						id={`${id}-seasonal`}
 						description="Create different pricing for peak and off-peak seasons."
@@ -270,6 +259,16 @@ function PricingStep({
 					>
 						Seasonal pricing
 					</SectionHeader>
+					<Reveal show={seasonalOn}>
+						<DurationAdjustment
+							durations={durations}
+							onDurationsChange={setDurations}
+							percent={seasonalPercent}
+							onPercentChange={setSeasonalPercent}
+							overrides={seasonalOverrides}
+							onOverridesChange={setSeasonalOverrides}
+						/>
+					</Reveal>
 				</section>
 
 				<section aria-labelledby={`${id}-addons`} className="flex flex-col gap-4">
@@ -351,6 +350,48 @@ function SectionHeader({
 			{onCheckedChange ? (
 				<Switch aria-labelledby={id} checked={checked} onCheckedChange={onCheckedChange} />
 			) : null}
+		</div>
+	);
+}
+
+/**
+ * Body of a special-rates section (Holiday, Seasonal): a percentage slider and the durations in
+ * two equal columns (Figma), the rate column being the adjusted rate (base × %), overridable per
+ * row with "Reset". Each section keeps its own % and overrides; including/excluding a duration
+ * is shared with the charter rates (it's the same duration).
+ */
+function DurationAdjustment({
+	durations,
+	onDurationsChange,
+	percent,
+	onPercentChange,
+	overrides,
+	onOverridesChange,
+}: {
+	durations: RateRow[];
+	onDurationsChange: React.Dispatch<React.SetStateAction<RateRow[]>>;
+	percent: number;
+	onPercentChange: (percent: number) => void;
+	overrides: Record<string, number | undefined>;
+	onOverridesChange: (overrides: Record<string, number | undefined>) => void;
+}) {
+	return (
+		<div className="flex flex-col gap-4">
+			<PercentSlider label="Adjust rate by percentage" value={percent} onValueChange={onPercentChange} />
+			<RateTable
+				firstColumn="Duration"
+				rows={durations.map((row) => ({ ...row, adjustedOverride: overrides[row.id] }))}
+				onRowsChange={(rows) => {
+					onDurationsChange((current) =>
+						current.map((row) => ({
+							...row,
+							included: rows.find((r) => r.id === row.id)?.included ?? row.included,
+						})),
+					);
+					onOverridesChange(Object.fromEntries(rows.map((row) => [row.id, row.adjustedOverride])));
+				}}
+				adjust={{ label: "Base rate", percent }}
+			/>
 		</div>
 	);
 }
