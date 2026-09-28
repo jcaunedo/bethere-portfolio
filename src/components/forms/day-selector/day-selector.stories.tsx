@@ -43,6 +43,11 @@ export const Disabled: Story = {
 	args: { disabled: true },
 };
 
+/** Figma Show Alert — red dot flagging the day needs attention; shown in every state. */
+export const WithAlert: Story = {
+	args: { isSelected: true, showAlert: true },
+};
+
 /** Mon–Sun row, multi-select. */
 export const Group: Story = {
 	decorators: [
@@ -96,8 +101,14 @@ export const AllVariants: Story = {
 				<DaySelector label="Day" isAvailable />
 				<DaySelector label="Day" isSelected />
 				<DaySelector label="Day" disabled />
+				<DaySelector label="Day" showAlert />
+				<DaySelector label="Day" isAvailable showAlert />
+				<DaySelector label="Day" isSelected showAlert />
+				<DaySelector label="Day" disabled showAlert />
 			</div>
 			<DaySelectorGroup defaultValue={["sat", "sun"]} />
+			{/* Availability step: Thu selected with no time window yet. */}
+			<DaySelectorGroup defaultValue={["tue", "thu", "sat", "sun"]} alertDays={["thu"]} />
 		</div>
 	),
 };

@@ -301,7 +301,7 @@ function StatusPill({ tone, children }: { tone: "danger" | "info"; children: Rea
 	);
 }
 
-/** 36px time dropdown (Figma `Input` with chevron) over the given "HH:MM" options. */
+/** 36px time dropdown (Figma `Input` with chevron) over the given "HH:MM" options; Required while empty. */
 function TimeSelect({
 	value,
 	options,
@@ -315,9 +315,17 @@ function TimeSelect({
 	onValueChange: (value: string) => void;
 	"aria-label": string;
 }) {
+	// Figma Input State=Required: an unpicked start/end time shows the destructive field until set.
+	const missing = value == null;
 	return (
 		<Select value={value ?? ""} onValueChange={onValueChange}>
-			<SelectTrigger size="lg" aria-label={ariaLabel} className="min-w-0 flex-1">
+			<SelectTrigger
+				size="lg"
+				aria-label={ariaLabel}
+				aria-required
+				aria-invalid={missing || undefined}
+				className="min-w-0 flex-1"
+			>
 				<SelectValue placeholder={placeholder} />
 			</SelectTrigger>
 			<SelectContent className="max-h-64">

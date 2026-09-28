@@ -65,6 +65,11 @@ function AvailabilityStep({
 	// Only the selected days get a time-window row (in week order).
 	const selectedDays = week.filter((day) => days.includes(day.value));
 	const allSelected = days.length === week.length;
+	// Selected days with no complete (start + end) window get the alert dot — the same rule that
+	// marks their time-window row Required (Figma: Thu).
+	const alertDays = days.filter(
+		(day) => !(windows[day] ?? []).some((window) => window.start && window.end),
+	);
 
 	// Selecting/deselecting a day adds/removes its time-window row (TimeSlotAccordion animates the
 	// rows); the form and what follows the rows glide to their new place instead of jumping.
@@ -123,6 +128,7 @@ function AvailabilityStep({
 						options={dayOptions}
 						value={days}
 						onValueChange={setDays}
+						alertDays={alertDays}
 					/>
 				</section>
 

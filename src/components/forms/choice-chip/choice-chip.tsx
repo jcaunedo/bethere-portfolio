@@ -16,16 +16,26 @@ const choiceChipVariants = cva(
 	// Base chip: left-aligned label on a borderless tile. Figma: `choice-chip` State=Default.
 	// Figma State=Hover → hover: card shadow + foreground label.
 	// No flex gap: the indicator carries its own 8px spacing so it can animate in from zero width.
-	"flex h-10 items-center overflow-hidden rounded-card bg-input-fill px-3 py-2 text-left text-sm text-muted-foreground transition-[color,box-shadow] outline-none hover:text-foreground hover:shadow-card focus-visible:ring-[3px] focus-visible:ring-input-ring-outside disabled:pointer-events-none disabled:opacity-50",
+	"flex h-10 items-center overflow-hidden rounded-card bg-input-fill px-3 py-2 text-left text-sm text-muted-foreground transition-[color,background-color,box-shadow] outline-none hover:text-foreground hover:shadow-card focus-visible:ring-[3px] focus-visible:ring-input-ring-outside disabled:pointer-events-none disabled:opacity-50",
 	{
 		variants: {
+			// What the chip sits on. `neutral` = Figma State=Default-alt, for a white
+			// (color/background/neutral/background) surface: resting fill is
+			// color/background/accent/background so the chip still reads as a tile. Hover/Selected
+			// return to the standard input fill + card shadow.
+			surface: {
+				default: "",
+				neutral: "bg-background hover:bg-input-fill",
+			},
 			// Figma `choice-chip` State=Selected.
 			selected: {
 				true: "text-foreground shadow-card",
 				false: "",
 			},
 		},
+		compoundVariants: [{ surface: "neutral", selected: true, className: "bg-input-fill" }],
 		defaultVariants: {
+			surface: "default",
 			selected: false,
 		},
 	},
@@ -45,12 +55,13 @@ type ChoiceChipProps = Omit<
 
 /**
  * Selectable chip with a leading check indicator when selected.
- * Translated from bethere.ds `choice-chip` (State=Default/Hover/Selected).
+ * Translated from bethere.ds `choice-chip` (State=Default/Hover/Selected/Default-alt).
  */
 function ChoiceChip({
 	className,
 	label,
 	isSelected = false,
+	surface = "default",
 	role,
 	...props
 }: ChoiceChipProps) {
@@ -66,8 +77,9 @@ function ChoiceChip({
 			role={role}
 			data-slot="choice-chip"
 			data-state={isSelected ? "active" : "default"}
+			data-surface={surface}
 			{...ariaState}
-			className={cn(choiceChipVariants({ selected: isSelected, className }))}
+			className={cn(choiceChipVariants({ surface, selected: isSelected, className }))}
 			// Press: scale down while tapped (transform only, no layout impact). Dropped under reduced motion.
 			{...(prefersReducedMotion ? {} : pressPattern)}
 			{...props}

@@ -18,7 +18,8 @@ const datePickerTrigger =
   "hover:border-input-ring " + // Figma State=Hover → color/input/ring (#c6cbd2, neutral-300)
   "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 " +
   "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 " +
-  "aria-invalid:border-destructive aria-invalid:ring-destructive/20 " +
+  // Figma State=Error / State=Required: destructive border and destructive value + placeholder text.
+  "aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-invalid:text-destructive " +
   "dark:bg-input/30 dark:aria-invalid:ring-destructive/40 " +
   "data-[size=lg]:h-9 data-[size=xl]:h-10 [&_svg]:pointer-events-none [&_svg]:shrink-0";
 
@@ -59,7 +60,10 @@ function DatePicker({
           {...props}
         >
           <span
-            className={cn("flex-1 truncate", !value && "text-muted-foreground")}
+            className={cn(
+              "flex-1 truncate",
+              !value && !props["aria-invalid"] && "text-muted-foreground",
+            )}
           >
             {value ? format(value, dateFormat) : placeholder}
           </span>

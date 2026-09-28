@@ -17,7 +17,8 @@ const inputVariants = cva(
     // halo is a separate fully-opaque color/input/ring-outside (sunset-100) —
     // not a translucent tint of the border color.
     "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-input-ring-outside " +
-    "aria-invalid:border-destructive aria-invalid:ring-destructive/20 " +
+    // Figma State=Error / State=Required: destructive border and destructive value + placeholder text.
+    "aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-invalid:text-destructive aria-invalid:placeholder:text-destructive " +
     "dark:bg-input/30 dark:aria-invalid:ring-destructive/40",
   {
     variants: {

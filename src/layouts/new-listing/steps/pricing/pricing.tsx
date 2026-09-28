@@ -1,19 +1,27 @@
 import * as React from "react";
+import { format } from "date-fns";
 import { AnimatePresence, motion } from "motion/react";
+import { Accordion as AccordionPrimitive } from "radix-ui";
+import { CalendarIcon, ChevronDownIcon } from "lucide-react";
 
 import { Button } from "@/components/buttons/button";
+import { Calendar } from "@/components/forms/calendar";
 import { Checkbox } from "@/components/forms/checkbox";
 import { ChoiceChip } from "@/components/forms/choice-chip";
 import { ChoiceInput } from "@/components/forms/choice-input";
 import { DaySelectorGroup } from "@/components/forms/day-selector";
+import { Input } from "@/components/forms/input";
 import { NumericInput } from "@/components/forms/numeric-input";
 import { Slider } from "@/components/forms/slider";
 import { Switch } from "@/components/forms/switch";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/overlays/popover";
 import { Typography } from "@/components/typography";
 import {
 	exitTransition,
 	expandVariants,
 	fadeVariants,
+	layoutSpring,
+	revealVariants,
 	standardTransition,
 	useMotionPreference,
 } from "@/lib/motion";
@@ -52,6 +60,37 @@ const sampleServices: RateRow[] = [
 	{ id: "transportation", label: "Transportation", included: false, base: 100 },
 	{ id: "dj", label: "DJ", included: false, base: 250 },
 ];
+
+/** A day of the year with no year — seasons repeat annually. `month` is 0–11. */
+type MonthDay = { month: number; day: number };
+
+/** A seasonal rate: its own date range, % adjustment and per-duration overrides. */
+type Season = {
+	id: string;
+	name: string;
+	start: MonthDay | null;
+	end: MonthDay | null;
+	percent: number;
+	overrides: Record<string, number | undefined>;
+	/** Added by the provider ("Add season") — only these can be removed. */
+	custom?: boolean;
+};
+
+/** Figma sample seasons (always offered). */
+const sampleSeasons: Season[] = [
+	{ id: "peak", name: "Peak Season", start: { month: 11, day: 15 }, end: { month: 3, day: 30 }, percent: 0, overrides: {} },
+	{ id: "summer", name: "Summer", start: { month: 4, day: 1 }, end: { month: 7, day: 31 }, percent: 15, overrides: {} },
+	{ id: "christmas", name: "Christmas & New Year", start: { month: 11, day: 24 }, end: { month: 0, day: 2 }, percent: 0, overrides: {} },
+];
+
+/** A leap year, so Feb 29 is pickable; only month + day are kept. */
+const SEASON_YEAR = 2024;
+const toDate = ({ month, day }: MonthDay) => new Date(SEASON_YEAR, month, day);
+const formatMonthDay = (value: MonthDay) => format(toDate(value), "MMM d");
+
+/** A season's price differs from the base rates (a % or any custom rate). */
+const isSeasonModified = (season: Season) =>
+	season.percent !== 0 || Object.values(season.overrides).some((value) => value !== undefined);
 
 const adjusted = (base: number | null, percent: number) =>
 	base == null ? null : Math.round(base * (1 + percent / 100));
@@ -103,10 +142,11 @@ function PricingStep({
 	const [holidayPercent, setHolidayPercent] = React.useState(0);
 	const [holidayOverrides, setHolidayOverrides] = React.useState<Record<string, number | undefined>>({});
 
-	// Seasonal pricing: same content as holiday, with its own % and overrides.
+	// Seasonal pricing: a list of seasons, each with its own dates, % and overrides. One open at a time.
 	const [seasonalOn, setSeasonalOn] = React.useState(false);
-	const [seasonalPercent, setSeasonalPercent] = React.useState(0);
-	const [seasonalOverrides, setSeasonalOverrides] = React.useState<Record<string, number | undefined>>({});
+	const [seasons, setSeasons] = React.useState(sampleSeasons);
+	const [openSeason, setOpenSeason] = React.useState(sampleSeasons[0].id);
+	const nextSeason = React.useRef(0);
 
 	// Add-on services.
 	const [addOnsOn, setAddOnsOn] = React.useState(false);
@@ -260,14 +300,29 @@ function PricingStep({
 						Seasonal pricing
 					</SectionHeader>
 					<Reveal show={seasonalOn} scrollIntoView>
-						<DurationAdjustment
-							durations={durations}
-							onDurationsChange={setDurations}
-							percent={seasonalPercent}
-							onPercentChange={setSeasonalPercent}
-							overrides={seasonalOverrides}
-							onOverridesChange={setSeasonalOverrides}
-						/>
+						{/* Figma: seasons 8px apart, "Add season" 16px below. */}
+						<div className="flex flex-col gap-4">
+							<SeasonList
+								seasons={seasons}
+								onSeasonsChange={setSeasons}
+								open={openSeason}
+								onOpenChange={setOpenSeason}
+								durations={durations}
+								onDurationsChange={setDurations}
+							/>
+							<AddLink
+								onClick={() => {
+									const id = `season-${nextSeason.current++}`;
+									setSeasons((current) => [
+										...current,
+										{ id, name: "", start: null, end: null, percent: 0, overrides: {}, custom: true },
+									]);
+									setOpenSeason(id);
+								}}
+							>
+								Add season
+							</AddLink>
+						</div>
 					</Reveal>
 				</section>
 
@@ -367,6 +422,7 @@ function DurationAdjustment({
 	onPercentChange,
 	overrides,
 	onOverridesChange,
+	surface = "default",
 }: {
 	durations: RateRow[];
 	onDurationsChange: React.Dispatch<React.SetStateAction<RateRow[]>>;
@@ -374,10 +430,20 @@ function DurationAdjustment({
 	onPercentChange: (percent: number) => void;
 	overrides: Record<string, number | undefined>;
 	onOverridesChange: (overrides: Record<string, number | undefined>) => void;
+	/**
+	 * `neutral` on a white card (a season): the slider and unselected chips take
+	 * color/background/accent/background so they don't vanish into the card (Figma choice-chip Default-alt).
+	 */
+	surface?: "default" | "neutral";
 }) {
 	return (
 		<div className="flex flex-col gap-4">
-			<PercentSlider label="Adjust rate by percentage" value={percent} onValueChange={onPercentChange} />
+			<PercentSlider
+				label="Adjust rate by percentage"
+				value={percent}
+				onValueChange={onPercentChange}
+				className={surface === "neutral" ? "bg-background" : undefined}
+			/>
 			<RateTable
 				firstColumn="Duration"
 				rows={durations.map((row) => ({ ...row, adjustedOverride: overrides[row.id] }))}
@@ -391,8 +457,247 @@ function DurationAdjustment({
 					onOverridesChange(Object.fromEntries(rows.map((row) => [row.id, row.adjustedOverride])));
 				}}
 				adjust={{ label: "Base rate", percent }}
+				surface={surface}
 			/>
 		</div>
+	);
+}
+
+/** gradient-1 paint server for season icons (mirrors --gradient-1; CSS gradients can't paint an SVG stroke). */
+const SEASON_GRADIENT_ID = "pricing-season-gradient-1";
+
+/**
+ * Seasons as an accordion (one open at a time), styled like the Availability time windows
+ * (Figma `Time Slot Accordion` / `Time Slot`). Seasons added/removed Reveal in and fade out,
+ * the rows below gliding to their new place.
+ */
+function SeasonList({
+	seasons,
+	onSeasonsChange,
+	open,
+	onOpenChange,
+	durations,
+	onDurationsChange,
+}: {
+	seasons: Season[];
+	onSeasonsChange: React.Dispatch<React.SetStateAction<Season[]>>;
+	open: string;
+	onOpenChange: (id: string) => void;
+	durations: RateRow[];
+	onDurationsChange: React.Dispatch<React.SetStateAction<RateRow[]>>;
+}) {
+	const { prefersReducedMotion, resolve } = useMotionPreference();
+	const update = (id: string, patch: Partial<Season>) =>
+		onSeasonsChange((current) => current.map((season) => (season.id === id ? { ...season, ...patch } : season)));
+
+	return (
+		<AccordionPrimitive.Root
+			type="single"
+			collapsible
+			value={open}
+			onValueChange={onOpenChange}
+			className="relative flex w-full flex-col gap-2"
+		>
+			<svg aria-hidden="true" width="0" height="0" className="pointer-events-none absolute size-0">
+				<defs>
+					{/* In the icon's 24px viewBox, not per shape: a straight line has a zero-size box,
+					    so a bounding-box gradient would paint nothing on it. */}
+					<linearGradient id={SEASON_GRADIENT_ID} gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="24">
+						<stop offset="0" stopColor="#f26740" />
+						<stop offset="1" stopColor="#ffa47d" />
+					</linearGradient>
+				</defs>
+			</svg>
+			<AnimatePresence initial={false} mode="popLayout">
+				{seasons.map((season) => (
+					<motion.div
+						key={season.id}
+						layout={prefersReducedMotion ? false : "position"}
+						variants={prefersReducedMotion ? fadeVariants : revealVariants}
+						initial="initial"
+						animate="animate"
+						exit="exit"
+						transition={{ layout: resolve(layoutSpring) }}
+					>
+						<SeasonItem
+							season={season}
+							onSeasonChange={(patch) => update(season.id, patch)}
+							onRemove={() => onSeasonsChange((current) => current.filter((s) => s.id !== season.id))}
+							durations={durations}
+							onDurationsChange={onDurationsChange}
+						/>
+					</motion.div>
+				))}
+			</AnimatePresence>
+		</AccordionPrimitive.Root>
+	);
+}
+
+/**
+ * One season. Collapsed: card with calendar icon, name, date range and — when its price is
+ * modified (a % or a custom rate) — a brand badge and the gradient-1 icon; icon-subtle otherwise.
+ * Open (card shadow): name + date range, then the % slider and duration rates.
+ */
+function SeasonItem({
+	season,
+	onSeasonChange,
+	onRemove,
+	durations,
+	onDurationsChange,
+}: {
+	season: Season;
+	onSeasonChange: (patch: Partial<Season>) => void;
+	onRemove: () => void;
+	durations: RateRow[];
+	onDurationsChange: React.Dispatch<React.SetStateAction<RateRow[]>>;
+}) {
+	const modified = isSeasonModified(season);
+	const name = season.name || "New season";
+	const range =
+		season.start && season.end
+			? `${formatMonthDay(season.start)} – ${formatMonthDay(season.end)}`
+			: "Set the season dates";
+
+	return (
+		<AccordionPrimitive.Item
+			value={season.id}
+			// Shadow fades with the expand/collapse (Tailwind's default ease = the standard curve).
+			className="group/season overflow-hidden rounded-input bg-card transition-shadow duration-300 has-[[data-slot=season-trigger]:focus-visible]:ring-[3px] has-[[data-slot=season-trigger]:focus-visible]:ring-input-ring-outside data-[state=open]:shadow-card motion-reduce:transition-none"
+		>
+			<AccordionPrimitive.Header className="flex">
+				{/* Figma `Time Slot`: 16px padding (24px right), 12px gaps. */}
+				<AccordionPrimitive.Trigger
+					data-slot="season-trigger"
+					className="flex flex-1 items-center gap-3 py-4 pr-6 pl-4 text-left outline-none"
+				>
+					<CalendarIcon
+						aria-hidden="true"
+						className={cn(
+							"size-6 shrink-0",
+							modified ? "text-primary [stroke:url('#pricing-season-gradient-1')]" : "text-icon-subtle",
+						)}
+					/>
+					<span className="flex min-w-0 flex-1 flex-col">
+						<span className="truncate text-sm leading-[22px] font-medium text-foreground">{name}</span>
+						<span className="text-xs leading-[18px] text-muted-foreground">{range}</span>
+					</span>
+					{/* Figma pill: color/tone/brand/subtle fill, brand xs label. */}
+					{modified ? (
+						<span className="shrink-0 rounded-full bg-primary-subtle px-2 py-0.5 text-xs leading-[18px] whitespace-nowrap text-primary">
+							{season.percent !== 0 ? formatPercent(season.percent) : "Custom"}
+						</span>
+					) : null}
+					<ChevronDownIcon
+						aria-hidden="true"
+						className="size-5 shrink-0 text-icon-subtle transition-transform duration-300 group-data-[state=open]/season:rotate-180 motion-reduce:transition-none"
+					/>
+				</AccordionPrimitive.Trigger>
+			</AccordionPrimitive.Header>
+			{/* Collapse mirrors the expand (standard: 300ms, cubic-bezier(0.4, 0, 0.2, 1) — same values as
+			    --animate-accordion-down) instead of the 160ms exit, which reads abrupt on a panel this tall. */}
+			<AccordionPrimitive.Content className="overflow-hidden data-[state=closed]:animate-[accordion-up_0.3s_cubic-bezier(0.4,0,0.2,1)] data-[state=open]:animate-accordion-down motion-reduce:animate-none">
+				{/* Figma: body inset 16px inside the 16px card padding, 32px bottom; 24px between groups. */}
+				<div className="flex flex-col gap-6 px-8 pb-8">
+					<div className="grid grid-cols-2 gap-4">
+						<Input
+							size="xl"
+							aria-label="Season name"
+							placeholder="Season name"
+							value={season.name}
+							onChange={(event) => onSeasonChange({ name: event.target.value })}
+							className="text-sm"
+						/>
+						<div className="flex items-center gap-2">
+							<MonthDayPicker
+								aria-label={`${name} start date`}
+								placeholder="Start"
+								value={season.start}
+								onValueChange={(start) => onSeasonChange({ start })}
+							/>
+							<span aria-hidden="true" className="shrink-0 text-sm text-foreground">
+								–
+							</span>
+							<MonthDayPicker
+								aria-label={`${name} end date`}
+								placeholder="End"
+								value={season.end}
+								onValueChange={(end) => onSeasonChange({ end })}
+							/>
+						</div>
+					</div>
+					<DurationAdjustment
+						surface="neutral"
+						durations={durations}
+						onDurationsChange={onDurationsChange}
+						percent={season.percent}
+						onPercentChange={(percent) => onSeasonChange({ percent })}
+						overrides={season.overrides}
+						onOverridesChange={(overrides) => onSeasonChange({ overrides })}
+					/>
+					{/* Only seasons the provider added can be removed; the three defaults always stay. */}
+					{season.custom ? (
+						<button
+							type="button"
+							onClick={onRemove}
+							className="self-start rounded-sm text-sm text-link outline-none hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50"
+						>
+							Remove season
+						</button>
+					) : null}
+				</div>
+			</AccordionPrimitive.Content>
+		</AccordionPrimitive.Item>
+	);
+}
+
+/**
+ * Month + day field (Figma `Input` Type=Dropdown, 40px, chevron): opens a calendar with no year,
+ * since seasons repeat every year. Shows e.g. "Dec 15".
+ */
+function MonthDayPicker({
+	value,
+	onValueChange,
+	placeholder,
+	"aria-label": ariaLabel,
+}: {
+	value: MonthDay | null;
+	onValueChange: (value: MonthDay) => void;
+	placeholder: string;
+	"aria-label": string;
+}) {
+	const [open, setOpen] = React.useState(false);
+	const selected = value ? toDate(value) : undefined;
+
+	return (
+		<Popover open={open} onOpenChange={setOpen}>
+			<PopoverTrigger asChild>
+				<button
+					type="button"
+					aria-label={ariaLabel}
+					className="flex h-10 min-w-0 flex-1 items-center gap-2 rounded-xl border border-input bg-card px-3 text-left text-sm text-foreground shadow-xs transition-[color,box-shadow] outline-none hover:border-input-ring focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-input-ring-outside data-[state=open]:border-ring data-[state=open]:ring-[3px] data-[state=open]:ring-input-ring-outside"
+				>
+					<span className={cn("flex-1 truncate", !value && "text-muted-foreground")}>
+						{value ? formatMonthDay(value) : placeholder}
+					</span>
+					<ChevronDownIcon aria-hidden="true" className="size-4 shrink-0 text-muted-foreground opacity-50" />
+				</button>
+			</PopoverTrigger>
+			<PopoverContent align="start" className="w-auto p-0">
+				<Calendar
+					mode="single"
+					selected={selected}
+					defaultMonth={selected}
+					// Month only in the caption — the year doesn't matter for a season.
+					formatters={{ formatCaption: (date) => format(date, "MMMM") }}
+					onSelect={(date) => {
+						if (!date) return;
+						onValueChange({ month: date.getMonth(), day: date.getDate() });
+						setOpen(false);
+					}}
+					autoFocus
+				/>
+			</PopoverContent>
+		</Popover>
 	);
 }
 
@@ -401,15 +706,18 @@ function PercentSlider({
 	label,
 	value,
 	onValueChange,
+	className,
 }: {
 	label: string;
 	value: number;
 	onValueChange: (value: number) => void;
+	/** Slider fill override (e.g. on a white card). */
+	className?: string;
 }) {
 	return (
 		<div className="flex flex-col gap-2">
 			<Typography size="sm">{label}</Typography>
-			<Slider aria-label={label} step={5} value={value} onValueChange={onValueChange} />
+			<Slider aria-label={label} step={5} value={value} onValueChange={onValueChange} className={className} />
 		</div>
 	);
 }
@@ -502,12 +810,15 @@ function RateTable({
 	onRowsChange,
 	showBase = false,
 	adjust,
+	surface,
 }: {
 	firstColumn: string;
 	rows: RateRow[];
 	onRowsChange: (rows: RateRow[]) => void;
 	showBase?: boolean;
 	adjust?: { label: string; percent: number };
+	/** Chip surface — `neutral` when the table sits on a white card. */
+	surface?: "default" | "neutral";
 }) {
 	const update = (id: string, patch: Partial<RateRow>) =>
 		onRowsChange(rows.map((row) => (row.id === id ? { ...row, ...patch } : row)));
@@ -596,6 +907,7 @@ function RateTable({
 									role="checkbox"
 									label={row.label}
 									isSelected={row.included}
+									surface={surface}
 									onClick={() => update(row.id, { included: !row.included })}
 									className="h-full w-full"
 								/>
@@ -619,8 +931,9 @@ function RateTable({
 										value={overridden ? (row.adjustedOverride ?? null) : computed}
 										muted={!row.included}
 										onValueChange={(value) => update(row.id, { adjustedOverride: value ?? undefined })}
+										// Excluded rows show neither "Reset" nor the % hint.
 										suffix={
-											overridden && row.included ? (
+											!row.included ? null : overridden ? (
 												<button
 													type="button"
 													onClick={() => update(row.id, { adjustedOverride: undefined })}

@@ -30,6 +30,18 @@ export const Disabled: Story = {
 	args: { disabled: true },
 };
 
+/** Figma State=Default-alt — on a white (color/background/neutral/background) surface. Hover/select to see the shared states. */
+export const OnNeutralSurface: Story = {
+	args: { surface: "neutral" },
+	decorators: [
+		(Story) => (
+			<div className="w-fit rounded-card bg-card p-6">
+				<Story />
+			</div>
+		),
+	],
+};
+
 function ToggleDemo() {
 	const [selected, setSelected] = React.useState(false);
 	return (
@@ -53,6 +65,11 @@ export const AllVariants: Story = {
 			<ChoiceChip label="Label" isSelected />
 			<ChoiceChip label="Label" disabled />
 			<ChoiceChip label="Label" isSelected disabled />
+			{/* surface="neutral" (Figma Default-alt) on a white card. */}
+			<div className="-mx-4 flex flex-col gap-4 rounded-card bg-card p-4">
+				<ChoiceChip label="Label" surface="neutral" />
+				<ChoiceChip label="Label" surface="neutral" isSelected />
+			</div>
 		</div>
 	),
 };

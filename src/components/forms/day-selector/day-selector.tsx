@@ -10,7 +10,7 @@ const daySelectorVariants = cva(
 	// shadow + foreground label. Property 1=Disabled → label in color/foreground/subtle, full
 	// opacity, no hover.
 	cn(
-		"flex h-20 min-h-20 w-full min-w-0 items-center justify-center overflow-hidden rounded-input bg-card px-3 py-2 text-muted-foreground transition-[color,box-shadow] outline-none hover:text-foreground hover:shadow-card focus-visible:ring-[3px] focus-visible:ring-input-ring-outside disabled:pointer-events-none disabled:text-foreground-subtle",
+		"relative flex h-20 min-h-20 w-full min-w-0 items-center justify-center overflow-hidden rounded-input bg-card px-3 py-2 text-muted-foreground transition-[color,box-shadow] outline-none hover:text-foreground hover:shadow-card focus-visible:ring-[3px] focus-visible:ring-input-ring-outside disabled:pointer-events-none disabled:text-foreground-subtle",
 		typographyVariants({ size: "xl" }),
 	),
 	{
@@ -41,17 +41,20 @@ type DaySelectorProps = Omit<React.ComponentProps<"button">, "children"> &
 		isSelected?: boolean;
 		/** Figma Property 1=Available — the day has availability (e.g. open time slots). Visual emphasis only. */
 		isAvailable?: boolean;
+		/** Figma `Show Alert` — red dot in the top-right corner flagging the day needs attention (e.g. no time window set). Shown in every state. */
+		showAlert?: boolean;
 	};
 
 /**
  * Selectable day tile — the building block of `DaySelectorGroup`.
- * Translated from bethere.ds `Day Selector` (Property 1=Default/Available/Hover/Selected/Disabled).
+ * Translated from bethere.ds `Day Selector` (Property 1=Default/Available/Hover/Selected/Disabled, Show Alert).
  */
 function DaySelector({
 	className,
 	label,
 	isSelected = false,
 	isAvailable = false,
+	showAlert = false,
 	role,
 	...props
 }: DaySelectorProps) {
@@ -73,6 +76,14 @@ function DaySelector({
 			{...props}
 		>
 			<span className="min-w-0 flex-1 truncate text-center">{label}</span>
+			{showAlert ? (
+				<>
+					{/* Figma `Alert`: 8px dot, #e43232 (= --destructive), 8px from the top-right edge. Figma's
+					    Selected variant insets it 7px inside a 1px border; the inset ring takes no space, so 8px here. */}
+					<span aria-hidden className="absolute top-2 right-2 size-2 rounded-full bg-destructive" />
+					<span className="sr-only">, needs attention</span>
+				</>
+			) : null}
 		</button>
 	);
 }
@@ -103,6 +114,8 @@ type DaySelectorGroupProps = Omit<React.ComponentProps<"div">, "defaultValue" | 
 	onValueChange?: (value: string[]) => void;
 	/** Day values that have availability — rendered in the Available state when not selected. */
 	availableDays?: string[];
+	/** Day values flagged with the alert dot (e.g. selected days with no time window set yet). */
+	alertDays?: string[];
 	/** Submits each selected value through a hidden input. */
 	name?: string;
 	disabled?: boolean;
@@ -119,6 +132,7 @@ function DaySelectorGroup({
 	defaultValue = [],
 	onValueChange,
 	availableDays = [],
+	alertDays = [],
 	name,
 	disabled = false,
 	...props
@@ -149,6 +163,7 @@ function DaySelectorGroup({
 					label={option.label}
 					isSelected={selected.includes(option.value)}
 					isAvailable={availableDays.includes(option.value)}
+					showAlert={alertDays.includes(option.value)}
 					disabled={disabled || option.disabled}
 					onClick={() => toggle(option.value)}
 				/>
