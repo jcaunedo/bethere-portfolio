@@ -1,4 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import * as React from "react";
+
+import { Button } from "@/components/buttons/button";
 import { StepperExperience } from "./stepper-experience";
 
 const meta: Meta<typeof StepperExperience> = {
@@ -34,6 +37,33 @@ export const NoBack: Story = {
     onClose: () => {},
   },
 };
+
+/** Advancing fills the next segment left → right; Back (or a completed segment) empties it right → left. */
+export const Advancing: Story = {
+  render: () => <AdvancingStepper />,
+};
+
+function AdvancingStepper() {
+  const steps = 12;
+  const [step, setStep] = React.useState(1);
+  return (
+    <div className="flex w-[600px] flex-col gap-4">
+      <StepperExperience
+        steps={steps}
+        currentStep={step}
+        label={`Step ${step} of ${steps}`}
+        onBack={step > 1 ? () => setStep(step - 1) : undefined}
+        onClose={() => {}}
+        onStepClick={setStep}
+      />
+      <div className="flex justify-end">
+        <Button type="button" disabled={step === steps} onClick={() => setStep(step + 1)}>
+          Next
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 export const AllVariants: Story = {
   render: () => (

@@ -1,11 +1,11 @@
 import * as React from "react";
-import { PlusIcon } from "lucide-react";
 
 import { Button } from "@/components/buttons/button";
 import { ExperienceLocation, type ExperienceLocationValue } from "@/components/cards/experience-location";
 import { SortableList, type SortableListItemValue } from "@/components/forms/sortable-list";
 import { Typography } from "@/components/typography";
 import { ChoiceChipGrid } from "../../shared/choice-chip-grid";
+import { AddLink } from "../../shared/add-link";
 import { NewListingLayout, type NewListingStepProps } from "../../new-listing";
 
 const durations = ["1 hr", "2 hr", "4 hr", "6 hr", "8 hr", "10 hr", "Full Day", "Multi-Day"];
@@ -224,31 +224,6 @@ function SectionHeader({
 				{description}
 			</Typography>
 		</div>
-	);
-}
-
-/**
- * Figma `button` (link, 32px, no side padding): 16px plus in a 4px-padded slot, 4px gap,
- * sm/medium label in the link color. Hover/focus: label + icon turn foreground (same as the
- * sibling SearchStep "Add yacht manually" CTA).
- */
-function AddLink({ onClick, children }: { onClick: () => void; children: React.ReactNode }) {
-	return (
-		<Button
-			type="button"
-			variant="link"
-			size="md"
-			className="group gap-1 self-start px-0 hover:no-underline"
-			onClick={onClick}
-		>
-			<PlusIcon
-				aria-hidden="true"
-				className="mx-1 text-primary transition-colors group-hover:text-foreground group-focus-visible:text-foreground"
-			/>
-			<span className="text-primary transition-colors group-hover:text-foreground group-focus-visible:text-foreground">
-				{children}
-			</span>
-		</Button>
 	);
 }
 

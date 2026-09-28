@@ -7,6 +7,12 @@ import { Input } from "@/components/forms/input";
 type NumericInputProps = Omit<React.ComponentProps<typeof Input>, "type"> & {
   /** Leading prefix label (e.g. a currency or unit). Figma "showPrefix". */
   prefix?: React.ReactNode;
+  /**
+   * Trailing content inside the field, right-aligned (e.g. a unit, an adjustment like "+15%",
+   * or a small action like "Reset"). Plain text renders in color/foreground/subtle; interactive
+   * children (buttons) stay clickable.
+   */
+  suffix?: React.ReactNode;
   /** Show the increment/decrement steppers. Figma "Numeric - R". */
   steppers?: boolean;
 };
@@ -15,6 +21,7 @@ type NumericInputProps = Omit<React.ComponentProps<typeof Input>, "type"> & {
 function NumericInput({
   className,
   prefix,
+  suffix,
   steppers = false,
   min = 0,
   onKeyDown,
@@ -50,10 +57,38 @@ function NumericInput({
     checkAtMin(el);
   }, [checkAtMin, props.value]);
 
+  // Figma lays the prefix out in flow (12px inset → prefix → 6px gap → value). The prefix is
+  // overlaid here, so its measured width drives the input's left padding — the value keeps
+  // the same 6px gap whatever the prefix is ("$", "€", "USD").
+  const prefixRef = React.useRef<HTMLSpanElement>(null);
+  const [prefixWidth, setPrefixWidth] = React.useState<number>();
+  const hasPrefix = prefix != null;
+  React.useLayoutEffect(() => {
+    const el = prefixRef.current;
+    if (!el) return;
+    const measure = () => setPrefixWidth(el.getBoundingClientRect().width);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasPrefix]);
+
   return (
-    <div data-slot="numeric-input" className="group relative w-full">
-      {prefix != null ? (
-        <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-sm text-muted-foreground">
+    <div
+      data-slot="numeric-input"
+      className="group relative w-full"
+      style={
+        prefixWidth != null
+          ? ({ "--numeric-input-prefix-width": `${prefixWidth}px` } as React.CSSProperties)
+          : undefined
+      }
+    >
+      {hasPrefix ? (
+        <span
+          ref={prefixRef}
+          data-slot="numeric-input-prefix"
+          className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-sm text-foreground-subtle"
+        >
           {prefix}
         </span>
       ) : null}
@@ -92,12 +127,26 @@ function NumericInput({
         }}
         className={cn(
           "[&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [-moz-appearance:textfield]",
-          prefix != null && "pl-9",
+          // 12px inset + prefix width + 6px gap (falls back to one glyph's width before measuring).
+          hasPrefix && "pl-[calc(--spacing(3)+var(--numeric-input-prefix-width,1ch)+--spacing(1.5))]",
           steppers && "pr-14",
+          // Room for a short suffix ("+100%", "Reset") so the value never runs under it.
+          suffix != null && (steppers ? "pr-28" : "pr-16"),
           className,
         )}
         {...props}
       />
+      {suffix != null ? (
+        <span
+          data-slot="numeric-input-suffix"
+          className={cn(
+            "pointer-events-none absolute top-1/2 flex -translate-y-1/2 items-center text-sm text-foreground-subtle [&_a]:pointer-events-auto [&_button]:pointer-events-auto",
+            steppers ? "right-16" : "right-3",
+          )}
+        >
+          {suffix}
+        </span>
+      ) : null}
       {steppers ? (
         <div className="absolute top-1/2 right-2 flex -translate-y-1/2 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
           <button

@@ -10,19 +10,9 @@ import {
 import { Typography } from "@/components/typography";
 import { fadeVariants, layoutSpring, useMotionPreference } from "@/lib/motion";
 import { NewListingLayout, type NewListingStepProps } from "../../new-listing";
+import { dayTileOptions, sampleListingDays, week } from "../../shared/week";
 
-/** Week in display order: short labels for the day tiles, full names for the time-window rows. */
-const week = [
-	{ value: "mon", short: "Mon", label: "Monday" },
-	{ value: "tue", short: "Tue", label: "Tuesday" },
-	{ value: "wed", short: "Wed", label: "Wednesday" },
-	{ value: "thu", short: "Thu", label: "Thursday" },
-	{ value: "fri", short: "Fri", label: "Friday" },
-	{ value: "sat", short: "Sat", label: "Saturday" },
-	{ value: "sun", short: "Sun", label: "Sunday" },
-];
-
-const dayOptions = week.map((day) => ({ value: day.value, label: day.short }));
+const dayOptions = dayTileOptions(week.map((day) => day.value));
 
 /** Figma sample: Tue one window, Thu none yet (Required), Sat two windows, Sun all day. */
 const sampleWindows: TimeSlotAccordionValue = {
@@ -37,6 +27,15 @@ const sampleWindows: TimeSlotAccordionValue = {
 type AvailabilityStepProps = NewListingStepProps & {
 	/** Called when "Continue" is submitted. */
 	onContinue?: () => void;
+	/**
+	 * Days the listing runs (values like "tue"). Controlled when set — a flow keeps them to hand
+	 * to later steps (Pricing's by-day rates) and to restore them when coming back here.
+	 */
+	days?: string[];
+	/** Initial days when uncontrolled. Defaults to the Figma sample (Tue, Thu, Sat, Sun). */
+	defaultDays?: string[];
+	/** Called with the new selection whenever a day is picked or cleared. */
+	onDaysChange?: (days: string[]) => void;
 };
 
 /**
@@ -49,10 +48,18 @@ function AvailabilityStep({
 	currentStep = 8,
 	stepLabel = "Little Atocha · Step 8 of 14",
 	onContinue,
+	days: daysProp,
+	defaultDays = sampleListingDays,
+	onDaysChange,
 	...frame
 }: AvailabilityStepProps) {
 	const id = React.useId();
-	const [days, setDays] = React.useState(["tue", "thu", "sat", "sun"]);
+	const [ownDays, setOwnDays] = React.useState(defaultDays);
+	const days = daysProp ?? ownDays;
+	const setDays = (next: string[]) => {
+		if (daysProp === undefined) setOwnDays(next);
+		onDaysChange?.(next);
+	};
 	const [windows, setWindows] = React.useState(sampleWindows);
 
 	// Only the selected days get a time-window row (in week order).
@@ -80,11 +87,13 @@ function AvailabilityStep({
 			stepLabel={stepLabel}
 			title="Availability"
 			description="Set the days and times your experience is available for booking."
+			// Figma: 48px (spacing/12) from the title to the first section, like between sections.
+			bodyClassName="gap-12"
 		>
-			{/* Figma: sections split by border-soft dividers, 24px either side (= the 48px section standard). */}
+			{/* Standard 48px (spacing/12) gap between sections and before Continue; no dividers (Figma). */}
 			<motion.form
 				{...glide}
-				className="flex w-full flex-col gap-6"
+				className="flex w-full flex-col gap-12"
 				onSubmit={(event) => {
 					event.preventDefault();
 					onContinue?.();
@@ -117,8 +126,6 @@ function AvailabilityStep({
 					/>
 				</section>
 
-				<hr className="border-border-soft" />
-
 				<section aria-labelledby={`${id}-windows`} className="flex flex-col gap-4">
 					<div className="flex flex-col">
 						<Typography as="h2" id={`${id}-windows`} size="lg" weight="semibold">
@@ -148,8 +155,6 @@ function AvailabilityStep({
 						)}
 					</AnimatePresence>
 				</section>
-
-				<motion.hr {...glide} className="border-border-soft" />
 
 				<motion.div {...glide}>
 					<Button type="submit" size="xl" className="w-full">

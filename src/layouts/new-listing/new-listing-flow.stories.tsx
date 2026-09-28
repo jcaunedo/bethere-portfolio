@@ -2,8 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { AnimatePresence, motion } from "motion/react";
 import * as React from "react";
 
-import { StepperExperience } from "@/components/stepper/stepper-experience";
 import { fadeVariants, revealVariants, useMotionPreference } from "@/lib/motion";
+import { NewListingHeader } from "./new-listing";
 // Steps, in flow order.
 import { TypeStep } from "./steps/type/type";
 import { CategoryStep } from "./steps/category/category";
@@ -13,6 +13,8 @@ import { sampleMatches } from "./steps/matches/sample-matches";
 import { AttributesStep } from "./steps/attributes/attributes";
 import { ExpectationsStep } from "./steps/expectations/expectations";
 import { AvailabilityStep } from "./steps/availability/availability";
+import { PricingStep } from "./steps/pricing/pricing";
+import { sampleListingDays } from "./shared/week";
 
 /**
  * The whole New Listing flow, stitched from the step layouts in `./steps/`. Each step is
@@ -47,6 +49,7 @@ const screens = {
 	"attributes": { step: 5, previous: "matches" },
 	"expectations": { step: 6, previous: "attributes" },
 	"availability": { step: 7, previous: "expectations" },
+	"pricing": { step: 8, previous: "availability" },
 } as const;
 type Screen = keyof typeof screens;
 
@@ -59,6 +62,9 @@ function NewListingFlow() {
 	// Attributes is reachable from the lookup ("Add yacht manually") or the results (a match
 	// or "Add manually"); Back returns to whichever screen it was opened from.
 	const [attributesFrom, setAttributesFrom] = React.useState<Screen>("matches");
+	// Days picked on Availability — Pricing offers them for by-day rates, and they're restored on
+	// the way back ("Change days" or Back).
+	const [listingDays, setListingDays] = React.useState(sampleListingDays);
 	const { prefersReducedMotion } = useMotionPreference();
 	const { step } = screens[screen];
 
@@ -77,7 +83,8 @@ function NewListingFlow() {
 	const stepLabel =
 		(screen === "attributes" ||
 			screen === "expectations" ||
-			screen === "availability") &&
+			screen === "availability" ||
+			screen === "pricing") &&
 		match
 			? `${match.name} · Step ${step} of ${STEPS}`
 			: `Step ${step} of ${STEPS}`;
@@ -89,8 +96,9 @@ function NewListingFlow() {
 	return (
 		<div className="flex min-h-screen flex-col items-center bg-background p-2">
 			{/* One persistent stepper for the whole flow — it advances in place
-			    (segment fills, label updates) instead of remounting with each screen. */}
-			<StepperExperience
+			    (segment fills, label updates) instead of remounting with each screen; sticky like
+			    each step's own header. */}
+			<NewListingHeader
 				steps={STEPS}
 				currentStep={step}
 				label={stepLabel}
@@ -158,7 +166,22 @@ function NewListingFlow() {
 									onContinue={() => setScreen("availability")}
 								/>
 							) : (
-								<AvailabilityStep showStepper={false} className={screenClassName} />
+								screen === "availability" ? (
+									<AvailabilityStep
+										showStepper={false}
+										className={screenClassName}
+										days={listingDays}
+										onDaysChange={setListingDays}
+										onContinue={() => setScreen("pricing")}
+									/>
+								) : (
+									<PricingStep
+										showStepper={false}
+										className={screenClassName}
+										days={listingDays}
+										onChangeDays={() => setScreen("availability")}
+									/>
+								)
 							)
 						)
 					)}
@@ -168,7 +191,7 @@ function NewListingFlow() {
 	);
 }
 
-/** Steps 1 → 7: Experience → yacht type → yacht lookup → matches → attributes → expectations → availability; the stepper's back button steps back. */
+/** Steps 1 → 8: Experience → yacht type → yacht lookup → matches → attributes → expectations → availability → pricing; the stepper's back button steps back. */
 export const Default: Story = {
 	render: () => <NewListingFlow />,
 };

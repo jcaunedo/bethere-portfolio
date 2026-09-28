@@ -24,6 +24,25 @@ const revealVariants: Variants = {
   exit: { opacity: 0, y: motionDistance.subtle, transition: exitTransition },
 };
 
+/**
+ * An existing region opening/closing in place, from its top edge like an accordion: height
+ * 0 → auto with a fade (same timings as the Radix accordion keyframes in theme.css). CLAUDE.md
+ * "Expand". The caller clips the element only while it animates (`overflow: hidden` from
+ * `onAnimationStart` to `onAnimationComplete`), so focus rings and shadows aren't cut once open.
+ */
+const expandVariants: Variants = {
+  initial: { height: 0, opacity: 0 },
+  animate: { height: "auto", opacity: 1, transition: standardTransition },
+  // Documented exception to "exit shorter than enter": an ease-in height collapse ends at full
+  // speed and reads as a hard stop, so the height closes on the same decelerating curve as the
+  // open, while the content fades out on the (quicker) exit timing and is gone before it settles.
+  exit: {
+    height: 0,
+    opacity: 0,
+    transition: { ...standardTransition, opacity: exitTransition },
+  },
+};
+
 /** Content being removed/closed: shorter than its entrance. CLAUDE.md "Dismiss". */
 const dismissVariants: Variants = {
   initial: { opacity: 1, y: 0 },
@@ -103,6 +122,7 @@ const staggerContainerVariants: Variants = {
 export {
   fadeVariants,
   revealVariants,
+  expandVariants,
   dismissVariants,
   overlayVariants,
   panelVariants,

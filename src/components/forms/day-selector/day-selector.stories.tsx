@@ -28,11 +28,17 @@ type Story = StoryObj<typeof DaySelector>;
 /** Figma Property 1=Default. Hover it for Property 1=Hover. */
 export const Default: Story = {};
 
+/** Figma Property 1=Available — the day has availability (dark label, no shadow/border). */
+export const Available: Story = {
+	args: { isAvailable: true },
+};
+
 /** Figma Property 1=Selected. */
 export const Selected: Story = {
 	args: { isSelected: true },
 };
 
+/** Figma Property 1=Disabled — subtle label, full opacity, not interactive. */
 export const Disabled: Story = {
 	args: { disabled: true },
 };
@@ -49,6 +55,32 @@ export const Group: Story = {
 	render: () => <DaySelectorGroup defaultValue={["mon", "wed", "fri"]} />,
 };
 
+/** Every state in one row: Tue/Thu available, Wed selected, Mon disabled, the rest default. */
+export const GroupWithAvailability: Story = {
+	decorators: [
+		(Story) => (
+			<div className="w-[640px]">
+				<Story />
+			</div>
+		),
+	],
+	render: () => (
+		<DaySelectorGroup
+			options={[
+				{ value: "mon", label: "Mon", disabled: true },
+				{ value: "tue", label: "Tue" },
+				{ value: "wed", label: "Wed" },
+				{ value: "thu", label: "Thu" },
+				{ value: "fri", label: "Fri" },
+				{ value: "sat", label: "Sat" },
+				{ value: "sun", label: "Sun" },
+			]}
+			availableDays={["tue", "thu", "sat"]}
+			defaultValue={["wed"]}
+		/>
+	),
+};
+
 export const AllVariants: Story = {
 	decorators: [
 		(Story) => (
@@ -59,8 +91,9 @@ export const AllVariants: Story = {
 	],
 	render: () => (
 		<div className="flex flex-col gap-6">
-			<div className="grid w-[276px] grid-cols-3 gap-2">
+			<div className="grid w-[364px] grid-cols-4 gap-2">
 				<DaySelector label="Day" />
+				<DaySelector label="Day" isAvailable />
 				<DaySelector label="Day" isSelected />
 				<DaySelector label="Day" disabled />
 			</div>

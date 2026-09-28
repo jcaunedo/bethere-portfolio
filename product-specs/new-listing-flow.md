@@ -75,6 +75,7 @@ bethere-ucl/src/layouts/new-listing/
     attributes/                facts about that yacht/vehicle/venue (specs, amenities, crew)
     expectations/              what guests get (durations, meeting point, destinations, tags, inclusions)
     availability/              days + time windows
+    pricing/                   rates per duration, by-day/holiday/seasonal pricing, add-on services
 ```
 
 Each step folder holds `<step>.tsx` (exports `<Name>Step` and `<Name>StepProps`) and `<step>.stories.tsx` (Storybook title `Layouts/NewListing/<Name>`).
@@ -87,7 +88,7 @@ Each step folder holds `<step>.tsx` (exports `<Name>Step` and `<Name>StepProps`)
 
 ### Naming convention
 
-Each step is **one word naming what it collects**: `type`, `category`, `search`, `matches`, `attributes`, `expectations`, `availability`. The component is that word plus `Step` (`SearchStep`, `ExpectationsStep`…), with a matching `<Name>StepProps` type and a `Layouts/NewListing/<Name>` story.
+Each step is **one word naming what it collects**: `type`, `category`, `search`, `matches`, `attributes`, `expectations`, `availability`, `pricing`. The component is that word plus `Step` (`SearchStep`, `ExpectationsStep`…), with a matching `<Name>StepProps` type and a `Layouts/NewListing/<Name>` story.
 
 **Design rationale:**
 
@@ -106,6 +107,7 @@ How each name was chosen:
 | `attributes` | Facts about the yacht/vehicle/venue itself (specs, crew, amenities). Matches the spec's "Yacht Attributes" and the per-category "Vehicle/Facility Attributes" wording in [onboarding-master-flow.md](onboarding-master-flow.md). |
 | `expectations` | Mirrors the screen's own question, "Tell guests what to expect," and the Figma frame name ("Experience Expectations"): durations, meeting point, destinations, tags, inclusions. |
 | `availability` | The days and time windows guests can book. |
+| `pricing` | The rates: base price per duration, per-day and holiday adjustments, seasonal pricing, add-on services. |
 
 ℹ️ The Asset vs. Experience separation from [onboarding-master-flow.md](onboarding-master-flow.md) still holds: `search`, `matches`, and `attributes` describe the thing that hosts the listing, `expectations` describes the bookable offering, and `type`, `category`, and `availability` are shared by every path. The names just no longer spell that grouping out.
 

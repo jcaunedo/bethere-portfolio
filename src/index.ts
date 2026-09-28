@@ -195,6 +195,10 @@ export {
   type DaySelectorOption,
 } from "./components/forms/day-selector";
 
+export { Slider, type SliderProps } from "./components/forms/slider";
+
+export { Checkbox, type CheckboxProps } from "./components/forms/checkbox";
+
 export {
   TimeSlotAccordion,
   timeSlotItemVariants,

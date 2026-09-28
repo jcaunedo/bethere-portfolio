@@ -5,15 +5,21 @@ import { cn } from "@/lib/utils";
 import { typographyVariants } from "@/components/typography";
 
 const daySelectorVariants = cva(
-	// Base tile. Figma: `Day Selector` Property 1=Default — card fill, radius/input, 80px tall,
+	// Base tile. Figma: `Day Selector` Property 1=Default — card fill, radius/input, 80px tall (80px min),
 	// fills its container's width, centered xl label in muted. Property 1=Hover → hover: card
-	// shadow + foreground label.
+	// shadow + foreground label. Property 1=Disabled → label in color/foreground/subtle, full
+	// opacity, no hover.
 	cn(
-		"flex h-20 w-full min-w-0 items-center justify-center overflow-hidden rounded-input bg-card px-3 py-2 text-muted-foreground transition-[color,box-shadow] outline-none hover:text-foreground hover:shadow-card focus-visible:ring-[3px] focus-visible:ring-input-ring-outside disabled:pointer-events-none disabled:opacity-50",
+		"flex h-20 min-h-20 w-full min-w-0 items-center justify-center overflow-hidden rounded-input bg-card px-3 py-2 text-muted-foreground transition-[color,box-shadow] outline-none hover:text-foreground hover:shadow-card focus-visible:ring-[3px] focus-visible:ring-input-ring-outside disabled:pointer-events-none disabled:text-foreground-subtle",
 		typographyVariants({ size: "xl" }),
 	),
 	{
 		variants: {
+			// Figma Property 1=Available — the day has availability: foreground label, no shadow/border.
+			available: {
+				true: "text-foreground",
+				false: "",
+			},
 			// Figma Property 1=Selected. Inset ring = Figma inside stroke (no layout shift).
 			selected: {
 				true: "inset-ring inset-ring-primary text-foreground",
@@ -21,24 +27,34 @@ const daySelectorVariants = cva(
 			},
 		},
 		defaultVariants: {
+			available: false,
 			selected: false,
 		},
 	},
 );
 
 type DaySelectorProps = Omit<React.ComponentProps<"button">, "children"> &
-	Omit<VariantProps<typeof daySelectorVariants>, "selected"> & {
+	Omit<VariantProps<typeof daySelectorVariants>, "selected" | "available"> & {
 		/** Centered day label, e.g. "Mon" (Figma: `Day`). */
 		label: React.ReactNode;
 		/** Figma Property 1=Selected. Exposed as `aria-checked` under `role="checkbox"`/`"radio"`, `aria-pressed` otherwise. */
 		isSelected?: boolean;
+		/** Figma Property 1=Available — the day has availability (e.g. open time slots). Visual emphasis only. */
+		isAvailable?: boolean;
 	};
 
 /**
  * Selectable day tile — the building block of `DaySelectorGroup`.
- * Translated from bethere.ds `Day Selector` (Property 1=Default/Hover/Selected).
+ * Translated from bethere.ds `Day Selector` (Property 1=Default/Available/Hover/Selected/Disabled).
  */
-function DaySelector({ className, label, isSelected = false, role, ...props }: DaySelectorProps) {
+function DaySelector({
+	className,
+	label,
+	isSelected = false,
+	isAvailable = false,
+	role,
+	...props
+}: DaySelectorProps) {
 	const ariaState =
 		role === "radio" || role === "checkbox"
 			? { "aria-checked": isSelected }
@@ -49,9 +65,11 @@ function DaySelector({ className, label, isSelected = false, role, ...props }: D
 			type="button"
 			role={role}
 			data-slot="day-selector"
-			data-state={isSelected ? "selected" : "default"}
+			data-state={isSelected ? "selected" : isAvailable ? "available" : "default"}
 			{...ariaState}
-			className={cn(daySelectorVariants({ selected: isSelected, className }))}
+			className={cn(
+				daySelectorVariants({ selected: isSelected, available: isAvailable, className }),
+			)}
 			{...props}
 		>
 			<span className="min-w-0 flex-1 truncate text-center">{label}</span>
@@ -83,6 +101,8 @@ type DaySelectorGroupProps = Omit<React.ComponentProps<"div">, "defaultValue" | 
 	defaultValue?: string[];
 	/** Fires with the selected values, in `options` order, on every toggle. */
 	onValueChange?: (value: string[]) => void;
+	/** Day values that have availability — rendered in the Available state when not selected. */
+	availableDays?: string[];
 	/** Submits each selected value through a hidden input. */
 	name?: string;
 	disabled?: boolean;
@@ -98,6 +118,7 @@ function DaySelectorGroup({
 	value,
 	defaultValue = [],
 	onValueChange,
+	availableDays = [],
 	name,
 	disabled = false,
 	...props
@@ -127,6 +148,7 @@ function DaySelectorGroup({
 					role="checkbox"
 					label={option.label}
 					isSelected={selected.includes(option.value)}
+					isAvailable={availableDays.includes(option.value)}
 					disabled={disabled || option.disabled}
 					onClick={() => toggle(option.value)}
 				/>

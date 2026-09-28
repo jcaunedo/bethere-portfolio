@@ -19,6 +19,8 @@ export const Default: Story = {};
 export const ExtraLarge: Story = { args: { size: "xl" } };
 export const WithSteppers: Story = { args: { steppers: true, defaultValue: 10 } };
 export const WithPrefix: Story = { args: { prefix: "€", defaultValue: 1200 } };
+/** Trailing text inside the field, e.g. an applied adjustment. */
+export const WithSuffix: Story = { args: { prefix: "$", suffix: "+15%", defaultValue: 230, size: "xl" } };
 export const Disabled: Story = { args: { disabled: true, defaultValue: 42 } };
 
 export const AllVariants: Story = {

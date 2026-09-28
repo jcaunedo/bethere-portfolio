@@ -61,6 +61,20 @@ const bodyVariants = cva("flex w-full flex-1 flex-col items-center gap-8", {
 	defaultVariants: { align: "center", width: "default" },
 });
 
+/**
+ * The flow's Stepper Experience header, pinned to the top while the step scrolls under it.
+ * The page frame has 8px padding (`p-2`): the sticky bar reaches over it (`-mx-2 -mt-2`, padded
+ * back) so its background also covers that strip and scrolled content never shows above it.
+ * Used by `NewListingLayout` and by a flow that renders one persistent stepper for every step.
+ */
+function NewListingHeader({ className, ...props }: React.ComponentProps<typeof StepperExperience>) {
+	return (
+		<div data-slot="new-listing-header" className="sticky top-0 z-10 -mx-2 -mt-2 self-stretch bg-background px-2 pt-2">
+			<StepperExperience className={className} {...props} />
+		</div>
+	);
+}
+
 type NewListingLayoutProps = NewListingStepProps & {
 	/** Step question (Figma `3xl -semibold`). */
 	title: React.ReactNode;
@@ -106,7 +120,7 @@ function NewListingLayout({
 		>
 			<div className={frameVariants({ align })}>
 				{showStepper ? (
-					<StepperExperience
+					<NewListingHeader
 						steps={steps}
 						currentStep={currentStep}
 						label={stepLabel ?? `Step ${currentStep} of ${steps}`}
@@ -145,5 +159,5 @@ function NewListingLayout({
 	);
 }
 
-export { NewListingLayout };
+export { NewListingHeader, NewListingLayout };
 export type { NewListingLayoutProps, NewListingStepProps };

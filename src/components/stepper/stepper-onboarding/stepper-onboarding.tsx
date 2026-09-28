@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
-import { StepIndicator } from "../step-indicator";
+import { StepIndicator, useStepFillDelay } from "../step-indicator";
 
 /**
  * Simple progress track for onboarding flows. Figma: bethere.ds `Stepper Onboarding`.
@@ -23,6 +23,8 @@ function StepperOnboarding({
 	/** Called with the 1-indexed step number when a completed (`done`) step is clicked. */
 	onStepClick?: (step: number) => void;
 }) {
+	// Segments changing together (a skipped step, a jump back) fill/empty in sequence.
+	const fillDelay = useStepFillDelay(currentStep);
 	return (
 		<div
 			data-slot='stepper-onboarding'
@@ -41,6 +43,7 @@ function StepperOnboarding({
 					<StepIndicator
 						key={index}
 						state={state}
+						fillDelay={fillDelay(step)}
 						aria-label={`Step ${step}`}
 						onClick={state === "done" ? () => onStepClick?.(step) : undefined}
 					/>

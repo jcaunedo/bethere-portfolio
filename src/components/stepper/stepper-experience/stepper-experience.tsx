@@ -2,7 +2,7 @@ import * as React from "react";
 import { ArrowLeft, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { StepIndicator } from "../step-indicator";
+import { StepIndicator, useStepFillDelay } from "../step-indicator";
 
 /**
  * Progress track with back/close controls for the experience creation flow. Figma: bethere.ds `Stepper Experience`.
@@ -33,6 +33,8 @@ function StepperExperience({
 	/** Called with the 1-indexed step number when a completed (`done`) step is clicked. */
 	onStepClick?: (step: number) => void;
 }) {
+	// Segments changing together (a skipped step, a jump back) fill/empty in sequence.
+	const fillDelay = useStepFillDelay(currentStep);
 	return (
 		<div
 			data-slot='stepper-experience'
@@ -54,6 +56,7 @@ function StepperExperience({
 						<StepIndicator
 							key={index}
 							state={state}
+							fillDelay={fillDelay(step)}
 							aria-label={`Step ${step}`}
 							onClick={state === "done" ? () => onStepClick?.(step) : undefined}
 						/>

@@ -19,6 +19,7 @@ new-listing/
     attributes/                facts about that yacht/vehicle/venue itself (specs, amenities, crew)
     expectations/              what guests get: durations, meeting point, destinations, tags, inclusions
     availability/              days + time windows
+    pricing/                   rates per duration, by-day/holiday/seasonal pricing, add-on services
 ```
 
 ## The shell
@@ -33,6 +34,10 @@ footer. A step passes its content as `children`, plus a few frame options:
 - `width`: `"default"` 640px, `"wide"` 800px, or `"full"`.
 - `bodyClassName`: a step-specific title → content gap when Figma differs from the 32px default.
 
+The header (`NewListingHeader`) is sticky: it stays pinned to the top while long steps scroll under
+it. A flow that renders one persistent stepper above the steps uses `NewListingHeader` too, so it
+sticks the same way.
+
 Every step's props extend `NewListingStepProps` (`showStepper`, `steps`, `currentStep`, `stepLabel`,
 `onBack`, `onClose`, `className`) and forward them to the shell.
 
@@ -42,7 +47,7 @@ Storybook lists the group in wizard order (Flow, Shell, then the steps); that or
 ## Naming
 
 Each step is **one word naming what it collects**: `type`, `category`, `search`, `matches`,
-`attributes`, `expectations`, `availability`. The `new-listing/steps/` path already supplies the
+`attributes`, `expectations`, `availability`, `pricing`. The `new-listing/steps/` path already supplies the
 context, so names stay short and never mention one category (yacht) or listing type (experience) —
 the same step serves experiences and services, yachts and venues.
 

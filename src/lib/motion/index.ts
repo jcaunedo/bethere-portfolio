@@ -12,6 +12,7 @@ export {
 export {
   fadeVariants,
   revealVariants,
+  expandVariants,
   dismissVariants,
   overlayVariants,
   panelVariants,
