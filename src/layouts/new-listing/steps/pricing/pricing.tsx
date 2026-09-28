@@ -238,7 +238,7 @@ function PricingStep({
 					>
 						Holiday pricing
 					</SectionHeader>
-					<Reveal show={holidayOn}>
+					<Reveal show={holidayOn} scrollIntoView>
 						<DurationAdjustment
 							durations={durations}
 							onDurationsChange={setDurations}
@@ -259,7 +259,7 @@ function PricingStep({
 					>
 						Seasonal pricing
 					</SectionHeader>
-					<Reveal show={seasonalOn}>
+					<Reveal show={seasonalOn} scrollIntoView>
 						<DurationAdjustment
 							durations={durations}
 							onDurationsChange={setDurations}
@@ -280,7 +280,7 @@ function PricingStep({
 					>
 						Add-on services (hourly rate)
 					</SectionHeader>
-					<Reveal show={addOnsOn}>
+					<Reveal show={addOnsOn} scrollIntoView>
 						<div ref={servicesRef} className="flex flex-col gap-4">
 							<Reveal show={dayColumn != null}>
 								<PercentSlider
@@ -420,7 +420,16 @@ function PercentSlider({
  * sections' 16px-gap column: `-mt-4` cancels the gap above it and `pt-4` restores it inside the
  * animated box, so closed it adds nothing and content below follows the height smoothly.
  */
-function Reveal({ show, children }: { show: boolean; children: React.ReactNode }) {
+function Reveal({
+	show,
+	scrollIntoView = false,
+	children,
+}: {
+	show: boolean;
+	/** On opening, scroll the page (smoothly) so the section's content comes into view. */
+	scrollIntoView?: boolean;
+	children: React.ReactNode;
+}) {
 	const { prefersReducedMotion } = useMotionPreference();
 	// Clipped only while the height animates, so rings/shadows inside aren't cut once open. Set on
 	// the element directly: a leaving (exit) element no longer re-renders, so state can't clip it.
@@ -428,6 +437,16 @@ function Reveal({ show, children }: { show: boolean; children: React.ReactNode }
 		if (el instanceof HTMLElement) el.style.overflow = on ? "hidden" : "";
 	};
 	const ref = React.useRef<HTMLDivElement>(null);
+
+	// Scroll once the content has opened: until then the page may not be tall enough to scroll
+	// that far (the browser would cap it). Only on opening after mount, never on first render.
+	const mounted = React.useRef(false);
+	const scrollPending = React.useRef(false);
+	React.useEffect(() => {
+		if (mounted.current) scrollPending.current = show && scrollIntoView;
+		mounted.current = true;
+	}, [show, scrollIntoView]);
+
 	return (
 		<AnimatePresence initial={false}>
 			{show ? (
@@ -438,7 +457,13 @@ function Reveal({ show, children }: { show: boolean; children: React.ReactNode }
 					exit="exit"
 					ref={ref}
 					onAnimationStart={() => clip(ref.current, true)}
-					onAnimationComplete={() => clip(ref.current, false)}
+					onAnimationComplete={(definition) => {
+						clip(ref.current, false);
+						if (definition === "animate" && scrollPending.current && ref.current) {
+							scrollPending.current = false;
+							revealInViewport(ref.current, prefersReducedMotion ? "auto" : "smooth");
+						}
+					}}
 					className="-mt-4"
 				>
 					<div className="pt-4">{children}</div>
@@ -446,6 +471,24 @@ function Reveal({ show, children }: { show: boolean; children: React.ReactNode }
 			) : null}
 		</AnimatePresence>
 	);
+}
+
+/** Breathing room kept between revealed content and the viewport edge / sticky header. */
+const REVEAL_SCROLL_MARGIN = 24;
+
+/**
+ * Scrolls the page just enough to show a section that just opened (`el` is its revealed content)
+ * in full. Never pushes the section's heading under the sticky stepper header: a section taller
+ * than the viewport stops with its heading just below the header. No scroll if it already fits.
+ */
+function revealInViewport(el: HTMLElement, behavior: ScrollBehavior) {
+	const section = el.closest("section") ?? el;
+	const header = document.querySelector('[data-slot="new-listing-header"]');
+	const top = (header?.getBoundingClientRect().bottom ?? 0) + REVEAL_SCROLL_MARGIN;
+	const sectionRect = section.getBoundingClientRect();
+	const needed = sectionRect.bottom - (window.innerHeight - REVEAL_SCROLL_MARGIN);
+	const delta = Math.min(needed, sectionRect.top - top);
+	if (delta > 0) window.scrollBy({ top: delta, behavior });
 }
 
 /**
