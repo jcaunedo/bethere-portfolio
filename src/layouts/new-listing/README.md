@@ -20,6 +20,7 @@ new-listing/
     expectations/              what guests get: durations, meeting point, destinations, tags, inclusions
     availability/              days + time windows
     pricing/                   rates per duration, by-day/holiday/seasonal pricing, add-on services
+    photos/                    listing photos: upload, cover, reorder (+ sample-photos.ts)
 ```
 
 ## The shell
@@ -47,7 +48,7 @@ Storybook lists the group in wizard order (Flow, Shell, then the steps); that or
 ## Naming
 
 Each step is **one word naming what it collects**: `type`, `category`, `search`, `matches`,
-`attributes`, `expectations`, `availability`, `pricing`. The `new-listing/steps/` path already supplies the
+`attributes`, `expectations`, `availability`, `pricing`, `photos`. The `new-listing/steps/` path already supplies the
 context, so names stay short and never mention one category (yacht) or listing type (experience) —
 the same step serves experiences and services, yachts and venues.
 

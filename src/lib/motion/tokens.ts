@@ -51,6 +51,14 @@ const motionScale = {
 	recede: 0.975,
 	/** Small inline icons (e.g. a selection check) appearing in place. */
 	iconIn: 0.6,
+	/** An item picked up by a drag (Lift while dragging), e.g. a photo tile being reordered. */
+	drag: 1.03,
+} as const;
+
+/** Degrees. CLAUDE.md "Rotation under 2 degrees", used sparingly. */
+const motionRotation = {
+	/** An item picked up by a drag — a slight tilt so it reads as held. */
+	drag: 1.5,
 } as const;
 
 /** Seconds, for `staggerChildren`/`delayChildren`. CLAUDE.md "Flow". */
@@ -60,4 +68,4 @@ const motionStagger = {
 	normal: 0.06,
 } as const;
 
-export { motionDuration, motionDistance, motionScale, motionStagger };
+export { motionDuration, motionDistance, motionScale, motionRotation, motionStagger };

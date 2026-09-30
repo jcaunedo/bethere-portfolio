@@ -14,6 +14,7 @@ import { AttributesStep } from "./steps/attributes/attributes";
 import { ExpectationsStep } from "./steps/expectations/expectations";
 import { AvailabilityStep } from "./steps/availability/availability";
 import { PricingStep } from "./steps/pricing/pricing";
+import { PhotosStep, type Photo } from "./steps/photos/photos";
 import { sampleListingDays } from "./shared/week";
 
 /**
@@ -50,6 +51,7 @@ const screens = {
 	"expectations": { step: 6, previous: "attributes" },
 	"availability": { step: 7, previous: "expectations" },
 	"pricing": { step: 8, previous: "availability" },
+	"photos": { step: 9, previous: "pricing" },
 } as const;
 type Screen = keyof typeof screens;
 
@@ -65,6 +67,8 @@ function NewListingFlow() {
 	// Days picked on Availability — Pricing offers them for by-day rates, and they're restored on
 	// the way back ("Change days" or Back).
 	const [listingDays, setListingDays] = React.useState(sampleListingDays);
+	// Photos added so far — restored when stepping back to them.
+	const [photos, setPhotos] = React.useState<Photo[]>([]);
 	const { prefersReducedMotion } = useMotionPreference();
 	const { step } = screens[screen];
 
@@ -84,7 +88,8 @@ function NewListingFlow() {
 		(screen === "attributes" ||
 			screen === "expectations" ||
 			screen === "availability" ||
-			screen === "pricing") &&
+			screen === "pricing" ||
+			screen === "photos") &&
 		match
 			? `${match.name} · Step ${step} of ${STEPS}`
 			: `Step ${step} of ${STEPS}`;
@@ -174,12 +179,20 @@ function NewListingFlow() {
 										onDaysChange={setListingDays}
 										onContinue={() => setScreen("pricing")}
 									/>
-								) : (
+								) : screen === "pricing" ? (
 									<PricingStep
 										showStepper={false}
 										className={screenClassName}
 										days={listingDays}
 										onChangeDays={() => setScreen("availability")}
+										onContinue={() => setScreen("photos")}
+									/>
+								) : (
+									<PhotosStep
+										showStepper={false}
+										className={screenClassName}
+										defaultPhotos={photos}
+										onPhotosChange={setPhotos}
 									/>
 								)
 							)
@@ -191,7 +204,7 @@ function NewListingFlow() {
 	);
 }
 
-/** Steps 1 → 8: Experience → yacht type → yacht lookup → matches → attributes → expectations → availability → pricing; the stepper's back button steps back. */
+/** Steps 1 → 9: Experience → yacht type → yacht lookup → matches → attributes → expectations → availability → pricing → photos; the stepper's back button steps back. */
 export const Default: Story = {
 	render: () => <NewListingFlow />,
 };

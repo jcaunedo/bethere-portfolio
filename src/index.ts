@@ -10,6 +10,7 @@ export {
   motionDuration,
   motionDistance,
   motionScale,
+  motionRotation,
   motionStagger,
   standardTransition,
   enterTransition,

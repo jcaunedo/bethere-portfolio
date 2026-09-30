@@ -97,3 +97,4 @@ function TypeStep({
 }
 
 export { TypeStep };
+export type { ListingKind };
