@@ -15,6 +15,8 @@ import { ExpectationsStep } from "./steps/expectations/expectations";
 import { AvailabilityStep } from "./steps/availability/availability";
 import { PricingStep } from "./steps/pricing/pricing";
 import { PhotosStep, type Photo } from "./steps/photos/photos";
+import { BusinessStep } from "./steps/business/business";
+import { sampleBusinesses } from "./steps/business/sample-businesses";
 import { sampleListingDays } from "./shared/week";
 
 /**
@@ -52,6 +54,7 @@ const screens = {
 	"availability": { step: 7, previous: "expectations" },
 	"pricing": { step: 8, previous: "availability" },
 	"photos": { step: 9, previous: "pricing" },
+	"business": { step: 10, previous: "photos" },
 } as const;
 type Screen = keyof typeof screens;
 
@@ -89,7 +92,8 @@ function NewListingFlow() {
 			screen === "expectations" ||
 			screen === "availability" ||
 			screen === "pricing" ||
-			screen === "photos") &&
+			screen === "photos" ||
+			screen === "business") &&
 		match
 			? `${match.name} · Step ${step} of ${STEPS}`
 			: `Step ${step} of ${STEPS}`;
@@ -187,12 +191,20 @@ function NewListingFlow() {
 										onChangeDays={() => setScreen("availability")}
 										onContinue={() => setScreen("photos")}
 									/>
-								) : (
+								) : screen === "photos" ? (
 									<PhotosStep
 										showStepper={false}
 										className={screenClassName}
 										defaultPhotos={photos}
 										onPhotosChange={setPhotos}
+										onContinue={() => setScreen("business")}
+									/>
+								) : (
+									// The common case: the account has one business to confirm.
+									<BusinessStep
+										showStepper={false}
+										className={screenClassName}
+										businesses={sampleBusinesses.slice(0, 1)}
 									/>
 								)
 							)
@@ -204,7 +216,7 @@ function NewListingFlow() {
 	);
 }
 
-/** Steps 1 → 9: Experience → yacht type → yacht lookup → matches → attributes → expectations → availability → pricing → photos; the stepper's back button steps back. */
+/** Steps 1 → 10: Experience → yacht type → yacht lookup → matches → attributes → expectations → availability → pricing → photos → business; the stepper's back button steps back. */
 export const Default: Story = {
 	render: () => <NewListingFlow />,
 };
