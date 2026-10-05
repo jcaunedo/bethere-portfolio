@@ -53,6 +53,11 @@ type PhotosStepProps = NewListingStepProps & {
 	onUpload?: (file: File) => Promise<string>;
 	/** Called when "Continue" is submitted. */
 	onContinue?: () => void;
+	/**
+	 * Called when "Skip for now" is activated: move on with fewer than the minimum photos. The
+	 * listing stays a draft until it has them (see product-specs/new-listing-flow.md).
+	 */
+	onSkip?: () => void;
 };
 
 /**
@@ -61,7 +66,9 @@ type PhotosStepProps = NewListingStepProps & {
  * (2×2); tiles drag to reorder (or ←/→ with the keyboard) and show × on hover. The trailing "+"
  * tile opens the file picker, like "Browse photos"; photos still uploading show a loading tile. Once
  * there are photos, files dragged anywhere over the page fade the step and show "Add more
- * images" — dropping them anywhere uploads them.
+ * images" — dropping them anywhere uploads them. "Skip for now" moves on without the minimum
+ * photos (the listing stays a draft): inside the empty drop zone, and under the disabled Continue
+ * while there are fewer than the minimum.
  * Figma origin: Provider Portal, "10. Photos" frames (nodes 103:2266 empty, 106:2718 with photos,
  * 178:7388 loading, 833:6772 drop anywhere).
  */
@@ -76,6 +83,7 @@ function PhotosStep({
 	onPhotosChange,
 	onUpload = previewUpload,
 	onContinue,
+	onSkip,
 	...frame
 }: PhotosStepProps) {
 	const [photos, setPhotos] = React.useState(defaultPhotos);
@@ -177,7 +185,8 @@ function PhotosStep({
 					// Empty (Figma 103:2266): the drop zone and the minimum-photos hint — no Continue until there
 					// are photos.
 					<>
-						<PhotoDropzone onFiles={addFiles} className="bg-background py-16" />
+						{/* Figma: 64px top, 56px bottom padding. */}
+						<PhotoDropzone onFiles={addFiles} onSkip={onSkip} className="bg-background pt-16 pb-14" />
 						<MinPhotosHint className="py-2" />
 					</>
 				) : (
@@ -200,15 +209,20 @@ function PhotosStep({
 						/>
 						{/* Until the minimum is uploaded, the hint sits between the photos and Continue. */}
 						<CollapsibleHint show={uploaded < MIN_PHOTOS} />
-						<Button
-							type="button"
-							size="xl"
-							className="w-full"
-							disabled={uploaded < MIN_PHOTOS}
-							onClick={onContinue}
-						>
-							Continue
-						</Button>
+						{/* No Figma source for Skip under Continue: offered while Continue is locked so the
+						    provider is never stuck between 1 and MIN_PHOTOS - 1 photos. */}
+						<div className="flex w-full flex-col items-center gap-4">
+							<Button
+								type="button"
+								size="xl"
+								className="w-full"
+								disabled={uploaded < MIN_PHOTOS}
+								onClick={onContinue}
+							>
+								Continue
+							</Button>
+							{uploaded < MIN_PHOTOS ? <SkipButton onClick={onSkip} /> : null}
+						</div>
 						{picker.input}
 					</>
 				)}
@@ -304,7 +318,24 @@ function CollapsibleHint({ show }: { show: boolean }) {
  * "Browse photos" (8px illustration → copy, 4px between the lines, 24px → button). The dashed outline turns brand
  * while files are dragged over it. Files dropped or browsed go to `onFiles`.
  */
-function PhotoDropzone({ onFiles, className }: { onFiles: (files: File[]) => void; className?: string }) {
+/** "Skip for now" — Figma `button` (Link, Neutral, md · 32). */
+function SkipButton({ onClick }: { onClick?: () => void }) {
+	return (
+		<Button type="button" variant="link-neutral" size="md" onClick={onClick}>
+			Skip for now
+		</Button>
+	);
+}
+
+function PhotoDropzone({
+	onFiles,
+	onSkip,
+	className,
+}: {
+	onFiles: (files: File[]) => void;
+	onSkip?: () => void;
+	className?: string;
+}) {
 	const picker = useFilePicker(onFiles);
 	// Counts nested dragenter/dragleave pairs so hovering child elements doesn't flicker the state.
 	const [dragDepth, setDragDepth] = React.useState(0);
@@ -344,6 +375,7 @@ function PhotoDropzone({ onFiles, className }: { onFiles: (files: File[]) => voi
 			<Button type="button" size="md" onClick={picker.open}>
 				Browse photos
 			</Button>
+			<SkipButton onClick={onSkip} />
 			{picker.input}
 		</div>
 	);

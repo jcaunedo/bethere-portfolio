@@ -4,8 +4,9 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const choiceButtonIconVariants = cva(
-	// Base tile: 24px icon stacked over a centered label. Figma: `choice-button-icon` State=default.
-	"flex flex-col items-center justify-center gap-2 overflow-hidden rounded-card bg-input-fill px-3 py-4 text-sm text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-input-ring-outside disabled:pointer-events-none disabled:opacity-50",
+	// Base tile: 24px icon stacked over a centered label, spacing/3 (12px) padding all round.
+	// Figma: `choice-button-icon` State=default.
+	"flex flex-col items-center justify-center gap-2 overflow-hidden rounded-card bg-input-fill p-3 text-sm text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-input-ring-outside disabled:pointer-events-none disabled:opacity-50",
 	{
 		variants: {
 			// Figma `choice-button-icon` State=active. Inset ring = Figma inside stroke (no layout shift on the auto-height tile).

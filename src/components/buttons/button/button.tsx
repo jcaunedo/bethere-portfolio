@@ -24,8 +24,13 @@ const buttonVariants = cva(
 					"border border-border bg-card text-foreground shadow-xs hover:bg-accent",
 				// Ghost
 				ghost: "bg-transparent text-foreground hover:bg-accent",
-				// Link
-				link: "bg-transparent text-primary underline-offset-4 hover:underline",
+				// Link (Tone=Brand): brand label; hover swaps to foreground (no underline).
+				// Disabled: color/foreground/subtle at full opacity, not the shared fade.
+				// No Figma focus state: focus mirrors hover, as the existing call sites did.
+				link: "bg-transparent text-primary hover:text-foreground focus-visible:text-foreground disabled:text-foreground-subtle disabled:opacity-100",
+				// Link (Tone=Neutral): foreground label; hover swaps to brand.
+				"link-neutral":
+					"bg-transparent text-foreground hover:text-primary focus-visible:text-primary disabled:text-foreground-subtle disabled:opacity-100",
 			},
 			size: {
 				xs: "h-6 gap-1 rounded-lg px-2 text-xs [&_svg:not([class*='size-'])]:size-3",
@@ -44,6 +49,11 @@ const buttonVariants = cva(
 					"size-10 rounded-xl [&_svg:not([class*='size-'])]:size-4",
 			},
 		},
+		compoundVariants: [
+			// Figma Style=Link: no side padding at any size (spacing/0). A compound variant so it
+			// lands after the size's px-* and wins the merge.
+			{ variant: ["link", "link-neutral"], className: "px-0" },
+		],
 		defaultVariants: {
 			variant: "default",
 			size: "lg",

@@ -258,7 +258,7 @@ function InviteTeamMembersDialog({
             type="button"
             variant="link"
             size="lg"
-            className="w-fit self-start no-underline hover:no-underline"
+            className="w-fit self-start"
             onClick={addRow}
           >
             <PlusIcon />

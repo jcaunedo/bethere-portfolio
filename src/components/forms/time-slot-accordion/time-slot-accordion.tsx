@@ -264,21 +264,16 @@ function TimeSlotAccordionItem({
 							</li>
 						))}
 					</ol>
-					{/* Figma `button` (link, 32px, no side padding): 16px plus in a 4px slot, 4px gap. */}
+					{/* Figma `button` (link, 32px): 16px plus in a 4px slot, 4px gap. */}
 					<Button
 						type="button"
 						variant="link"
 						size="md"
-						className="group/add gap-1 self-start px-0 hover:no-underline"
+						className="gap-1 self-start"
 						onClick={() => onWindowsChange([...rows, { start: null, end: null }])}
 					>
-						<PlusIcon
-							aria-hidden="true"
-							className="mx-1 text-primary transition-colors group-hover/add:text-foreground group-focus-visible/add:text-foreground"
-						/>
-						<span className="text-primary transition-colors group-hover/add:text-foreground group-focus-visible/add:text-foreground">
-							Add time window
-						</span>
+						<PlusIcon aria-hidden="true" className="mx-1" />
+						Add time window
 					</Button>
 				</div>
 			</AccordionPrimitive.Content>

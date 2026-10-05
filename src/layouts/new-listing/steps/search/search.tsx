@@ -98,22 +98,11 @@ function SearchStep({
 				</Button>
 			</form>
 
-			{/* Same CTA as MatchesStep: link Button (lg, 36px, no side padding) with a
-			    label and a trailing 16px chevron in a 2px-padded slot, 4px gap.
-			    Hover/focus: label + chevron turn foreground (no underline). */}
-			<Button
-				variant="link"
-				size="lg"
-				className="group gap-1 px-0 hover:no-underline"
-				onClick={onAddManually}
-			>
-				<span className="text-primary transition-colors group-hover:text-foreground group-focus-visible:text-foreground">
-					Add yacht manually
-				</span>
-				<ChevronRightIcon
-					aria-hidden="true"
-					className="mx-0.5 text-primary transition-colors group-hover:text-foreground group-focus-visible:text-foreground"
-				/>
+			{/* Same CTA as MatchesStep: link Button (lg, 36px) with a label and a trailing
+			    16px chevron in a 2px-padded slot, 4px gap. */}
+			<Button variant="link" size="lg" className="gap-1" onClick={onAddManually}>
+				Add yacht manually
+				<ChevronRightIcon aria-hidden="true" className="mx-0.5" />
 			</Button>
 		</NewListingLayout>
 	);

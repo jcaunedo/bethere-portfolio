@@ -13,12 +13,17 @@ const meta: Meta<typeof PhotosStep> = {
 export default meta;
 type Story = StoryObj<typeof PhotosStep>;
 
-/** No photos yet: the drop zone (Figma 103:2266). Continue appears with the first photo and unlocks at 5. */
+/** No photos yet: the drop zone with "Skip for now" (Figma 103:2266). Continue appears with the first photo and unlocks at 5. */
 export const Default: Story = {};
 
 /** Photos added (Figma 106:2718): drag to reorder, × on hover, "+" opens the file picker. */
 export const WithPhotos: Story = {
 	args: { defaultPhotos: samplePhotos },
+};
+
+/** Under the minimum: Continue is locked, so "Skip for now" sits under it (no Figma source yet). */
+export const UnderMinimum: Story = {
+	args: { defaultPhotos: samplePhotos.slice(0, 3) },
 };
 
 /** Service listing: the title names a service instead of an experience. */

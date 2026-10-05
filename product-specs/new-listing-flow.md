@@ -1,7 +1,7 @@
 <!--
 Created: Sep 05, 2026
 Created by: Julio Caunedo
-Last updated: Sep 27, 2026 (Implementation notes: one-word step naming + rationale; 48px minimum stepper → content gap)
+Last updated: Oct 05, 2026 (Policies step: draft summary copy + open items; Draft & submission: "Skip for now" on Photos)
 Scope: the New Listing creation flow for providers.
 Purpose: record the design rationale for keeping Experience/Service as the two primary listing-type paths and removing the redundant category step.
 -->
@@ -53,6 +53,40 @@ See [taxonomy.md](taxonomy.md) for the full business-category × Experience/Serv
 - **Listing subtype/details** — defines the specific offering.
 
 The onboarding category should therefore inform and personalize the New Listing flow, but should not replace the Experience / Service choice.
+
+### Draft & submission
+
+A provider can leave the Photos step without the minimum of 5 photos by choosing **Skip for now**. The flow continues to the next step, and the listing is saved as a **draft**.
+
+- A draft listing can't be submitted for approval until it has at least 5 photos **and** every other required item in the flow is complete.
+- Photos added before skipping (1–4) are kept on the draft.
+- "Skip for now" appears in the empty drop zone and, while fewer than 5 photos are uploaded, under the disabled Continue button.
+
+⚠️ **Decision needed:** where the provider sees what's missing from a draft, and how they return to finish it (e.g. from the listings list), is not designed yet.
+
+⚠️ **Gap:** "Skip for now" under the disabled Continue (1–4 photos) has no Figma frame yet; the reference layout places it 16px below Continue. Figma only shows Skip in the empty state (node 103:2266).
+
+### Policies step
+
+Figma: Provider Portal "12. Policies" (node 109:3517). Age requirements, rescheduling notice, cancellation policy and weather policy are single-choice, each with a summary of the picked option underneath. "What's allowed" and "Safety requirements" are multi-select.
+
+ℹ️ Where the frame's buttons and the Figma annotations disagree, the reference layout follows the buttons: Rescheduling notice offers "Not allowed" (annotation: "7 days"), and Weather policy offers "Host review" (annotation: "Reschedule or refund", marked as the recommended default).
+
+⚠️ **Copy needed:** these summaries are draft copy (written to BeThere's provider voice), with no Figma or annotation source yet:
+
+| Section | Option | Draft summary |
+| --- | --- | --- |
+| Age requirements | All Ages | Guests of any age can participate. |
+| Age requirements | 18+ | Only guests 18 and older can participate. |
+| Age requirements | 21+ | Only guests 21 and older can participate. |
+| Rescheduling notice | 12 hours / 24 hours | Change requests will be accepted until 12 / 24 hours before the scheduled start time. |
+| Rescheduling notice | Not allowed | Guests can't request changes once their booking is confirmed. |
+| Weather policy | Host review | You'll review each case and offer guests a new date or a refund. |
+| Cancellation policy | Custom | Terms field — label "Cancellation terms", placeholder "Explain when guests can cancel and what refund they'll get." |
+
+⚠️ **Gap:** "Custom" cancellation has no design for where the provider writes their terms; the reference layout shows a textarea under the options.
+
+⚠️ **Decision needed:** the Flexible cancellation summary promises "Free rescheduling when available" even when Rescheduling notice is set to "Not allowed". Decide which setting wins, or hide the conflicting line.
 
 ## Implementation notes (for dev)
 

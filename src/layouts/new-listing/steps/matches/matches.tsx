@@ -109,12 +109,11 @@ function MatchesStep({
 						</motion.li>
 					))}
 				</ul>
-				{/* Figma: 32px link button, no side padding, 16px arrow in a 4px-padded slot, 4px gap.
-				    Hover/focus: label + arrow turn foreground instead of underlining. */}
+				{/* Figma: 32px link button, 16px arrow in a 4px-padded slot, 4px gap. */}
 				<Button
 					variant="link"
 					size="md"
-					className="gap-1 px-0 hover:text-foreground hover:no-underline focus-visible:text-foreground"
+					className="gap-1"
 					onClick={onRefineSearch}
 				>
 					<ArrowLeftIcon aria-hidden="true" className="mx-1" />
@@ -122,13 +121,13 @@ function MatchesStep({
 				</Button>
 			</div>
 
-			{/* Figma: link Button (lg, 36px, no side padding) with a two-tone label and a
-			    trailing 16px chevron in a 2px-padded slot, 4px gap. Hover/focus: only the
-			    brand-colored part + chevron turn foreground (the muted prompt stays; no underline). */}
+			{/* Figma: link Button (lg, 36px) with a two-tone label and a trailing 16px chevron in a
+			    2px-padded slot, 4px gap. Hover/focus: only the brand-colored part + chevron turn
+			    foreground (the muted prompt keeps its own color). */}
 			<Button
 				variant="link"
 				size="lg"
-				className="group gap-1 px-0 hover:no-underline"
+				className="group gap-1"
 				onClick={onAddManually}
 			>
 				{/* One label span, so Button's gap only separates the label from the icon.

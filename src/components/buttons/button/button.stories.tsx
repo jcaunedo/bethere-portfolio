@@ -17,6 +17,7 @@ const meta: Meta<typeof Button> = {
         "outline",
         "ghost",
         "link",
+        "link-neutral",
       ],
     },
     size: {
@@ -83,11 +84,34 @@ export const Ghost: Story = {
   },
 };
 
+/** Figma Style=Link, Tone=Brand. Hover swaps the label to foreground. */
 export const Link: Story = {
   args: {
     variant: "link",
     children: "Link",
   },
+};
+
+/** Figma Style=Link, Tone=Neutral. Hover swaps the label to brand. */
+export const LinkNeutral: Story = {
+  args: {
+    variant: "link-neutral",
+    children: "Link",
+  },
+};
+
+/** Figma Style=Link, State=Disabled: both tones use color/foreground/subtle. */
+export const LinkDisabled: Story = {
+  render: () => (
+    <div className="flex items-center gap-4">
+      <Button variant="link" disabled>
+        Link
+      </Button>
+      <Button variant="link-neutral" disabled>
+        Link
+      </Button>
+    </div>
+  ),
 };
 
 export const WithIcon: Story = {
@@ -140,6 +164,7 @@ export const AllVariants: Story = {
         <Button variant="outline">Outline</Button>
         <Button variant="ghost">Ghost</Button>
         <Button variant="link">Link</Button>
+        <Button variant="link-neutral">Link Neutral</Button>
       </div>
       <div className="flex items-center gap-2">
         <Button size="xs">Extra Small</Button>

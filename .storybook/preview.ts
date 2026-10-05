@@ -21,6 +21,7 @@ const preview: Preview = {
           "Pricing",
           "Photos",
           "Business",
+          "Policies",
         ];
         const rank = (title) => {
           const match = /^Layouts\/NewListing\/(.+)$/.exec(title);
