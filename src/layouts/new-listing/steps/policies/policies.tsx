@@ -18,6 +18,7 @@ import { FormField } from "@/components/forms/field";
 import { Textarea } from "@/components/forms/textarea";
 import { Typography } from "@/components/typography";
 import { NewListingLayout, type NewListingStepProps } from "../../new-listing";
+import { useReportAnswers } from "../../shared/use-report-answers";
 import type { ListingKind } from "../type/type";
 
 /** One single-choice option, with the text shown under the group while it's picked. */
@@ -123,9 +124,41 @@ const safetyOptions = [
 	},
 ];
 
+/** What this step collects — reported to the flow and used to restore the step on a revisit. */
+type PoliciesAnswers = {
+	/** `ageOptions` value. */
+	age: string;
+	/** `reschedulingOptions` value. */
+	rescheduling: string;
+	/** `cancellationOptions` value. */
+	cancellation: string;
+	customTerms: string;
+	/** `weatherOptions` value. */
+	weather: string;
+	/** `allowedOptions` values. */
+	allowed: string[];
+	/** `safetyOptions` values. */
+	safety: string[];
+};
+
+/** Figma sample (the step's defaults): these picks, nothing in the multi-select sections. */
+const samplePolicies: PoliciesAnswers = {
+	age: "13",
+	rescheduling: "48h",
+	cancellation: "flexible",
+	customTerms: "",
+	weather: "reschedule",
+	allowed: [],
+	safety: [],
+};
+
 type PoliciesStepProps = NewListingStepProps & {
 	/** Listing type picked on the Type step — names it in the copy ("…during the service"). */
 	listingType?: ListingKind;
+	/** Answers to start from (e.g. when revisiting the step). Defaults to the Figma sample. */
+	defaultAnswers?: PoliciesAnswers;
+	/** Called with the step's answers whenever they change. */
+	onAnswersChange?: (answers: PoliciesAnswers) => void;
 	/** Called when "Continue" is submitted. */
 	onContinue?: () => void;
 };
@@ -142,18 +175,25 @@ function PoliciesStep({
 	currentStep = 12,
 	stepLabel = "Little Atocha · Step 12 of 14",
 	listingType = "experience",
+	defaultAnswers = samplePolicies,
+	onAnswersChange,
 	onContinue,
 	...frame
 }: PoliciesStepProps) {
 	const id = React.useId();
-	// Figma shows these picks; nothing is selected in the multi-select sections.
-	const [age, setAge] = React.useState("13");
-	const [rescheduling, setRescheduling] = React.useState("48h");
-	const [cancellation, setCancellation] = React.useState("flexible");
-	const [customTerms, setCustomTerms] = React.useState("");
-	const [weather, setWeather] = React.useState("reschedule");
-	const [allowed, setAllowed] = React.useState<string[]>([]);
-	const [safety, setSafety] = React.useState<string[]>([]);
+	const [age, setAge] = React.useState(defaultAnswers.age);
+	const [rescheduling, setRescheduling] = React.useState(defaultAnswers.rescheduling);
+	const [cancellation, setCancellation] = React.useState(defaultAnswers.cancellation);
+	const [customTerms, setCustomTerms] = React.useState(defaultAnswers.customTerms);
+	const [weather, setWeather] = React.useState(defaultAnswers.weather);
+	const [allowed, setAllowed] = React.useState<string[]>(defaultAnswers.allowed);
+	const [safety, setSafety] = React.useState<string[]>(defaultAnswers.safety);
+
+	const answers = React.useMemo<PoliciesAnswers>(
+		() => ({ age, rescheduling, cancellation, customTerms, weather, allowed, safety }),
+		[age, rescheduling, cancellation, customTerms, weather, allowed, safety],
+	);
+	useReportAnswers(answers, onAnswersChange);
 
 	const toggle = (list: string[], value: string) =>
 		list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
@@ -341,5 +381,5 @@ function SectionHeader({ id, description, children }: { id: string; description:
 	);
 }
 
-export { PoliciesStep };
-export type { PoliciesStepProps };
+export { PoliciesStep, samplePolicies, ageOptions, cancellationOptions, weatherOptions };
+export type { PoliciesAnswers, PoliciesStepProps };

@@ -17,6 +17,8 @@ const motionDuration = {
 	slow: 0.5,
 	/** Page-level transitions: 600ms. */
 	deliberate: 0.6,
+	/** One cycle of a looping "working on it" pulse (Pending pattern). */
+	pendingLoop: 1.2,
 } as const;
 
 /** Pixels. CLAUDE.md "Spatial Rules". */
@@ -53,6 +55,8 @@ const motionScale = {
 	iconIn: 0.6,
 	/** An item picked up by a drag (Lift while dragging), e.g. a photo tile being reordered. */
 	drag: 1.03,
+	/** Peak of a small trigger icon's Pending pulse (e.g. an AI mark while it generates). */
+	pendingIcon: 1.3,
 } as const;
 
 /** Degrees. CLAUDE.md "Rotation under 2 degrees", used sparingly. */

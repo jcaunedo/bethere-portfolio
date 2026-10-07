@@ -23,6 +23,8 @@ new-listing/
     photos/                    listing photos: upload, cover, reorder (+ sample-photos.ts)
     business/                  confirm (one) or pick (several) the business that owns the listing (+ sample-businesses.tsx)
     policies/                  age, rescheduling, cancellation, weather; what's allowed; safety requirements
+    documents/                 insurance, captain licenses, vessel registration (document cards + add links)
+    review/                    title + description (AI-suggested), preview/publish, summary of every step
 ```
 
 ## The shell
@@ -50,7 +52,7 @@ Storybook lists the group in wizard order (Flow, Shell, then the steps); that or
 ## Naming
 
 Each step is **one word naming what it collects**: `type`, `category`, `search`, `matches`,
-`attributes`, `expectations`, `availability`, `pricing`, `photos`, `business`, `policies`. The `new-listing/steps/` path already supplies the
+`attributes`, `expectations`, `availability`, `pricing`, `photos`, `business`, `policies`, `documents`, `review`. The `new-listing/steps/` path already supplies the
 context, so names stay short and never mention one category (yacht) or listing type (experience) —
 the same step serves experiences and services, yachts and venues.
 
@@ -69,3 +71,19 @@ lives in the step's defaults/props, not in its file or component name.
 
 A Service path (undesigned today) reuses the shared steps and adds any service-specific steps
 here with the same one-word naming — no separate folder tree needed.
+
+## AI copy (prototype)
+
+Review's AI marks improve the title or description with Claude. The step only takes an async
+`onImprove(request) → Promise<string>`; the stories pass `shared/improve-with-claude.ts`, which calls
+`POST /api/improve`. One handler, `server/improve-copy.ts`, serves that route in both places, and the
+Anthropic key stays on the server:
+
+- **Local** — the Storybook dev server (`.storybook/improve-copy.ts`). Copy `.env.example` to
+  `.env.local`, set `ANTHROPIC_API_KEY` (or run `ant auth login`), then restart `npm run storybook`.
+- **Netlify** — a Netlify Function (`netlify/functions/improve.ts`). Add `ANTHROPIC_API_KEY` under
+  Site configuration → Environment variables, then redeploy.
+
+`ANTHROPIC_MODEL` optionally overrides the model (default `claude-opus-5-5`). The deployed endpoint is
+public, so it only accepts same-origin browser requests and caps request and output sizes; use a key
+with a spending limit.

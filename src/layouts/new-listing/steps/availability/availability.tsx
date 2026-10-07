@@ -11,6 +11,7 @@ import { Typography } from "@/components/typography";
 import { fadeVariants, layoutSpring, useMotionPreference } from "@/lib/motion";
 import { NewListingLayout, type NewListingStepProps } from "../../new-listing";
 import { dayTileOptions, sampleListingDays, week } from "../../shared/week";
+import { useReportAnswers } from "../../shared/use-report-answers";
 
 const dayOptions = dayTileOptions(week.map((day) => day.value));
 
@@ -36,6 +37,10 @@ type AvailabilityStepProps = NewListingStepProps & {
 	defaultDays?: string[];
 	/** Called with the new selection whenever a day is picked or cleared. */
 	onDaysChange?: (days: string[]) => void;
+	/** Time windows to start from (e.g. when revisiting the step). Defaults to the Figma sample. */
+	defaultWindows?: TimeSlotAccordionValue;
+	/** Called with every day's time windows whenever they change. */
+	onWindowsChange?: (windows: TimeSlotAccordionValue) => void;
 };
 
 /**
@@ -51,6 +56,8 @@ function AvailabilityStep({
 	days: daysProp,
 	defaultDays = sampleListingDays,
 	onDaysChange,
+	defaultWindows = sampleWindows,
+	onWindowsChange,
 	...frame
 }: AvailabilityStepProps) {
 	const id = React.useId();
@@ -60,7 +67,8 @@ function AvailabilityStep({
 		if (daysProp === undefined) setOwnDays(next);
 		onDaysChange?.(next);
 	};
-	const [windows, setWindows] = React.useState(sampleWindows);
+	const [windows, setWindows] = React.useState(defaultWindows);
+	useReportAnswers(windows, onWindowsChange);
 
 	// Only the selected days get a time-window row (in week order).
 	const selectedDays = week.filter((day) => days.includes(day.value));
@@ -172,4 +180,4 @@ function AvailabilityStep({
 	);
 }
 
-export { AvailabilityStep };
+export { AvailabilityStep, sampleWindows };

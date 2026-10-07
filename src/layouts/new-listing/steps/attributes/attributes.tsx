@@ -8,6 +8,7 @@ import { NumericInput } from "@/components/forms/numeric-input";
 import { Typography } from "@/components/typography";
 import { ChoiceChipGrid } from "../../shared/choice-chip-grid";
 import { NewListingLayout, type NewListingStepProps } from "../../new-listing";
+import { useReportAnswers } from "../../shared/use-report-answers";
 
 const onBoardFeatures = [
 	"Air Conditioning",
@@ -44,7 +45,40 @@ const crewOptions = [
 	{ value: "upon-request", label: "Upon request" },
 ];
 
+/** What this step collects — reported to the flow and used to restore the step on a revisit. */
+type AttributesAnswers = {
+	name: string;
+	/** Feet. `null` while the field is empty. */
+	length: number | null;
+	cabins: number | null;
+	bathrooms: number | null;
+	guests: number | null;
+	captain: string;
+	crew: string;
+	features: string[];
+	toys: string[];
+	access: string[];
+};
+
+/** Figma sample (the step's defaults). */
+const sampleAttributes: AttributesAnswers = {
+	name: "Little Atocha",
+	length: 55,
+	cabins: 3,
+	bathrooms: 2,
+	guests: 13,
+	captain: "yes",
+	crew: "no",
+	features: ["Air Conditioning", "Sound System", "Wi-Fi", "Refrigerator", "Ice Maker", "BBQ Grill"],
+	toys: ["Seabob", "E-Foil", "Floating Mat", "Snorkeling Gear", "Fishing Equipment"],
+	access: ["Senior friendly"],
+};
+
 type AttributesStepProps = NewListingStepProps & {
+	/** Answers to start from (e.g. when revisiting the step). Defaults to the Figma sample. */
+	defaultAnswers?: AttributesAnswers;
+	/** Called with the step's answers whenever they change. */
+	onAnswersChange?: (answers: AttributesAnswers) => void;
 	/** Called when "Continue" is submitted. */
 	onContinue?: () => void;
 };
@@ -58,27 +92,39 @@ function AttributesStep({
 	steps = 14,
 	currentStep = 6,
 	stepLabel = "Azimut 55 Flybridge (2021) · Step 6 of 14",
+	defaultAnswers = sampleAttributes,
+	onAnswersChange,
 	onContinue,
 	...frame
 }: AttributesStepProps) {
 	const id = React.useId();
-	const [captain, setCaptain] = React.useState("yes");
-	const [crew, setCrew] = React.useState("no");
-	const [features, setFeatures] = React.useState(
-		() =>
-			new Set([
-				"Air Conditioning",
-				"Sound System",
-				"Wi-Fi",
-				"Refrigerator",
-				"Ice Maker",
-				"BBQ Grill",
-			]),
+	const [details, setDetails] = React.useState(() => ({
+		name: defaultAnswers.name,
+		length: defaultAnswers.length,
+		cabins: defaultAnswers.cabins,
+		bathrooms: defaultAnswers.bathrooms,
+		guests: defaultAnswers.guests,
+	}));
+	const [captain, setCaptain] = React.useState(defaultAnswers.captain);
+	const [crew, setCrew] = React.useState(defaultAnswers.crew);
+	const [features, setFeatures] = React.useState(() => new Set(defaultAnswers.features));
+	const [toys, setToys] = React.useState(() => new Set(defaultAnswers.toys));
+	const [access, setAccess] = React.useState(() => new Set(defaultAnswers.access));
+
+	const answers = React.useMemo<AttributesAnswers>(
+		() => ({ ...details, captain, crew, features: [...features], toys: [...toys], access: [...access] }),
+		[details, captain, crew, features, toys, access],
 	);
-	const [toys, setToys] = React.useState(
-		() => new Set(["Seabob", "E-Foil", "Floating Mat", "Snorkeling Gear", "Fishing Equipment"]),
-	);
-	const [access, setAccess] = React.useState(() => new Set(["Senior friendly"]));
+	useReportAnswers(answers, onAnswersChange);
+
+	// Spec fields stay uncontrolled (seeded from the answers); edits and stepper clicks report back.
+	const numberField = (key: "length" | "cabins" | "bathrooms" | "guests") => ({
+		defaultValue: defaultAnswers[key] ?? undefined,
+		onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
+			const value = event.target.value === "" ? null : Number(event.target.value);
+			setDetails((current) => ({ ...current, [key]: value }));
+		},
+	});
 
 	return (
 		<NewListingLayout
@@ -101,20 +147,26 @@ function AttributesStep({
 				<section aria-labelledby={`${id}-details`} className="flex flex-col gap-4">
 					<SectionHeading id={`${id}-details`}>Yacht details</SectionHeading>
 					<FormField htmlFor={`${id}-name`} label="Yacht Name" className="gap-2">
-						<Input id={`${id}-name`} size="xl" className="text-sm" defaultValue="Little Atocha" />
+						<Input
+								id={`${id}-name`}
+								size="xl"
+								className="text-sm"
+								defaultValue={defaultAnswers.name}
+								onChange={(event) => setDetails((current) => ({ ...current, name: event.target.value }))}
+							/>
 					</FormField>
 					<div className="grid grid-cols-2 gap-4">
 						<FormField htmlFor={`${id}-length`} label="Length (ft)" className="gap-2">
-							<NumericInput id={`${id}-length`} size="xl" className="text-sm" steppers defaultValue={55} />
+							<NumericInput id={`${id}-length`} size="xl" className="text-sm" steppers {...numberField("length")} />
 						</FormField>
 						<FormField htmlFor={`${id}-cabins`} label="Cabins" className="gap-2">
-							<NumericInput id={`${id}-cabins`} size="xl" className="text-sm" steppers defaultValue={3} />
+							<NumericInput id={`${id}-cabins`} size="xl" className="text-sm" steppers {...numberField("cabins")} />
 						</FormField>
 						<FormField htmlFor={`${id}-bathrooms`} label="Bathrooms" className="gap-2">
-							<NumericInput id={`${id}-bathrooms`} size="xl" className="text-sm" steppers defaultValue={2} />
+							<NumericInput id={`${id}-bathrooms`} size="xl" className="text-sm" steppers {...numberField("bathrooms")} />
 						</FormField>
 						<FormField htmlFor={`${id}-guests`} label="Maximum Guests" className="gap-2">
-							<NumericInput id={`${id}-guests`} size="xl" className="text-sm" steppers defaultValue={13} />
+							<NumericInput id={`${id}-guests`} size="xl" className="text-sm" steppers {...numberField("guests")} />
 						</FormField>
 					</div>
 				</section>
@@ -247,4 +299,5 @@ function ChipSection({
 	);
 }
 
-export { AttributesStep };
+export { AttributesStep, sampleAttributes };
+export type { AttributesAnswers, AttributesStepProps };

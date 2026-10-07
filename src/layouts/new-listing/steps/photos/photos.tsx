@@ -876,5 +876,5 @@ function UploadSpinner() {
 	);
 }
 
-export { PhotosStep };
+export { PhotosStep, MIN_PHOTOS };
 export type { Photo, PhotosStepProps };

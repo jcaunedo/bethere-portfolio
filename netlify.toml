@@ -4,3 +4,9 @@
 
 [build.environment]
   NODE_VERSION = "22"
+
+# Prototype API: `POST /api/improve` (Claude copy rewrites for the New Listing Review step).
+# The function sets its own path; it needs ANTHROPIC_API_KEY in the site's environment variables.
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"

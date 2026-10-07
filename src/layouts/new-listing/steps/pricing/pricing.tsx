@@ -29,6 +29,7 @@ import { cn } from "@/lib/utils";
 import { NewListingLayout, type NewListingStepProps } from "../../new-listing";
 import { AddLink } from "../../shared/add-link";
 import { dayTileOptions, sampleListingDays } from "../../shared/week";
+import { useReportAnswers } from "../../shared/use-report-answers";
 
 /** One priced row (a charter duration or an add-on service). Money in whole dollars. */
 type RateRow = {
@@ -97,7 +98,45 @@ const adjusted = (base: number | null, percent: number) =>
 
 const formatPercent = (value: number) => `${value > 0 ? "+" : ""}${value}%`;
 
+/** What this step collects — reported to the flow and used to restore the step on a revisit. */
+type PricingAnswers = {
+	byDay: boolean;
+	adjustedDays: string[];
+	dayPercent: number;
+	/** Charter rates, one row per duration. */
+	durations: RateRow[];
+	holidayOn: boolean;
+	holidayPercent: number;
+	holidayOverrides: Record<string, number | undefined>;
+	seasonalOn: boolean;
+	seasons: Season[];
+	/** Add-on services offered at all (the section's switch). */
+	addOnsOn: boolean;
+	addOnPercent: number;
+	services: RateRow[];
+};
+
+/** Figma sample (the step's defaults). */
+const samplePricing: PricingAnswers = {
+	byDay: false,
+	adjustedDays: [],
+	dayPercent: 0,
+	durations: sampleDurations,
+	holidayOn: false,
+	holidayPercent: 0,
+	holidayOverrides: {},
+	seasonalOn: false,
+	seasons: sampleSeasons,
+	addOnsOn: false,
+	addOnPercent: 0,
+	services: sampleServices,
+};
+
 type PricingStepProps = NewListingStepProps & {
+	/** Answers to start from (e.g. when revisiting the step). Defaults to the Figma sample. */
+	defaultAnswers?: PricingAnswers;
+	/** Called with the step's answers whenever they change. */
+	onAnswersChange?: (answers: PricingAnswers) => void;
 	/** Called when "Continue" is submitted. */
 	onContinue?: () => void;
 	/** Called by "Change days" — e.g. back to the Availability step. */
@@ -123,37 +162,60 @@ function PricingStep({
 	onContinue,
 	onChangeDays,
 	days = sampleListingDays,
+	defaultAnswers = samplePricing,
+	onAnswersChange,
 	...frame
 }: PricingStepProps) {
 	const id = React.useId();
 	const listingDays = dayTileOptions(days);
 
 	// Charter rates.
-	const [byDay, setByDay] = React.useState(false);
+	const [byDay, setByDay] = React.useState(defaultAnswers.byDay);
 	// Days picked for a different rate. None until the provider picks some.
-	const [adjustedDays, setAdjustedDays] = React.useState<string[]>([]);
+	const [adjustedDays, setAdjustedDays] = React.useState<string[]>(defaultAnswers.adjustedDays);
 	// Only days the listing still runs count (Availability may have changed since they were picked).
 	const pickedDays = adjustedDays.filter((day) => days.includes(day));
-	const [dayPercent, setDayPercent] = React.useState(0);
-	const [durations, setDurations] = React.useState(sampleDurations);
+	const [dayPercent, setDayPercent] = React.useState(defaultAnswers.dayPercent);
+	const [durations, setDurations] = React.useState(defaultAnswers.durations);
 
 	// Holiday pricing: same durations, their own % and overrides.
-	const [holidayOn, setHolidayOn] = React.useState(false);
-	const [holidayPercent, setHolidayPercent] = React.useState(0);
-	const [holidayOverrides, setHolidayOverrides] = React.useState<Record<string, number | undefined>>({});
+	const [holidayOn, setHolidayOn] = React.useState(defaultAnswers.holidayOn);
+	const [holidayPercent, setHolidayPercent] = React.useState(defaultAnswers.holidayPercent);
+	const [holidayOverrides, setHolidayOverrides] = React.useState<Record<string, number | undefined>>(
+		defaultAnswers.holidayOverrides,
+	);
 
 	// Seasonal pricing: a list of seasons, each with its own dates, % and overrides. One open at a time.
-	const [seasonalOn, setSeasonalOn] = React.useState(false);
-	const [seasons, setSeasons] = React.useState(sampleSeasons);
-	const [openSeason, setOpenSeason] = React.useState(sampleSeasons[0].id);
+	const [seasonalOn, setSeasonalOn] = React.useState(defaultAnswers.seasonalOn);
+	const [seasons, setSeasons] = React.useState(defaultAnswers.seasons);
+	const [openSeason, setOpenSeason] = React.useState(defaultAnswers.seasons[0]?.id ?? "");
 	const nextSeason = React.useRef(0);
 
 	// Add-on services.
-	const [addOnsOn, setAddOnsOn] = React.useState(false);
-	const [addOnPercent, setAddOnPercent] = React.useState(0);
-	const [services, setServices] = React.useState(sampleServices);
+	const [addOnsOn, setAddOnsOn] = React.useState(defaultAnswers.addOnsOn);
+	const [addOnPercent, setAddOnPercent] = React.useState(defaultAnswers.addOnPercent);
+	const [services, setServices] = React.useState(defaultAnswers.services);
 	const nextService = React.useRef(0);
 	const servicesRef = React.useRef<HTMLDivElement>(null);
+
+	const answers = React.useMemo<PricingAnswers>(
+		() => ({
+			byDay,
+			adjustedDays,
+			dayPercent,
+			durations,
+			holidayOn,
+			holidayPercent,
+			holidayOverrides,
+			seasonalOn,
+			seasons,
+			addOnsOn,
+			addOnPercent,
+			services,
+		}),
+		[byDay, adjustedDays, dayPercent, durations, holidayOn, holidayPercent, holidayOverrides, seasonalOn, seasons, addOnsOn, addOnPercent, services],
+	);
+	useReportAnswers(answers, onAnswersChange);
 
 	// The adjusted-days column shows only when rates differ by day and some days are picked.
 	const dayColumn =
@@ -992,4 +1054,5 @@ function RateInput({
 	);
 }
 
-export { PricingStep };
+export { PricingStep, samplePricing };
+export type { MonthDay, PricingAnswers, PricingStepProps, RateRow, Season };

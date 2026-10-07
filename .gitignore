@@ -2,6 +2,10 @@ node_modules/
 dist/
 *.tsbuildinfo
 storybook-static/
+
+# Local env (Anthropic key for the Storybook AI prototype)
+.env
+.env*.local
 .DS_Store
 
 # Claude

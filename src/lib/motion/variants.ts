@@ -1,6 +1,6 @@
 import type { Variants } from "motion/react";
 
-import { motionDistance, motionStagger } from "./tokens";
+import { motionDistance, motionDuration, motionScale, motionStagger } from "./tokens";
 import { enterTransition, exitTransition, standardTransition } from "./transitions";
 
 /**
@@ -119,6 +119,31 @@ const staggerContainerVariants: Variants = {
   },
 };
 
+/**
+ * Pending: something is working on the element's behalf (e.g. AI generating text). A looping
+ * pulse — `animate="pending"` while busy, `"idle"` otherwise; returning to idle eases back to rest.
+ * CLAUDE.md "Skeletons and Loading States" (opacity pulse). Three variants:
+ * - `pendingIconVariants` — the small control that started the work: scale + fade.
+ * - `pendingIconReducedVariants` — the same control under reduced motion: fade only, no scale.
+ * - `pendingSurfaceVariants` — the content being worked on (a field, a card): fade only.
+ */
+const pendingLoop = { duration: motionDuration.pendingLoop, repeat: Infinity, ease: "easeInOut" } as const;
+
+const pendingIconVariants: Variants = {
+  idle: { scale: 1, opacity: 1, transition: standardTransition },
+  pending: { scale: [1, motionScale.pendingIcon, 1], opacity: [1, 0.35, 1], transition: pendingLoop },
+};
+
+const pendingIconReducedVariants: Variants = {
+  idle: { opacity: 1, transition: standardTransition },
+  pending: { opacity: [1, 0.35, 1], transition: pendingLoop },
+};
+
+const pendingSurfaceVariants: Variants = {
+  idle: { opacity: 1, transition: standardTransition },
+  pending: { opacity: [1, 0.5, 1], transition: pendingLoop },
+};
+
 export {
   fadeVariants,
   revealVariants,
@@ -128,4 +153,7 @@ export {
   panelVariants,
   slideVariants,
   staggerContainerVariants,
+  pendingIconVariants,
+  pendingIconReducedVariants,
+  pendingSurfaceVariants,
 };

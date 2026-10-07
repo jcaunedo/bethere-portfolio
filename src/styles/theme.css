@@ -414,6 +414,78 @@
 	}
 }
 
+/* "Generating" text shimmer (Figma: Provider Portal Review step, Description while AI rewrites):
+   the field's text becomes a foreground-subtle gradient with a light band (neutral-100 — Figma's
+   #f0f0f0 has no token) sweeping left → right on a loop. Use on a text input/textarea (or any
+   text box) while it's busy; the box keeps its card background. The gradient is 3× the box width
+   so the band fully enters and leaves (seamless loop); at mid-cycle the visible third matches
+   Figma's stops (subtle → highlight at 48.7% → subtle). The loop mirrors motionDuration.pendingLoop
+   (1.2s), so it runs in step with the Pending icon pulse. Reduced motion: the band holds still. */
+@utility text-shimmer {
+	-webkit-text-fill-color: transparent;
+	caret-color: transparent;
+	background-image:
+		linear-gradient(
+			90deg,
+			var(--foreground-subtle) 0%,
+			var(--foreground-subtle) 33.33%,
+			var(--neutral-100) 49.57%,
+			var(--foreground-subtle) 66.67%,
+			var(--foreground-subtle) 100%
+		),
+		linear-gradient(var(--card), var(--card));
+	background-size:
+		300% 100%,
+		auto;
+	background-repeat: no-repeat;
+	-webkit-background-clip: text, padding-box;
+	background-clip: text, padding-box;
+	animation: text-shimmer 1.2s linear infinite;
+
+	/* An empty field shimmers its placeholder instead (e.g. "Writing a title…" while AI drafts it). */
+	&::placeholder {
+		-webkit-text-fill-color: transparent;
+		background-image: linear-gradient(
+			90deg,
+			var(--foreground-subtle) 0%,
+			var(--foreground-subtle) 33.33%,
+			var(--neutral-100) 49.57%,
+			var(--foreground-subtle) 66.67%,
+			var(--foreground-subtle) 100%
+		);
+		background-size: 300% 100%;
+		background-repeat: no-repeat;
+		-webkit-background-clip: text;
+		background-clip: text;
+		animation: text-shimmer 1.2s linear infinite;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		animation: none;
+		background-position:
+			50% 0,
+			0 0;
+
+		&::placeholder {
+			animation: none;
+			background-position: 50% 0;
+		}
+	}
+}
+
+@keyframes text-shimmer {
+	from {
+		background-position:
+			100% 0,
+			0 0;
+	}
+	to {
+		background-position:
+			0% 0,
+			0 0;
+	}
+}
+
 :root {
 	/* ===========================================================================
      PRIMITIVES — raw values, the single source of truth

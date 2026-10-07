@@ -18,6 +18,9 @@ export {
   panelVariants,
   slideVariants,
   staggerContainerVariants,
+  pendingIconVariants,
+  pendingIconReducedVariants,
+  pendingSurfaceVariants,
 } from "./variants";
 
 export {

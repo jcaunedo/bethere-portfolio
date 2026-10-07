@@ -7,6 +7,7 @@ import { Typography } from "@/components/typography";
 import { ChoiceChipGrid } from "../../shared/choice-chip-grid";
 import { AddLink } from "../../shared/add-link";
 import { NewListingLayout, type NewListingStepProps } from "../../new-listing";
+import { useReportAnswers } from "../../shared/use-report-answers";
 
 const durations = ["1 hr", "2 hr", "4 hr", "6 hr", "8 hr", "10 hr", "Full Day", "Multi-Day"];
 
@@ -52,7 +53,31 @@ const destinations: SortableListItemValue[] = [
 	{ id: "marine-stadium", label: "Marine Stadium" },
 ];
 
+/** What this step collects — reported to the flow and used to restore the step on a revisit. */
+type ExpectationsAnswers = {
+	/** Selected duration labels (e.g. "2 hr", "Full Day", or a custom one). */
+	durations: string[];
+	/** Boarding location (as last saved in the location card). */
+	location: ExperienceLocationValue;
+	places: SortableListItemValue[];
+	types: string[];
+	included: string[];
+};
+
+/** Figma sample (the step's defaults). */
+const sampleExpectations: ExpectationsAnswers = {
+	durations: ["2 hr", "4 hr", "6 hr", "Full Day"],
+	location: boardingLocation,
+	places: destinations,
+	types: ["Sandbar Day", "Sunset Cruise", "Sightseeing", "Family Outing", "Romantic Cruise"],
+	included: ["Captain", "Fuel", "Ice", "Bottled Water", "Floating Mat", "Water Toys", "Cleaning Fee", "Docking Fees"],
+};
+
 type ExpectationsStepProps = NewListingStepProps & {
+	/** Answers to start from (e.g. when revisiting the step). Defaults to the Figma sample. */
+	defaultAnswers?: ExpectationsAnswers;
+	/** Called with the step's answers whenever they change. */
+	onAnswersChange?: (answers: ExpectationsAnswers) => void;
 	/** Called when "Continue" is submitted. */
 	onContinue?: () => void;
 };
@@ -66,32 +91,31 @@ function ExpectationsStep({
 	steps = 14,
 	currentStep = 7,
 	stepLabel = "Little Atocha · Step 7 of 14",
+	defaultAnswers = sampleExpectations,
+	onAnswersChange,
 	onContinue,
 	...frame
 }: ExpectationsStepProps) {
 	const id = React.useId();
-	const [selectedDurations, setSelectedDurations] = React.useState(
-		() => new Set(["2 hr", "4 hr", "6 hr", "Full Day"]),
-	);
-	const [places, setPlaces] = React.useState(destinations);
+	const [selectedDurations, setSelectedDurations] = React.useState(() => new Set(defaultAnswers.durations));
+	const [location, setLocation] = React.useState(defaultAnswers.location);
+	const [places, setPlaces] = React.useState(defaultAnswers.places);
 	const placesRef = React.useRef<HTMLDivElement>(null);
 	const nextPlace = React.useRef(0);
-	const [types, setTypes] = React.useState(
-		() => new Set(["Sandbar Day", "Sunset Cruise", "Sightseeing", "Family Outing", "Romantic Cruise"]),
+	const [types, setTypes] = React.useState(() => new Set(defaultAnswers.types));
+	const [included, setIncluded] = React.useState(() => new Set(defaultAnswers.included));
+
+	const answers = React.useMemo<ExpectationsAnswers>(
+		() => ({
+			durations: [...selectedDurations],
+			location,
+			places,
+			types: [...types],
+			included: [...included],
+		}),
+		[selectedDurations, location, places, types, included],
 	);
-	const [included, setIncluded] = React.useState(
-		() =>
-			new Set([
-				"Captain",
-				"Fuel",
-				"Ice",
-				"Bottled Water",
-				"Floating Mat",
-				"Water Toys",
-				"Cleaning Fee",
-				"Docking Fees",
-			]),
-	);
+	useReportAnswers(answers, onAnswersChange);
 
 	// "Add place" appends an empty row and focuses it for typing.
 	const addPlace = () => {
@@ -137,7 +161,7 @@ function ExpectationsStep({
 					<SectionHeader id={`${id}-boarding`} description="Choose the primary departure marina.">
 						Where will guests board your yacht?
 					</SectionHeader>
-					<ExperienceLocation defaultValue={boardingLocation} />
+					<ExperienceLocation defaultValue={defaultAnswers.location} onSave={setLocation} />
 				</section>
 
 				<section aria-labelledby={`${id}-places`} className="flex flex-col gap-4">
@@ -227,4 +251,5 @@ function SectionHeader({
 	);
 }
 
-export { ExpectationsStep };
+export { ExpectationsStep, sampleExpectations, durations as durationOptions };
+export type { ExpectationsAnswers, ExpectationsStepProps };

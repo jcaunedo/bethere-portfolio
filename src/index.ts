@@ -25,6 +25,9 @@ export {
   panelVariants,
   slideVariants,
   staggerContainerVariants,
+  pendingIconVariants,
+  pendingIconReducedVariants,
+  pendingSurfaceVariants,
   liftPattern,
   pressPattern,
   mediaHoverPattern,
@@ -383,6 +386,13 @@ export {
 } from "./components/overlays/popover";
 
 export {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from "./components/overlays/tooltip";
+
+export {
   AccountMenu,
   AccountMenuContent,
   AccountMenuGroup,
@@ -511,6 +521,12 @@ export {
   type ExperienceLocationProps,
   type ExperienceLocationValue,
 } from "./components/cards/experience-location";
+
+export {
+  DocumentCard,
+  documentCardVariants,
+  type DocumentCardProps,
+} from "./components/cards/document-card";
 
 /* -------------------------------------------------------------------------- */
 /* Typography                                                                 */

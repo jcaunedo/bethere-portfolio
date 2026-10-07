@@ -18,7 +18,10 @@ import { PhotosStep, type Photo } from "./steps/photos/photos";
 import { BusinessStep } from "./steps/business/business";
 import { sampleBusinesses } from "./steps/business/sample-businesses";
 import { PoliciesStep } from "./steps/policies/policies";
-import { sampleListingDays } from "./shared/week";
+import { DocumentsStep } from "./steps/documents/documents";
+import { ReviewStep, type ReviewSection } from "./steps/review/review";
+import { improveWithClaude } from "./shared/improve-with-claude";
+import { buildReviewSummary, sampleListingAnswers, type ListingAnswers } from "./shared/listing-summary";
 
 /**
  * The whole New Listing flow, stitched from the step layouts in `./steps/`. Each step is
@@ -57,8 +60,24 @@ const screens = {
 	"photos": { step: 9, previous: "pricing" },
 	"business": { step: 10, previous: "photos" },
 	"policies": { step: 11, previous: "business" },
+	"documents": { step: 12, previous: "policies" },
+	"review": { step: 13, previous: "documents" },
 } as const;
 type Screen = keyof typeof screens;
+
+// Review's pencils go back to the step that collected each summary row.
+const reviewEditScreen: Record<ReviewSection, Screen> = {
+	photos: "photos",
+	yacht: "attributes",
+	location: "expectations",
+	duration: "expectations",
+	availability: "availability",
+	pricing: "pricing",
+	captain: "documents",
+	documents: "documents",
+	addons: "pricing",
+	policies: "policies",
+};
 
 function NewListingFlow() {
 	const [screen, setScreen] = React.useState<Screen>("type");
@@ -69,11 +88,32 @@ function NewListingFlow() {
 	// Attributes is reachable from the lookup ("Add yacht manually") or the results (a match
 	// or "Add manually"); Back returns to whichever screen it was opened from.
 	const [attributesFrom, setAttributesFrom] = React.useState<Screen>("matches");
-	// Days picked on Availability — Pricing offers them for by-day rates, and they're restored on
-	// the way back ("Change days" or Back).
-	const [listingDays, setListingDays] = React.useState(sampleListingDays);
-	// Photos added so far — restored when stepping back to them.
-	const [photos, setPhotos] = React.useState<Photo[]>([]);
+	// What each step collected, starting from their sample defaults. Steps report changes here and
+	// are seeded from it when revisited, so their answers survive going back (Back, "Change days",
+	// a Review pencil) — and Review's summary cards show exactly what was chosen. Photos start empty.
+	const [answers, setAnswers] = React.useState<ListingAnswers>(() => ({
+		...sampleListingAnswers,
+		match: null,
+		photos: [],
+	}));
+	const setAnswer =
+		<K extends keyof ListingAnswers>(key: K) =>
+		(value: ListingAnswers[K]) =>
+			setAnswers((current) => ({ ...current, [key]: value }));
+	const listingDays = answers.days;
+	const setListingDays = setAnswer("days");
+	const photos = answers.photos;
+	const setPhotos = setAnswer("photos") as (photos: Photo[]) => void;
+	// Opened from a Review pencil: that step's Continue goes straight back to Review.
+	const [editingFromReview, setEditingFromReview] = React.useState(false);
+	const advance = (next: Screen) => {
+		if (editingFromReview) {
+			setEditingFromReview(false);
+			setScreen("review");
+		} else {
+			setScreen(next);
+		}
+	};
 	const { prefersReducedMotion } = useMotionPreference();
 	const { step } = screens[screen];
 
@@ -85,6 +125,7 @@ function NewListingFlow() {
 
 	const openAttributes = (from: Screen, selected: Match | null) => {
 		setMatch(selected);
+		setAnswers((current) => ({ ...current, match: selected }));
 		setAttributesFrom(from);
 		setScreen("attributes");
 	};
@@ -96,7 +137,9 @@ function NewListingFlow() {
 			screen === "pricing" ||
 			screen === "photos" ||
 			screen === "business" ||
-			screen === "policies") &&
+			screen === "policies" ||
+			screen === "documents" ||
+			screen === "review") &&
 		match
 			? `${match.name} · Step ${step} of ${STEPS}`
 			: `Step ${step} of ${STEPS}`;
@@ -115,6 +158,8 @@ function NewListingFlow() {
 				currentStep={step}
 				label={stepLabel}
 				onBack={() => {
+					// Stepping back leaves the edit-from-Review shortcut; Continue walks forward again.
+					setEditingFromReview(false);
 					if (previous) setScreen(previous);
 				}}
 				onClose={() => {}}
@@ -168,14 +213,18 @@ function NewListingFlow() {
 							<AttributesStep
 								showStepper={false}
 								className={screenClassName}
-								onContinue={() => setScreen("expectations")}
+								defaultAnswers={answers.attributes}
+								onAnswersChange={setAnswer("attributes")}
+								onContinue={() => advance("expectations")}
 							/>
 						) : (
 							screen === "expectations" ? (
 								<ExpectationsStep
 									showStepper={false}
 									className={screenClassName}
-									onContinue={() => setScreen("availability")}
+									defaultAnswers={answers.expectations}
+									onAnswersChange={setAnswer("expectations")}
+									onContinue={() => advance("availability")}
 								/>
 							) : (
 								screen === "availability" ? (
@@ -184,15 +233,19 @@ function NewListingFlow() {
 										className={screenClassName}
 										days={listingDays}
 										onDaysChange={setListingDays}
-										onContinue={() => setScreen("pricing")}
+										defaultWindows={answers.windows}
+										onWindowsChange={setAnswer("windows")}
+										onContinue={() => advance("pricing")}
 									/>
 								) : screen === "pricing" ? (
 									<PricingStep
 										showStepper={false}
 										className={screenClassName}
 										days={listingDays}
+										defaultAnswers={answers.pricing}
+										onAnswersChange={setAnswer("pricing")}
 										onChangeDays={() => setScreen("availability")}
-										onContinue={() => setScreen("photos")}
+										onContinue={() => advance("photos")}
 									/>
 								) : screen === "photos" ? (
 									<PhotosStep
@@ -200,9 +253,9 @@ function NewListingFlow() {
 										className={screenClassName}
 										defaultPhotos={photos}
 										onPhotosChange={setPhotos}
-										onContinue={() => setScreen("business")}
+										onContinue={() => advance("business")}
 										// Skipping keeps the listing a draft; the flow carries on to the next step.
-										onSkip={() => setScreen("business")}
+										onSkip={() => advance("business")}
 									/>
 								) : screen === "business" ? (
 									// The common case: the account has one business to confirm.
@@ -212,8 +265,35 @@ function NewListingFlow() {
 										businesses={sampleBusinesses.slice(0, 1)}
 										onContinue={() => setScreen("policies")}
 									/>
+								) : screen === "policies" ? (
+									<PoliciesStep
+										showStepper={false}
+										className={screenClassName}
+										defaultAnswers={answers.policies}
+										onAnswersChange={setAnswer("policies")}
+										onContinue={() => advance("documents")}
+									/>
 								) : (
-									<PoliciesStep showStepper={false} className={screenClassName} />
+									screen === "documents" ? (
+										<DocumentsStep
+											showStepper={false}
+											className={screenClassName}
+											defaultDocuments={answers.documents}
+											onDocumentsChange={setAnswer("documents")}
+											onContinue={() => advance("review")}
+										/>
+									) : (
+										<ReviewStep
+											showStepper={false}
+											className={screenClassName}
+											summary={buildReviewSummary(answers)}
+											onEdit={(section) => {
+												setEditingFromReview(true);
+												setScreen(reviewEditScreen[section]);
+											}}
+											onImprove={improveWithClaude}
+										/>
+									)
 								)
 							)
 						)
@@ -224,7 +304,12 @@ function NewListingFlow() {
 	);
 }
 
-/** Steps 1 → 11: Experience → yacht type → yacht lookup → matches → attributes → expectations → availability → pricing → photos → business → policies; the stepper's back button steps back. */
+/**
+ * Steps 1 → 13: Experience → yacht type → yacht lookup → matches → attributes → expectations →
+ * availability → pricing → photos → business → policies → documents → review; the stepper's back
+ * button steps back. Review's summary shows what was chosen along the way; a card's pencil opens
+ * its step, and that step's Continue returns to Review.
+ */
 export const Default: Story = {
 	render: () => <NewListingFlow />,
 };
