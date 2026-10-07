@@ -73,13 +73,31 @@ const reviewEditScreen: Record<ReviewSection, Screen> = {
 	yacht: "attributes",
 	location: "expectations",
 	duration: "expectations",
+	destinations: "expectations",
+	experienceTypes: "expectations",
+	included: "expectations",
+	business: "business",
 	availability: "availability",
 	pricing: "pricing",
-	captain: "documents",
 	documents: "documents",
 	addons: "pricing",
 	policies: "policies",
 };
+
+/**
+ * The answers as a comparable string: object keys sorted (so build order doesn't matter), React
+ * elements (e.g. a business's map preview) left out.
+ */
+function answersKey(answers: ListingAnswers) {
+	return JSON.stringify(answers, (_key, value: unknown) => {
+		if (value && typeof value === "object" && !Array.isArray(value)) {
+			if ("$$typeof" in value) return undefined;
+			const record = value as Record<string, unknown>;
+			return Object.fromEntries(Object.keys(record).sort().map((key) => [key, record[key]]));
+		}
+		return value;
+	});
+}
 
 function NewListingFlow() {
 	const [screen, setScreen] = React.useState<Screen>("type");
@@ -100,6 +118,8 @@ function NewListingFlow() {
 		days: [],
 		windows: {},
 		photos: [],
+		// Nothing confirmed until the Business step's Continue.
+		business: null,
 	}));
 	const setAnswer =
 		<K extends keyof ListingAnswers>(key: K) =>
@@ -109,11 +129,28 @@ function NewListingFlow() {
 	const setListingDays = setAnswer("days");
 	const photos = answers.photos;
 	const setPhotos = setAnswer("photos") as (photos: Photo[]) => void;
-	// Opened from a Review pencil: that step's Continue goes straight back to Review.
-	const [editingFromReview, setEditingFromReview] = React.useState(false);
+	// Opened from a Review card (edit mode): the answers as they were then — to tell whether anything
+	// changed ("Save and review" waits for a change) and to restore them on "Discard changes".
+	const [reviewSnapshot, setReviewSnapshot] = React.useState<ListingAnswers | null>(null);
+	// Bumped by "Discard changes" to re-open the step, so every field shows its original value again.
+	const [discards, setDiscards] = React.useState(0);
+	const editingFromReview = reviewSnapshot !== null;
+	const reviewEdit = reviewSnapshot
+		? {
+				changed: answersKey(answers) !== answersKey(reviewSnapshot),
+				onBackToReview: () => {
+					setReviewSnapshot(null);
+					setScreen("review");
+				},
+				onDiscard: () => {
+					setAnswers(reviewSnapshot);
+					setDiscards((count) => count + 1);
+				},
+			}
+		: undefined;
 	const advance = (next: Screen) => {
 		if (editingFromReview) {
-			setEditingFromReview(false);
+			setReviewSnapshot(null);
 			setScreen("review");
 		} else {
 			setScreen(next);
@@ -164,7 +201,7 @@ function NewListingFlow() {
 				label={stepLabel}
 				onBack={() => {
 					// Stepping back leaves the edit-from-Review shortcut; Continue walks forward again.
-					setEditingFromReview(false);
+					setReviewSnapshot(null);
 					if (previous) setScreen(previous);
 				}}
 				onClose={() => {}}
@@ -180,6 +217,8 @@ function NewListingFlow() {
 					exit="exit"
 					className="flex w-full flex-1 flex-col"
 				>
+					{/* Re-keyed by "Discard changes": the step re-opens with its original answers (no screen transition). */}
+					<React.Fragment key={discards}>
 					{screen === "type" ? (
 						<TypeStep
 							showStepper={false}
@@ -217,6 +256,7 @@ function NewListingFlow() {
 						screen === "attributes" ? (
 							<AttributesStep
 								showStepper={false}
+								reviewEdit={reviewEdit}
 								onSaveDraft={saveDraftSample}
 								className={screenClassName}
 								defaultAnswers={answers.attributes}
@@ -227,6 +267,7 @@ function NewListingFlow() {
 							screen === "expectations" ? (
 								<ExpectationsStep
 									showStepper={false}
+									reviewEdit={reviewEdit}
 									onSaveDraft={saveDraftSample}
 									className={screenClassName}
 									defaultAnswers={answers.expectations}
@@ -237,6 +278,7 @@ function NewListingFlow() {
 								screen === "availability" ? (
 									<AvailabilityStep
 										showStepper={false}
+										reviewEdit={reviewEdit}
 										onSaveDraft={saveDraftSample}
 										className={screenClassName}
 										days={listingDays}
@@ -250,6 +292,7 @@ function NewListingFlow() {
 								) : screen === "pricing" ? (
 									<PricingStep
 										showStepper={false}
+										reviewEdit={reviewEdit}
 										onSaveDraft={saveDraftSample}
 										className={screenClassName}
 										days={listingDays}
@@ -261,6 +304,7 @@ function NewListingFlow() {
 								) : screen === "photos" ? (
 									<PhotosStep
 										showStepper={false}
+										reviewEdit={reviewEdit}
 										onSaveDraft={saveDraftSample}
 										className={screenClassName}
 										defaultPhotos={photos}
@@ -273,14 +317,21 @@ function NewListingFlow() {
 									// The common case: the account has one business to confirm.
 									<BusinessStep
 										showStepper={false}
+										// Its confirmation stays inside the step until Continue, so "changed" isn't tracked here.
+										reviewEdit={reviewEdit && { ...reviewEdit, changed: undefined }}
 										onSaveDraft={saveDraftSample}
 										className={screenClassName}
 										businesses={sampleBusinesses.slice(0, 1)}
-										onContinue={() => setScreen("policies")}
+										// Review's Business card shows the confirmed business.
+										onContinue={(business) => {
+											setAnswer("business")(business);
+											advance("policies");
+										}}
 									/>
 								) : screen === "policies" ? (
 									<PoliciesStep
 										showStepper={false}
+										reviewEdit={reviewEdit}
 										onSaveDraft={saveDraftSample}
 										className={screenClassName}
 										defaultAnswers={answers.policies}
@@ -291,6 +342,7 @@ function NewListingFlow() {
 									screen === "documents" ? (
 										<DocumentsStep
 											showStepper={false}
+											reviewEdit={reviewEdit}
 											onSaveDraft={saveDraftSample}
 											className={screenClassName}
 											defaultDocuments={answers.documents}
@@ -303,7 +355,7 @@ function NewListingFlow() {
 											className={screenClassName}
 											summary={buildReviewSummary(answers)}
 											onEdit={(section) => {
-												setEditingFromReview(true);
+												setReviewSnapshot(answers);
 												setScreen(reviewEditScreen[section]);
 											}}
 											onImprove={improveWithClaude}
@@ -314,6 +366,7 @@ function NewListingFlow() {
 							)
 						)
 					)}
+					</React.Fragment>
 				</motion.div>
 			</AnimatePresence>
 

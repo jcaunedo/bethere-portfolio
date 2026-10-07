@@ -25,8 +25,9 @@ const sampleWindows: TimeSlotAccordionValue = {
 	sun: [{ start: "00:00", end: "23:59" }],
 };
 
-/** Sample business hours of operation (as set in Settings): closed Monday. */
+/** Sample business hours of operation (as set in Settings): open every day. */
 const sampleBusinessHours: TimeSlotAccordionValue = {
+	mon: [{ start: "09:00", end: "18:00" }],
 	tue: [{ start: "09:00", end: "18:00" }],
 	wed: [{ start: "09:00", end: "18:00" }],
 	thu: [{ start: "09:00", end: "18:00" }],
@@ -70,6 +71,7 @@ function AvailabilityStep({
 	stepLabel = "Little Atocha · Step 8 of 14",
 	onContinue,
 	onSaveDraft,
+	reviewEdit,
 	days: daysProp,
 	defaultDays = [],
 	onDaysChange,
@@ -212,7 +214,7 @@ function AvailabilityStep({
 				</section>
 
 				<motion.div {...glide}>
-					<StepActions onSaveDraft={onSaveDraft} continueDisabled={!canContinue} />
+					<StepActions onSaveDraft={onSaveDraft} reviewEdit={reviewEdit} continueDisabled={!canContinue} />
 				</motion.div>
 			</motion.form>
 		</NewListingLayout>

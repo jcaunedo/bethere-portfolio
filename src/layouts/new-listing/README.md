@@ -22,7 +22,7 @@ new-listing/
     pricing/                   rates per duration, by-day/holiday/seasonal pricing, add-on services
     photos/                    listing photos: upload, cover, reorder (+ sample-photos.ts)
     business/                  confirm (one) or pick (several) the business that owns the listing (+ sample-businesses.tsx)
-    policies/                  age, rescheduling, cancellation, weather; what's allowed; safety requirements
+    policies/                  age, rescheduling, cancellation, weather; what's not allowed; safety requirements
     documents/                 insurance, captain licenses, vessel registration (document cards + add links)
     review/                    title + description (AI-suggested), preview/publish, summary of every step
 ```
@@ -52,6 +52,12 @@ Every step's props extend `NewListingStepProps` (`showStepper`, `steps`, `curren
 Continue is disabled. Review has its own: "Save as draft" replaces Publish while something required
 is missing, and its `onSaveDraft` also receives the title and description. Stories wire
 `shared/save-draft-sample.tsx` (a simulated save + the toast host).
+
+**Editing from Review.** A step opened from a Review card gets `reviewEdit`: its row becomes
+"Back to review" + "Save and review" (disabled until something changes). Once something changes,
+"Back to review" becomes "Discard changes", which resets the step in place. The flow snapshots
+the answers when the card is clicked to tell what changed and to restore them on discard (re-keying
+the step so its fields reset) — see product-specs/new-listing-flow.md.
 
 Storybook lists the group in wizard order (Flow, Shell, then the steps); that order lives in
 `.storybook/preview.ts` → `storySort`.

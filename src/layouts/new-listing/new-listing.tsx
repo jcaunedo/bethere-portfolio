@@ -6,6 +6,7 @@ import { StepperExperience } from "@/components/stepper/stepper-experience";
 import { Typography } from "@/components/typography";
 import { fadeVariants, layoutSpring, useMotionPreference } from "@/lib/motion";
 import { cn } from "@/lib/utils";
+import type { ReviewEdit } from "./shared/step-actions";
 
 /**
  * Props every New Listing step accepts and forwards to `NewListingLayout` — the stepper
@@ -34,6 +35,13 @@ type NewListingStepProps = {
 	 * when it rejects). Steps handle it themselves — `NewListingLayout` ignores it.
 	 */
 	onSaveDraft?: () => void | Promise<unknown>;
+	/**
+	 * Set when the step was opened from Review's summary (edit mode): its main button reads "Save
+	 * and review" (disabled until `changed`, when tracked) and "Back to review" replaces "Save as
+	 * draft", asking before it discards changes. Steps handle it themselves — `NewListingLayout`
+	 * ignores it.
+	 */
+	reviewEdit?: ReviewEdit;
 };
 
 const frameVariants = cva("flex w-full flex-1 flex-col items-center", {

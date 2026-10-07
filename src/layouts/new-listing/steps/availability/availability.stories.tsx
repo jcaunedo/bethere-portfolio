@@ -29,7 +29,7 @@ export const Default: Story = {
 
 /**
  * With the business's hours of operation from Settings: a picked day starts with that day's
- * hours as its time window (Tue–Sun); Monday, closed, starts empty (Required).
+ * hours as its time window (every day of the week).
  */
 export const WithBusinessHours: Story = {
 	args: { businessHours: sampleBusinessHours },

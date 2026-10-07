@@ -86,6 +86,7 @@ function PhotosStep({
 	onUpload = previewUpload,
 	onContinue,
 	onSaveDraft,
+	reviewEdit,
 	onSkip,
 	...frame
 }: PhotosStepProps) {
@@ -217,6 +218,7 @@ function PhotosStep({
 						<div className="flex w-full flex-col items-center gap-4">
 							<StepActions
 								onSaveDraft={onSaveDraft}
+						reviewEdit={reviewEdit}
 								continueDisabled={uploaded < MIN_PHOTOS}
 								onContinue={() => onContinue?.()}
 							/>

@@ -1,13 +1,16 @@
 import {
 	BlocksIcon,
+	Building2Icon,
 	CalendarClockIcon,
-	CircleUserIcon,
 	DollarSignIcon,
 	FileTextIcon,
 	ImagesIcon,
 	ListChecksIcon,
 	MapPinIcon,
+	PackageCheckIcon,
+	RouteIcon,
 	ShipIcon,
+	TagsIcon,
 	TimerIcon,
 } from "lucide-react";
 
@@ -16,6 +19,8 @@ import type * as React from "react";
 import type { TimeSlotAccordionValue } from "@/components/forms/time-slot-accordion";
 import { sampleAttributes, type AttributesAnswers } from "../steps/attributes/attributes";
 import { sampleWindows } from "../steps/availability/availability";
+import type { Business } from "../steps/business/business";
+import { sampleBusinesses } from "../steps/business/sample-businesses";
 import { sampleDocuments, type DocumentSection, type ListingDocument } from "../steps/documents/documents";
 import { durationOptions, sampleExpectations, type ExpectationsAnswers } from "../steps/expectations/expectations";
 import type { Match } from "../steps/matches/matches";
@@ -24,6 +29,9 @@ import { MIN_PHOTOS, type Photo } from "../steps/photos/photos";
 import { samplePhotos } from "../steps/photos/sample-photos";
 import {
 	ageOptions,
+	reschedulingOptions,
+	notAllowedOptions,
+	safetyOptions,
 	cancellationOptions,
 	samplePolicies,
 	weatherOptions,
@@ -48,6 +56,8 @@ type ListingAnswers = {
 	windows: TimeSlotAccordionValue;
 	pricing: PricingAnswers;
 	photos: Photo[];
+	/** Business: the business confirmed (or picked) for the listing; `null` until then. */
+	business: Business | null;
 	policies: PoliciesAnswers;
 	documents: Record<DocumentSection, ListingDocument[]>;
 };
@@ -61,6 +71,7 @@ const sampleListingAnswers: ListingAnswers = {
 	windows: sampleWindows,
 	pricing: samplePricing,
 	photos: samplePhotos,
+	business: sampleBusinesses[0],
 	policies: samplePolicies,
 	documents: sampleDocuments,
 };
@@ -93,6 +104,7 @@ function hoursIn(label: string) {
 
 const icon = (component: React.ComponentType<React.SVGProps<SVGSVGElement>>) => ({ type: "icon" as const, icon: component });
 
+/** Attributes step: the yacht — name and match, with its specs underneath. */
 function yachtItem({ match, attributes }: ListingAnswers): ReviewSummaryItem {
 	const name = attributes.name.trim();
 	const value = [name, match?.name].filter(Boolean).join(" · ") || "No yacht details yet";
@@ -288,17 +300,21 @@ function seasonalItems(answers: ListingAnswers): ReviewSummaryItem[] {
 }
 
 /** Pricing step, "Add-on services" section. */
-function addOnsItem({ pricing }: ListingAnswers): ReviewSummaryItem {
+/** Pricing step, "Add-on services" section — only when switched on with services picked (optional). */
+function addOnsItems({ pricing }: ListingAnswers): ReviewSummaryItem[] {
 	const services = pricing.addOnsOn
 		? pricing.services.filter((row) => row.included && row.label.trim()).map((row) => row.label.trim())
 		: [];
-	return {
-		section: "addons",
-		label: "Add-on Services",
-		value: services.length ? `${services.length} available` : "Not offered",
-		detail: services.length ? services.join(" · ") : undefined,
-		media: icon(BlocksIcon),
-	};
+	if (services.length === 0) return [];
+	return [
+		{
+			section: "addons",
+			label: "Add-on Services",
+			value: `${services.length} available`,
+			detail: services.join(" · "),
+			media: icon(BlocksIcon),
+		},
+	];
 }
 
 function photosItem({ photos }: ListingAnswers): ReviewSummaryItem {
@@ -321,39 +337,74 @@ const WEATHER_PHRASE: Record<string, string> = {
 	"host-review": "Host reviews weather cases",
 };
 
+const optionLabel = (options: { value: string; label: string }[], value: string) =>
+	options.find((option) => option.value === value)?.label ?? value;
+
+/** Policies' rescheduling notice: "48h" → "48-hour rescheduling notice"; "none" → "No rescheduling". */
+function reschedulingPhrase(value: string) {
+	const hours = /^(\d+)h$/.exec(value)?.[1];
+	if (hours) return `${hours}-hour rescheduling notice`;
+	return value === "none" ? "No rescheduling" : optionLabel(reschedulingOptions, value);
+}
+
+/** A policy option's summary as one line ("a · b" when the option has several). */
+function optionSummary(options: { value: string; summary: string | string[] }[], value: string) {
+	const summary = options.find((option) => option.value === value)?.summary;
+	const text = Array.isArray(summary) ? summary.join(" · ") : summary;
+	return text || undefined;
+}
+
+/** Labels of the picked options, in the step's order: "Smoking · Pets". */
+const pickedLabels = (options: { value: string; label: string }[], picked: string[]) =>
+	options.filter((option) => picked.includes(option.value)).map((option) => option.label);
+
+/**
+ * Policies step: one card with an entry per section, in the step's order (SummaryCard's Multiple
+ * variant) — age, rescheduling notice, cancellation, weather, then what's not allowed and safety
+ * when anything is picked there. Each entry is the answer, with the option's own summary (or the
+ * picks) underneath.
+ */
 function policiesItem({ policies }: ListingAnswers): ReviewSummaryItem {
-	// Rules: the four single-choice policies, plus each "allowed" and safety pick.
-	const rules = 4 + policies.allowed.length + policies.safety.length;
-	const label = (options: { value: string; label: string }[], value: string) =>
-		options.find((option) => option.value === value)?.label ?? value;
-	const detail = [
-		`${label(cancellationOptions, policies.cancellation)} cancellation`,
-		label(ageOptions, policies.age),
-		WEATHER_PHRASE[policies.weather] ?? label(weatherOptions, policies.weather),
-	].join(" · ");
+	const age = optionLabel(ageOptions, policies.age);
+	const notAllowed = pickedLabels(notAllowedOptions, policies.notAllowed);
+	const safety = pickedLabels(safetyOptions, policies.safety);
+	const customTerms = policies.customTerms.trim();
+	const entries = [
+		{
+			value: policies.age === "all" ? "All ages welcome" : `Guests ${age}`,
+			detail: optionSummary(ageOptions, policies.age),
+		},
+		{
+			value: reschedulingPhrase(policies.rescheduling),
+			detail: optionSummary(reschedulingOptions, policies.rescheduling),
+		},
+		{
+			value: `${optionLabel(cancellationOptions, policies.cancellation)} cancellation`,
+			// Custom: the terms the provider wrote.
+			detail:
+				policies.cancellation === "custom"
+					? customTerms || "Add your cancellation terms"
+					: optionSummary(cancellationOptions, policies.cancellation),
+		},
+		{
+			value: WEATHER_PHRASE[policies.weather] ?? optionLabel(weatherOptions, policies.weather),
+			detail: optionSummary(weatherOptions, policies.weather),
+		},
+		// Optional multi-select sections: an entry only when something is picked.
+		...(notAllowed.length
+			? [{ value: `${plural(notAllowed.length, "thing")} not allowed`, detail: notAllowed.join(" · ") }]
+			: []),
+		...(safety.length ? [{ value: plural(safety.length, "safety requirement"), detail: safety.join(" · ") }] : []),
+	];
 	return {
 		section: "policies",
 		label: "Policies",
-		value: plural(rules, "rule"),
-		detail,
+		value: entries.map((entry) => entry.value).join(", "),
+		entries,
 		// "Custom" cancellation needs its terms written.
-		required: policies.cancellation === "custom" && !policies.customTerms.trim(),
+		required: policies.cancellation === "custom" && !customTerms,
 		media: icon(ListChecksIcon),
 	};
-}
-
-/** One card per captain license: the captain and the license type ("USCG Master Captain"). */
-function captainItems({ documents }: ListingAnswers): ReviewSummaryItem[] {
-	if (documents.captain.length === 0) {
-		return [{ section: "captain", label: "Captain", value: "No captain yet", required: true, media: icon(CircleUserIcon) }];
-	}
-	return documents.captain.map((document) => ({
-		section: "captain",
-		label: "Captain",
-		value: document.captain?.name ?? document.title,
-		detail: document.description.split(" · ")[0].replace(/\s+License$/i, "") || undefined,
-		media: icon(CircleUserIcon),
-	}));
 }
 
 const DOCUMENT_TYPE: Record<DocumentSection, string> = {
@@ -362,6 +413,10 @@ const DOCUMENT_TYPE: Record<DocumentSection, string> = {
 	vessel: "Vessel registration",
 };
 
+/**
+ * Documents step: the document set — one detail part per type, the captain licenses naming their
+ * captains ("2 captain licenses (Frank Smith, Cody Fisher)"). There's no separate Captain card.
+ */
 function documentsItem({ documents }: ListingAnswers): ReviewSummaryItem {
 	const sections = (Object.keys(DOCUMENT_TYPE) as DocumentSection[]).filter((key) => documents[key].length > 0);
 	const total = sections.reduce((sum, key) => sum + documents[key].length, 0);
@@ -373,18 +428,72 @@ function documentsItem({ documents }: ListingAnswers): ReviewSummaryItem {
 		required: sections.length < Object.keys(DOCUMENT_TYPE).length,
 		detail: sections.length
 			? sections
-					.map((key) => (documents[key].length > 1 ? `${documents[key].length} ${DOCUMENT_TYPE[key]}` : DOCUMENT_TYPE[key]))
+					.map((key) => {
+						if (key === "captain") {
+							const names = documents.captain.map((document) => document.captain?.name ?? document.title);
+							return `${plural(names.length, "captain license")} (${names.join(", ")})`;
+						}
+						return documents[key].length > 1 ? `${documents[key].length} ${DOCUMENT_TYPE[key]}` : DOCUMENT_TYPE[key];
+					})
 					.join(" · ")
 			: undefined,
 		media: icon(FileTextIcon),
 	};
 }
 
+/** An optional multi-select section as a card — only when something is picked there. */
+function picksItems(
+	section: ReviewSummaryItem["section"],
+	label: string,
+	labels: string[],
+	one: string,
+	media: ReviewSummaryItem["media"],
+): ReviewSummaryItem[] {
+	if (labels.length === 0) return [];
+	return [{ section, label, value: plural(labels.length, one), detail: labels.join(" · "), media }];
+}
+
+/** Expectations step, "Where can guests go?": the destinations, in the provider's order. */
+const destinationsItems = ({ expectations }: ListingAnswers) =>
+	picksItems("destinations", "Destinations", expectations.places.map((place) => place.label), "destination", icon(RouteIcon));
+
+/** Expectations step, "What best describes this experience?". */
+const experienceTypesItems = ({ expectations }: ListingAnswers) =>
+	picksItems("experienceTypes", "Experience types", expectations.types, "experience type", icon(TagsIcon));
+
+/** Expectations step, "What's included?". */
+function includedItems({ expectations }: ListingAnswers): ReviewSummaryItem[] {
+	const included = expectations.included;
+	if (included.length === 0) return [];
+	return [
+		{
+			section: "included",
+			label: "What's included",
+			value: `${included.length} included`,
+			detail: included.join(" · "),
+			media: icon(PackageCheckIcon),
+		},
+	];
+}
+
+/** Business step: the business that owns or operates the listing (required to publish). */
+function businessItem({ business }: ListingAnswers): ReviewSummaryItem {
+	const card = { section: "business" as const, label: "Business", media: icon(Building2Icon) };
+	if (!business) return { ...card, value: "No business confirmed", required: true };
+	return {
+		...card,
+		value: business.name,
+		detail: [business.address, business.taxId ? `EIN / Tax ID: ${business.taxId}` : null].filter(Boolean).join(" · "),
+	};
+}
+
 /**
- * Review's summary cards, built from what the steps collected. Every step's card is always present —
- * "No photos yet", "Not offered"… when nothing was chosen — so its pencil still leads to the step.
- * Exception: Holiday and each season get a card only when that pricing is set (switched on, with a
- * % or a custom rate); otherwise base rates apply and the Pricing card already covers them.
+ * Review's summary cards, built from what the steps collected. A step that must be complete to
+ * publish always has its card — "No photos yet", "No documents yet"… marked Required — so its pencil
+ * leads back to it. Optional sections show only when something was chosen there: Destinations,
+ * Experience types and What's included;
+ * Add-on Services; Holiday and each season's pricing (switched on, with a % or a custom rate); and
+ * Policies' "not allowed" and safety entries.
  * A card is `required` when its step is missing something the listing needs to publish (Review
  * then disables Publish). Order between steps doesn't matter here (Review sorts cards into wizard
  * order); within a step, cards keep the order below.
@@ -394,15 +503,19 @@ function buildReviewSummary(answers: ListingAnswers): ReviewSummaryItem[] {
 		yachtItem(answers),
 		durationItem(answers),
 		locationItem(answers),
+		...destinationsItems(answers),
+		...experienceTypesItems(answers),
+		...includedItems(answers),
 		availabilityItem(answers),
-		// The Pricing step's sections, in its order; all share its pencil.
+		// The Pricing step's sections in the same order as on its page (charter rates, holiday,
+		// seasonal — each season as listed — then add-ons); all share its pencil.
 		pricingItem(answers),
 		...holidayItems(answers),
 		...seasonalItems(answers),
-		addOnsItem(answers),
+		...addOnsItems(answers),
 		photosItem(answers),
+		businessItem(answers),
 		policiesItem(answers),
-		...captainItems(answers),
 		documentsItem(answers),
 	];
 }

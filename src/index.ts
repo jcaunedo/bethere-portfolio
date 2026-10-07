@@ -529,6 +529,12 @@ export {
   documentCardVariants,
   type DocumentCardProps,
 } from "./components/cards/document-card";
+export {
+  SummaryCard,
+  summaryCardVariants,
+  type SummaryCardEntry,
+  type SummaryCardProps,
+} from "./components/cards/summary-card";
 
 /* -------------------------------------------------------------------------- */
 /* Typography                                                                 */

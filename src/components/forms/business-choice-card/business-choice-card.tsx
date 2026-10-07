@@ -14,7 +14,8 @@ const businessChoiceCardVariants = cva(
 		variants: {
 			variant: {
 				// Figma Variants=single: info, full-width map, then a confirmation checkbox — not selectable.
-				single: "flex flex-col justify-center gap-3 px-6 py-4",
+				// 16px top, 12px bottom (the checkbox row carries its own 8px vertical padding).
+				single: "flex flex-col justify-center gap-3 px-6 pt-4 pb-3",
 				// Figma Variants=multiple-default/multiple-selected: radio + info + map thumbnail.
 				// Selection is shown by the radio only (the surface is identical in Figma).
 				// No Figma hover/focus/disabled source: follows ChoiceCard.

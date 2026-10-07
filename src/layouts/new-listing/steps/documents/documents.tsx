@@ -100,6 +100,7 @@ function DocumentsStep({
 	onAddDocument,
 	onContinue,
 	onSaveDraft,
+	reviewEdit,
 	...frame
 }: DocumentsStepProps) {
 	const id = React.useId();
@@ -254,7 +255,7 @@ function DocumentsStep({
 				))}
 
 				<motion.div {...glide}>
-					<StepActions onSaveDraft={onSaveDraft} continueDisabled={!canContinue} />
+					<StepActions onSaveDraft={onSaveDraft} reviewEdit={reviewEdit} continueDisabled={!canContinue} />
 				</motion.div>
 			</form>
 		</NewListingLayout>

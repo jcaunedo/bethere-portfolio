@@ -161,6 +161,7 @@ function PricingStep({
 	stepLabel = "Little Atocha · Step 9 of 14",
 	onContinue,
 	onSaveDraft,
+	reviewEdit,
 	onChangeDays,
 	days = sampleListingDays,
 	defaultAnswers = samplePricing,
@@ -423,7 +424,7 @@ function PricingStep({
 					</Reveal>
 				</section>
 
-				<StepActions onSaveDraft={onSaveDraft} />
+				<StepActions onSaveDraft={onSaveDraft} reviewEdit={reviewEdit} />
 			</form>
 		</NewListingLayout>
 	);

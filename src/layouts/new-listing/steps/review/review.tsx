@@ -2,20 +2,23 @@ import * as React from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
 	BlocksIcon,
+	Building2Icon,
 	CalendarClockIcon,
-	CircleUserIcon,
 	DollarSignIcon,
 	FileTextIcon,
 	ListChecksIcon,
 	MapPinIcon,
-	PencilIcon,
+	PackageCheckIcon,
+	RouteIcon,
 	ShipIcon,
+	TagsIcon,
 	TimerIcon,
 } from "lucide-react";
 
 import jumpFromBoat from "@/assets/images/jump-from-boat.webp";
 import { Button } from "@/components/buttons/button";
 import { AlertInline } from "@/components/feedback/alert-inline";
+import { SummaryCard } from "@/components/cards/summary-card";
 import { FormField } from "@/components/forms/field";
 import { Input } from "@/components/forms/input";
 import { Textarea } from "@/components/forms/textarea";
@@ -39,9 +42,12 @@ type ReviewSection =
 	| "yacht"
 	| "location"
 	| "duration"
+	| "destinations"
+	| "experienceTypes"
+	| "included"
 	| "availability"
 	| "pricing"
-	| "captain"
+	| "business"
 	| "documents"
 	| "addons"
 	| "policies";
@@ -69,8 +75,13 @@ type ReviewSummaryItem = {
 	label: string;
 	/** Main value (Figma `lg -medium`). */
 	value: string;
-	/** Supporting line (Figma `xs`, muted). */
+	/** Supporting line (Figma `sm`, muted). */
 	detail?: string;
+	/**
+	 * Several answers on one card (SummaryCard's Multiple variant), e.g. each Policies section — shown
+	 * instead of `value`/`detail`. `value` still names them all for the edit button and the AI facts.
+	 */
+	entries?: { value: string; detail?: string }[];
 	/** Something this step must have is missing: the card shows "Required" and Publish is disabled. */
 	required?: boolean;
 	/** Brand pill beside the pencil, e.g. a pricing adjustment ("+15%", "Custom"). */
@@ -83,29 +94,30 @@ type ReviewSummaryItem = {
 
 /**
  * Wizard order of the steps behind each summary row — the order each answer was defined. Rows are
- * shown in this order whatever order `summary` comes in (rows of the same section, e.g. several
- * captains, keep their relative order). Attributes → Expectations (durations, then boarding
- * location) → Availability → Pricing (charter rates, then holiday and each season when set, then
- * add-ons) → Photos → Policies → Documents
- * (captain licenses, then the document set).
+ * shown in this order whatever order `summary` comes in (rows of the same section keep their
+ * relative order). Within a step, its general card comes first, then the cards for its parts.
+ * Attributes → Expectations (durations, boarding location, then destinations, experience types and
+ * what's included when set) → Availability → Pricing (charter rates, then holiday and each season
+ * when set, then add-ons) → Photos → Business → Policies (one card, an entry per section) →
+ * Documents (captain licenses included — no separate Captain card).
  */
 const SECTION_ORDER: ReviewSection[] = [
 	"yacht",
 	"duration",
 	"location",
+	"destinations",
+	"experienceTypes",
+	"included",
 	"availability",
 	"pricing",
 	"addons",
 	"photos",
+	"business",
 	"policies",
-	"captain",
 	"documents",
 ];
 
 const DESCRIPTION_MAX_LENGTH = 600;
-
-/** gradient-1 paint server for the summary icons (mirrors --gradient-1; CSS gradients can't paint an SVG stroke). */
-const ICON_GRADIENT_ID = "review-summary-gradient-1";
 
 // Figma copy, "14. Review & Publish". (Summary rows are sorted by SECTION_ORDER when shown.)
 const sampleTitle = "Private Miami Yacht Charter Aboard Little Atocha from Key Biscayne";
@@ -120,6 +132,34 @@ const sampleSummary: ReviewSummaryItem[] = [
 		value: "Little Atocha · Azimut 55 Fly (2021)",
 		detail: "55 ft · 13 guests · 3 cabins · 2 bathrooms",
 		media: { type: "icon", icon: ShipIcon },
+	},
+	{
+		section: "destinations",
+		label: "Destinations",
+		value: "3 destinations",
+		detail: "Nixon Sandbar · Stiltsville · Boca Chita Key",
+		media: { type: "icon", icon: RouteIcon },
+	},
+	{
+		section: "experienceTypes",
+		label: "Experience types",
+		value: "5 experience types",
+		detail: "Sandbar Day · Sunset Cruise · Sightseeing · Family Outing · Romantic Cruise",
+		media: { type: "icon", icon: TagsIcon },
+	},
+	{
+		section: "included",
+		label: "What's included",
+		value: "8 included",
+		detail: "Captain · Fuel · Ice · Bottled Water · Floating Mat · Water Toys · Cleaning Fee · Docking Fees",
+		media: { type: "icon", icon: PackageCheckIcon },
+	},
+	{
+		section: "business",
+		label: "Business",
+		value: "Key Biscayne Yacht Club",
+		detail: "180 Harbor Dr, Key Biscayne, FL 33149 · EIN / Tax ID: 12-3456789",
+		media: { type: "icon", icon: Building2Icon },
 	},
 	{
 		section: "location",
@@ -149,24 +189,10 @@ const sampleSummary: ReviewSummaryItem[] = [
 		media: { type: "icon", icon: DollarSignIcon },
 	},
 	{
-		section: "captain",
-		label: "Captain",
-		value: "Frank Smith",
-		detail: "USCG Master Captain",
-		media: { type: "icon", icon: CircleUserIcon },
-	},
-	{
-		section: "captain",
-		label: "Captain",
-		value: "Cody Fisher",
-		detail: "Master Captain",
-		media: { type: "icon", icon: CircleUserIcon },
-	},
-	{
 		section: "documents",
 		label: "Documents",
-		value: "3 documents",
-		detail: "Commercial insurance · 2 Captain license · Vessel registration",
+		value: "4 documents",
+		detail: "Commercial insurance · 2 captain licenses (Frank Smith, Cody Fisher) · Vessel registration",
 		media: { type: "icon", icon: FileTextIcon },
 	},
 	{
@@ -179,8 +205,25 @@ const sampleSummary: ReviewSummaryItem[] = [
 	{
 		section: "policies",
 		label: "Policies",
-		value: "7 rules",
-		detail: "Flexible cancellation · Reschedule or refund based on weather",
+		value: "Guests 13+, 48-hour rescheduling notice, Flexible cancellation, Reschedule for weather, 2 things not allowed, 3 safety requirements",
+		// One entry per Policies section, in the step's order.
+		entries: [
+			{ value: "Guests 13+", detail: "Children can participate when accompanied by an adult." },
+			{
+				value: "48-hour rescheduling notice",
+				detail: "Change requests will be accepted until 48 hours before the scheduled start time.",
+			},
+			{
+				value: "Flexible cancellation",
+				detail: "Full refund up to 24 hours before the experience · Free rescheduling when available",
+			},
+			{ value: "Reschedule for weather", detail: "Guests can choose a new available date." },
+			{ value: "2 things not allowed", detail: "Smoking · Pets" },
+			{
+				value: "3 safety requirements",
+				detail: "Safety briefing required · Valid ID required · Follow host instructions",
+			},
+		],
 		media: { type: "icon", icon: ListChecksIcon },
 	},
 ];
@@ -301,9 +344,10 @@ function ReviewStep({
 		text: values[field],
 		maxLength: maxLengthFor(field),
 		listingType,
-		facts: sortedSummary.map(
-			(item) =>
-				`${item.label}: ${item.value}${item.badge ? ` [${item.badge}]` : ""}${item.detail ? ` (${item.detail})` : ""}`,
+		facts: sortedSummary.map((item) =>
+			item.entries
+				? `${item.label}: ${item.entries.map((entry) => `${entry.value}${entry.detail ? ` (${entry.detail})` : ""}`).join("; ")}`
+				: `${item.label}: ${item.value}${item.badge ? ` [${item.badge}]` : ""}${item.detail ? ` (${item.detail})` : ""}`,
 		),
 		otherFields: values,
 	});
@@ -553,20 +597,21 @@ function ReviewStep({
 						>
 							Summary
 						</SectionHeader>
-						<svg aria-hidden="true" width="0" height="0" className="pointer-events-none absolute size-0">
-							<defs>
-								{/* In the icon's 24px viewBox, not per shape: a straight line has a zero-size box,
-								    so a bounding-box gradient would paint nothing on it. */}
-								<linearGradient id={ICON_GRADIENT_ID} gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="24">
-									<stop offset="0" stopColor="#f26740" />
-									<stop offset="1" stopColor="#ffa47d" />
-								</linearGradient>
-							</defs>
-						</svg>
 						<ul className="flex flex-col gap-2">
 							{sortedSummary.map((item, index) => (
 								<li key={`${item.section}-${index}`}>
-									<SummaryRow item={item} onEdit={() => onEdit?.(item.section)} />
+									<SummaryCard
+										eyebrow={item.label}
+										value={item.value}
+										detail={item.detail}
+										entries={item.entries}
+										icon={item.media.type === "icon" ? item.media.icon : undefined}
+										imageSrc={item.media.type === "image" ? item.media.src : undefined}
+										badge={item.badge}
+										required={item.required}
+										editLabel={`Edit ${item.label.toLowerCase()}: ${item.value}${item.badge ? ` (${item.badge})` : ""}${item.required ? " (required)" : ""}`}
+										onEdit={() => onEdit?.(item.section)}
+									/>
 								</li>
 							))}
 						</ul>
@@ -650,74 +695,6 @@ function ImproveButton({ label, pending, onClick }: { label: string; pending: bo
 			</TooltipTrigger>
 			<TooltipContent>Regenerate</TooltipContent>
 		</Tooltip>
-	);
-}
-
-/**
- * Figma "Form Wizard Answers": white card (radius/card, spacing/3 padding), a 64px tile, an
- * uppercase label over the value and an optional detail line, and a pencil to edit that step.
- * The pencil's hit area stretches over the whole card (one button, no nested controls), so clicking
- * anywhere on the card edits; the card lifts with the `card` shadow on hover, like DocumentCard.
- * A `required` card shows Availability's Required look (TimeSlotAccordion, bethere.ds node
- * 874:1447): card fill with a 1px color/tone/desctructive/destructive stroke (an inset ring, so the
- * card keeps its size) and a danger "Required" pill.
- */
-function SummaryRow({ item, onEdit }: { item: ReviewSummaryItem; onEdit: () => void }) {
-	const { media } = item;
-
-	return (
-		<div
-			data-required={item.required || undefined}
-			className={cn(
-				"relative flex items-center gap-3 rounded-card bg-card p-3 transition-shadow has-[button:hover]:shadow-card",
-				item.required && "inset-ring inset-ring-destructive",
-			)}
-		>
-			<div className="flex min-w-0 flex-1 items-center gap-4">
-				{media.type === "image" ? (
-					<img src={media.src} alt="" className="size-16 shrink-0 rounded-lg object-cover" />
-				) : (
-					<div className="flex size-16 shrink-0 items-center justify-center rounded-lg bg-primary-subtle">
-						<media.icon aria-hidden="true" className="size-6 text-primary" style={{ stroke: `url(#${ICON_GRADIENT_ID})` }} />
-					</div>
-				)}
-				<div className="flex min-w-0 flex-1 flex-col gap-px">
-					{/* No 10px type token: Figma's literal headline 10/18, +0.4px tracking. */}
-					<span className="font-display text-[10px] leading-[18px] tracking-[0.04em] text-muted-foreground uppercase">
-						{item.label}
-					</span>
-					<Typography size="lg" weight="medium" className="truncate">
-						{item.value}
-					</Typography>
-					{item.detail != null ? (
-						<Typography size="xs" className="truncate text-muted-foreground">
-							{item.detail}
-						</Typography>
-					) : null}
-				</div>
-			</div>
-			{/* Same pill as the Pricing step's season cards: color/tone/brand/subtle fill, brand xs label. */}
-			{item.badge != null ? (
-				<span className="shrink-0 rounded-full bg-primary-subtle px-2 py-0.5 text-xs leading-[18px] whitespace-nowrap text-primary">
-					{item.badge}
-				</span>
-			) : null}
-			{item.required ? (
-				<span className="shrink-0 rounded-full bg-danger-05 px-2 py-0.5 text-xs leading-[18px] whitespace-nowrap text-danger">
-					Required
-				</span>
-			) : null}
-			<Button
-				type="button"
-				variant="ghost"
-				size="icon"
-				className="text-icon-subtle after:absolute after:inset-0 after:rounded-card"
-				aria-label={`Edit ${item.label.toLowerCase()}: ${item.value}${item.badge ? ` (${item.badge})` : ""}${item.required ? " (required)" : ""}`}
-				onClick={onEdit}
-			>
-				<PencilIcon />
-			</Button>
-		</div>
 	);
 }
 

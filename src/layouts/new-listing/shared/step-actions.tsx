@@ -36,52 +36,90 @@ function useSaveDraft<T extends unknown[]>(onSaveDraft?: (...values: T) => void 
 	return { saving, save };
 }
 
+/** A step opened from Review's summary (edit mode) — see `NewListingStepProps.reviewEdit`. */
+type ReviewEdit = {
+	/** Anything differs from when the step was opened; `undefined` when not tracked. */
+	changed?: boolean;
+	/** Return to Review (only offered while nothing has changed). */
+	onBackToReview: () => void;
+	/** Put the step back as it was when opened, staying on it. */
+	onDiscard: () => void;
+};
+
 /**
  * A step's actions row (Figma "11. Verify Business - Single", node 106:2827): "Save as draft"
  * (outline) and the main "Continue" side by side, equal width, 16px apart, both xl (40px).
  * "Save as draft" stays available while Continue is disabled — saving is how a provider leaves a
  * step they can't finish yet. Continue submits the step's form unless `onContinue` is given.
+ *
+ * Edit mode (`reviewEdit`, the step opened from Review): the main button reads "Save and review" —
+ * disabled until something changes (when tracked) — and "Save as draft" gives way to "Back to
+ * review". Once something changes, that button becomes "Discard changes": it puts the step back as
+ * it was (staying on it, confirmed with a toast) and turns back into "Back to review".
  */
 function StepActions({
 	onSaveDraft,
 	onContinue,
 	continueDisabled = false,
-	continueLabel = "Continue",
+	reviewEdit,
 	className,
 }: {
 	onSaveDraft?: () => void | Promise<unknown>;
 	/** Continue as a plain button with this handler; omit to submit the surrounding form. */
 	onContinue?: () => void;
 	continueDisabled?: boolean;
-	continueLabel?: React.ReactNode;
+	reviewEdit?: ReviewEdit;
 	className?: string;
 }) {
 	const { saving, save } = useSaveDraft(onSaveDraft);
 
 	return (
 		<div className={cn("flex w-full gap-4", className)}>
-			<Button
-				type="button"
-				variant="outline"
-				size="xl"
-				className="flex-1"
-				disabled={saving}
-				aria-busy={saving || undefined}
-				onClick={() => void save()}
-			>
-				Save as draft
-			</Button>
+			{reviewEdit ? (
+				reviewEdit.changed ? (
+					<Button
+						type="button"
+						variant="outline"
+						size="xl"
+						className="flex-1"
+						onClick={() => {
+							reviewEdit.onDiscard();
+							toast("Changes discarded");
+						}}
+					>
+						Discard changes
+					</Button>
+				) : (
+					<Button type="button" variant="outline" size="xl" className="flex-1" onClick={reviewEdit.onBackToReview}>
+						Back to review
+					</Button>
+				)
+			) : (
+				<Button
+					type="button"
+					variant="outline"
+					size="xl"
+					className="flex-1"
+					disabled={saving}
+					aria-busy={saving || undefined}
+					onClick={() => void save()}
+				>
+					Save as draft
+				</Button>
+			)}
 			<Button
 				type={onContinue ? "button" : "submit"}
 				size="xl"
 				className="flex-1"
-				disabled={continueDisabled}
+				// Edit mode: nothing to save until something changes.
+				disabled={continueDisabled || reviewEdit?.changed === false}
 				onClick={onContinue}
 			>
-				{continueLabel}
+				{reviewEdit ? "Save and review" : "Continue"}
 			</Button>
 		</div>
 	);
 }
 
 export { StepActions, useSaveDraft };
+export type { ReviewEdit };

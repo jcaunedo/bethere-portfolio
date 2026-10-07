@@ -93,6 +93,7 @@ function ExpectationsStep({
 	onAnswersChange,
 	onContinue,
 	onSaveDraft,
+	reviewEdit,
 	...frame
 }: ExpectationsStepProps) {
 	const id = React.useId();
@@ -223,7 +224,7 @@ function ExpectationsStep({
 					/>
 				</section>
 
-				<StepActions onSaveDraft={onSaveDraft} />
+				<StepActions onSaveDraft={onSaveDraft} reviewEdit={reviewEdit} />
 			</form>
 		</NewListingLayout>
 	);

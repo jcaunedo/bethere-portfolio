@@ -78,7 +78,8 @@ const weatherOptions: PolicyOption[] = [
 	},
 ];
 
-const allowedOptions = [
+/** "What's not allowed": things guests can't do during the listing (multi-select). */
+const notAllowedOptions = [
 	{ value: "smoking", label: "Smoking", icon: <CigaretteIcon /> },
 	{ value: "food", label: "Food", icon: <UtensilsIcon /> },
 	{ value: "alcohol", label: "Alcohol", icon: <MartiniIcon /> },
@@ -135,8 +136,8 @@ type PoliciesAnswers = {
 	customTerms: string;
 	/** `weatherOptions` value. */
 	weather: string;
-	/** `allowedOptions` values. */
-	allowed: string[];
+	/** `notAllowedOptions` values: what guests can't do. */
+	notAllowed: string[];
 	/** `safetyOptions` values. */
 	safety: string[];
 };
@@ -148,7 +149,7 @@ const samplePolicies: PoliciesAnswers = {
 	cancellation: "flexible",
 	customTerms: "",
 	weather: "reschedule",
-	allowed: [],
+	notAllowed: [],
 	safety: [],
 };
 
@@ -165,7 +166,7 @@ type PoliciesStepProps = NewListingStepProps & {
 
 /**
  * New Listing — policies ("Set your policies"): age requirement, rescheduling notice, cancellation
- * and weather policies (one choice each, with a summary of the pick underneath), what's allowed
+ * and weather policies (one choice each, with a summary of the pick underneath), what's not allowed
  * during the listing (icon tiles) and safety requirements (cards), both multi-select. "Custom"
  * cancellation swaps the summary for a terms field.
  * Figma origin: Provider Portal, "12. Policies" (node 109:3517).
@@ -179,6 +180,7 @@ function PoliciesStep({
 	onAnswersChange,
 	onContinue,
 	onSaveDraft,
+	reviewEdit,
 	...frame
 }: PoliciesStepProps) {
 	const id = React.useId();
@@ -187,12 +189,12 @@ function PoliciesStep({
 	const [cancellation, setCancellation] = React.useState(defaultAnswers.cancellation);
 	const [customTerms, setCustomTerms] = React.useState(defaultAnswers.customTerms);
 	const [weather, setWeather] = React.useState(defaultAnswers.weather);
-	const [allowed, setAllowed] = React.useState<string[]>(defaultAnswers.allowed);
+	const [notAllowed, setNotAllowed] = React.useState<string[]>(defaultAnswers.notAllowed);
 	const [safety, setSafety] = React.useState<string[]>(defaultAnswers.safety);
 
 	const answers = React.useMemo<PoliciesAnswers>(
-		() => ({ age, rescheduling, cancellation, customTerms, weather, allowed, safety }),
-		[age, rescheduling, cancellation, customTerms, weather, allowed, safety],
+		() => ({ age, rescheduling, cancellation, customTerms, weather, notAllowed, safety }),
+		[age, rescheduling, cancellation, customTerms, weather, notAllowed, safety],
 	);
 	useReportAnswers(answers, onAnswersChange);
 
@@ -268,19 +270,22 @@ function PoliciesStep({
 					onChange={setWeather}
 				/>
 
-				<section aria-labelledby={`${id}-allowed`} className="flex flex-col gap-4">
-					<SectionHeader id={`${id}-allowed`} description={`Choose what guests are allowed to do during the ${listingType}.`}>
-						What’s allowed
+				<section aria-labelledby={`${id}-not-allowed`} className="flex flex-col gap-4">
+					<SectionHeader
+						id={`${id}-not-allowed`}
+						description={`Select anything guests are not allowed to do during the ${listingType}.`}
+					>
+						What’s not allowed
 					</SectionHeader>
 					{/* Figma: 3-column grid, 8px gaps. */}
-					<div role="group" aria-labelledby={`${id}-allowed`} className="grid grid-cols-3 gap-2">
-						{allowedOptions.map((option) => (
+					<div role="group" aria-labelledby={`${id}-not-allowed`} className="grid grid-cols-3 gap-2">
+						{notAllowedOptions.map((option) => (
 							<ChoiceButtonIcon
 								key={option.value}
 								icon={option.icon}
 								label={option.label}
-								isSelected={allowed.includes(option.value)}
-								onClick={() => setAllowed((current) => toggle(current, option.value))}
+								isSelected={notAllowed.includes(option.value)}
+								onClick={() => setNotAllowed((current) => toggle(current, option.value))}
 							/>
 						))}
 					</div>
@@ -305,7 +310,7 @@ function PoliciesStep({
 					</div>
 				</section>
 
-				<StepActions onSaveDraft={onSaveDraft} />
+				<StepActions onSaveDraft={onSaveDraft} reviewEdit={reviewEdit} />
 			</form>
 		</NewListingLayout>
 	);
@@ -380,5 +385,14 @@ function SectionHeader({ id, description, children }: { id: string; description:
 	);
 }
 
-export { PoliciesStep, samplePolicies, ageOptions, cancellationOptions, weatherOptions };
+export {
+	PoliciesStep,
+	samplePolicies,
+	ageOptions,
+	reschedulingOptions,
+	cancellationOptions,
+	weatherOptions,
+	notAllowedOptions,
+	safetyOptions,
+};
 export type { PoliciesAnswers, PoliciesStepProps };

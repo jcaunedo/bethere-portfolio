@@ -96,6 +96,7 @@ function AttributesStep({
 	onAnswersChange,
 	onContinue,
 	onSaveDraft,
+	reviewEdit,
 	...frame
 }: AttributesStepProps) {
 	const id = React.useId();
@@ -223,7 +224,7 @@ function AttributesStep({
 					onSelectedChange={setAccess}
 				/>
 
-				<StepActions onSaveDraft={onSaveDraft} />
+				<StepActions onSaveDraft={onSaveDraft} reviewEdit={reviewEdit} />
 			</form>
 		</NewListingLayout>
 	);

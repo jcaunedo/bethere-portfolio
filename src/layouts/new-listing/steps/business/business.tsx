@@ -46,6 +46,7 @@ function BusinessStep({
 	onAddBusiness = () => {},
 	onContinue,
 	onSaveDraft,
+	reviewEdit,
 	...frame
 }: BusinessStepProps) {
 	const multiple = businesses.length > 1;
@@ -101,7 +102,7 @@ function BusinessStep({
 					<AddLink onClick={onAddBusiness}>Add another business</AddLink>
 				</div>
 
-				<StepActions onSaveDraft={onSaveDraft} continueDisabled={!canContinue} />
+				<StepActions onSaveDraft={onSaveDraft} reviewEdit={reviewEdit} continueDisabled={!canContinue} />
 			</form>
 		</NewListingLayout>
 	);
