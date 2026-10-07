@@ -1,9 +1,10 @@
 import * as React from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, animate, motion, useMotionValue } from "motion/react";
-import { ImageIcon, InfoIcon, PlusIcon, XIcon } from "lucide-react";
+import { ImageIcon, PlusIcon, XIcon } from "lucide-react";
 
 import { Button } from "@/components/buttons/button";
+import { AlertInline } from "@/components/feedback/alert-inline";
 import { Typography } from "@/components/typography";
 import {
 	expandVariants,
@@ -16,6 +17,7 @@ import {
 } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { NewListingLayout, type NewListingStepProps } from "../../new-listing";
+import { StepActions } from "../../shared/step-actions";
 import type { ListingKind } from "../type/type";
 
 /** One photo in the listing. The first one is the cover. */
@@ -83,6 +85,7 @@ function PhotosStep({
 	onPhotosChange,
 	onUpload = previewUpload,
 	onContinue,
+	onSaveDraft,
 	onSkip,
 	...frame
 }: PhotosStepProps) {
@@ -212,15 +215,11 @@ function PhotosStep({
 						{/* No Figma source for Skip under Continue: offered while Continue is locked so the
 						    provider is never stuck between 1 and MIN_PHOTOS - 1 photos. */}
 						<div className="flex w-full flex-col items-center gap-4">
-							<Button
-								type="button"
-								size="xl"
-								className="w-full"
-								disabled={uploaded < MIN_PHOTOS}
-								onClick={onContinue}
-							>
-								Continue
-							</Button>
+							<StepActions
+								onSaveDraft={onSaveDraft}
+								continueDisabled={uploaded < MIN_PHOTOS}
+								onContinue={() => onContinue?.()}
+							/>
 							{uploaded < MIN_PHOTOS ? <SkipButton onClick={onSkip} /> : null}
 						</div>
 						{picker.input}
@@ -269,13 +268,12 @@ function DropOverlay() {
 	);
 }
 
-/** "Add at least 5 high-quality photos." — Figma `alert-inline` (info): 16px icon, 6px gap, sm in color/tone/info/info. */
+/** "Add at least 5 high-quality photos." — Figma `alert-inline` (info). */
 function MinPhotosHint({ className }: { className?: string }) {
 	return (
-		<p className={cn("flex items-center gap-1.5 text-sm text-info", className)}>
-			<InfoIcon aria-hidden="true" className="size-4 shrink-0" />
+		<AlertInline variant="info" className={className}>
 			Add at least {MIN_PHOTOS} high-quality photos.
-		</p>
+		</AlertInline>
 	);
 }
 

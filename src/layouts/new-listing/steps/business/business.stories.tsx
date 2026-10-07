@@ -1,10 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { saveDraftSample, withToaster } from "../../shared/save-draft-sample";
 import { BusinessStep } from "./business";
 import { sampleBusinesses } from "./sample-businesses";
 
 const meta: Meta<typeof BusinessStep> = {
 	title: "Layouts/NewListing/Business",
 	component: BusinessStep,
+	// "Save as draft" saves (simulated) and confirms with a toast.
+	args: { onSaveDraft: saveDraftSample },
+	decorators: [withToaster],
 	tags: ["autodocs"],
 	parameters: {
 		layout: "fullscreen",

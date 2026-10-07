@@ -1,10 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { saveDraftSample, withToaster } from "../../shared/save-draft-sample";
 import { PhotosStep } from "./photos";
 import { samplePhotos } from "./sample-photos";
 
 const meta: Meta<typeof PhotosStep> = {
 	title: "Layouts/NewListing/Photos",
 	component: PhotosStep,
+	// "Save as draft" saves (simulated) and confirms with a toast.
+	args: { onSaveDraft: saveDraftSample },
+	decorators: [withToaster],
 	tags: ["autodocs"],
 	parameters: {
 		layout: "fullscreen",

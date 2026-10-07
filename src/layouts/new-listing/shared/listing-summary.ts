@@ -1,14 +1,12 @@
 import {
 	BlocksIcon,
 	CalendarClockIcon,
-	CalendarRangeIcon,
 	CircleUserIcon,
 	DollarSignIcon,
 	FileTextIcon,
 	ImagesIcon,
 	ListChecksIcon,
 	MapPinIcon,
-	PartyPopperIcon,
 	ShipIcon,
 	TimerIcon,
 } from "lucide-react";
@@ -31,7 +29,7 @@ import {
 	weatherOptions,
 	type PoliciesAnswers,
 } from "../steps/policies/policies";
-import { samplePricing, type MonthDay, type PricingAnswers } from "../steps/pricing/pricing";
+import { samplePricing, type PricingAnswers } from "../steps/pricing/pricing";
 import type { ReviewSummaryItem } from "../steps/review/review";
 import { sampleListingDays, week } from "./week";
 
@@ -75,9 +73,6 @@ function listJoin(items: string[]) {
 
 const plural = (count: number, one: string, many = `${one}s`) => `${count} ${count === 1 ? one : many}`;
 const signedPercent = (value: number) => `${value > 0 ? "+" : ""}${value}%`;
-/** `{ month: 11, day: 15 }` → "Dec 15" (seasons repeat yearly, so no year). */
-const monthDay = ({ month, day }: MonthDay) =>
-	new Date(2024, month, day).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 /** Custom per-duration rates set in a pricing section's overrides. */
 const customRates = (overrides: Record<string, number | undefined>) =>
 	Object.values(overrides).filter((value) => value !== undefined).length;
@@ -174,69 +169,125 @@ function availabilityItem({ days, windows }: ListingAnswers): ReviewSummaryItem 
 	};
 }
 
-function pricingItem({ pricing }: ListingAnswers): ReviewSummaryItem {
-	const rates = pricing.durations.filter((row) => row.included && row.base != null) as Array<{ label: string; base: number }>;
+/** Charter rates' "Set different rates by day", when on: "Sat, Sun +20%, 1 custom rate". */
+function byDayDetail({ pricing, days }: ListingAnswers) {
+	// Same rule as the Pricing step: by-day rates only apply with more than one listing day.
+	if (!pricing.byDay || days.length < 2) return undefined;
+	// Only days the listing still runs (Availability may have changed since they were picked).
+	const picked = week.filter((day) => pricing.adjustedDays.includes(day.value) && days.includes(day.value));
+	if (picked.length === 0) return undefined;
+	const custom = pricing.durations.filter((row) => row.included && row.adjustedOverride !== undefined).length;
+	const rate = pricing.dayPercent !== 0 ? signedPercent(pricing.dayPercent) : "at base rates";
+	return `${picked.map((day) => day.short).join(", ")} ${rate}${custom ? `, ${plural(custom, "custom rate")}` : ""}`;
+}
+
+/**
+ * A set of duration rates as a pricing card's lines: "Starting at $200/hr" (lowest hourly rate,
+ * or lowest price when no duration is in hours) and "Packages from $400 – $1,600".
+ */
+function rateLines(rates: Array<{ label: string; price: number }>) {
 	const hourly = rates.flatMap((row) => {
 		const hours = hoursIn(row.label);
-		return hours ? [row.base / hours] : [];
+		return hours ? [row.price / hours] : [];
 	});
-	const prices = rates.map((row) => row.base);
+	const prices = rates.map((row) => row.price);
 	const low = Math.min(...prices);
 	const high = Math.max(...prices);
 	return {
-		section: "pricing",
-		label: "Pricing",
 		value: hourly.length
 			? `Starting at ${money(Math.min(...hourly))}/hr`
 			: prices.length
 				? `Starting at ${money(low)}`
 				: "No rates yet",
-		detail: prices.length
+		packages: prices.length
 			? low === high
 				? `Packages at ${money(low)}`
 				: `Packages from ${money(low)} – ${money(high)}`
 			: undefined,
-		required: prices.length === 0,
+	};
+}
+
+/** Included durations with a base rate. */
+const baseRates = ({ pricing }: ListingAnswers) =>
+	pricing.durations.filter((row) => row.included && row.base != null) as Array<
+		PricingAnswers["durations"][number] & { base: number }
+	>;
+
+/** Pricing step, "Charter rates" section: base rates per duration, plus any by-day rates. */
+function pricingItem(answers: ListingAnswers): ReviewSummaryItem {
+	const rates = baseRates(answers);
+	const { value, packages } = rateLines(rates.map((row) => ({ label: row.label, price: row.base })));
+	return {
+		section: "pricing",
+		label: "Pricing",
+		value,
+		detail: [packages, byDayDetail(answers)].filter(Boolean).join(" · ") || undefined,
+		required: rates.length === 0,
 		media: icon(DollarSignIcon),
 	};
 }
 
-/** Holiday pricing, only when switched on: its % on the base rates and any custom rates. */
-function holidayItems({ pricing }: ListingAnswers): ReviewSummaryItem[] {
+/**
+ * A pricing adjustment's badge, as on the Pricing step's season cards: its % ("+15%"), or "Custom"
+ * when only custom rates differ; none at base rates.
+ */
+function adjustmentBadge(percent: number, overrides: Record<string, number | undefined>) {
+	if (percent !== 0) return signedPercent(percent);
+	return customRates(overrides) ? "Custom" : undefined;
+}
+
+/**
+ * A pricing adjustment (holiday or a season) as a "{name} pricing" card: its rates — a custom rate
+ * where set, else the base rate with its % — as "Starting at …" / "Packages from …", like the base
+ * Pricing card, and its adjustment badge. None when it isn't set (no % and no custom rate): its
+ * prices would just repeat the base Pricing card.
+ */
+function adjustedPricingItems(
+	answers: ListingAnswers,
+	name: string,
+	percent: number,
+	overrides: Record<string, number | undefined>,
+): ReviewSummaryItem[] {
+	const badge = adjustmentBadge(percent, overrides);
+	if (!badge) return [];
+	const { value, packages } = rateLines(
+		baseRates(answers).map((row) => ({
+			label: row.label,
+			price: overrides[row.id] ?? Math.round(row.base * (1 + percent / 100)),
+		})),
+	);
+	return [
+		{
+			section: "pricing",
+			label: `${name} pricing`,
+			value,
+			detail: packages,
+			badge,
+			media: icon(DollarSignIcon),
+		},
+	];
+}
+
+/** Pricing step, "Holiday pricing" section: the holiday rates — only when switched on and set. */
+function holidayItems(answers: ListingAnswers): ReviewSummaryItem[] {
+	const { pricing } = answers;
 	if (!pricing.holidayOn) return [];
-	const custom = customRates(pricing.holidayOverrides);
-	return [
-		{
-			section: "pricing",
-			label: "Holiday pricing",
-			value: pricing.holidayPercent !== 0 ? `${signedPercent(pricing.holidayPercent)} on holidays` : "Base rates on holidays",
-			detail: custom ? plural(custom, "custom rate") : undefined,
-			media: icon(PartyPopperIcon),
-		},
-	];
+	return adjustedPricingItems(answers, "Holiday", pricing.holidayPercent, pricing.holidayOverrides);
 }
 
-/** Seasonal pricing, only when switched on: each season with its dates, % and custom rates. */
-function seasonalItems({ pricing }: ListingAnswers): ReviewSummaryItem[] {
+/**
+ * Pricing step, "Seasonal pricing" section: one "{season} pricing" card per named, set season, in
+ * the same format as Holiday pricing — only when switched on.
+ */
+function seasonalItems(answers: ListingAnswers): ReviewSummaryItem[] {
+	const { pricing } = answers;
 	if (!pricing.seasonalOn) return [];
-	const seasons = pricing.seasons.filter((season) => season.name.trim());
-	const describe = (season: (typeof seasons)[number]) => {
-		const dates = season.start && season.end ? ` (${monthDay(season.start)} – ${monthDay(season.end)})` : "";
-		const percent = season.percent !== 0 ? ` ${signedPercent(season.percent)}` : "";
-		const custom = customRates(season.overrides);
-		return `${season.name.trim()}${dates}${percent}${custom ? `, ${plural(custom, "custom rate")}` : ""}`;
-	};
-	return [
-		{
-			section: "pricing",
-			label: "Seasonal pricing",
-			value: seasons.length ? plural(seasons.length, "season") : "No seasons yet",
-			detail: seasons.length ? seasons.map(describe).join(" · ") : undefined,
-			media: icon(CalendarRangeIcon),
-		},
-	];
+	return pricing.seasons
+		.filter((season) => season.name.trim())
+		.flatMap((season) => adjustedPricingItems(answers, season.name.trim(), season.percent, season.overrides));
 }
 
+/** Pricing step, "Add-on services" section. */
 function addOnsItem({ pricing }: ListingAnswers): ReviewSummaryItem {
 	const services = pricing.addOnsOn
 		? pricing.services.filter((row) => row.included && row.label.trim()).map((row) => row.label.trim())
@@ -330,11 +381,13 @@ function documentsItem({ documents }: ListingAnswers): ReviewSummaryItem {
 }
 
 /**
- * Review's summary cards, built from what the steps collected. Every card is always present —
- * "No photos yet", "Not offered"… when nothing was chosen — so its pencil still leads to the step —
- * except Holiday and Seasonal pricing, which appear only when switched on. A card is `required`
- * when its step is missing something the listing needs to publish (Review then disables Publish).
- * Order doesn't matter here: Review sorts cards into wizard order.
+ * Review's summary cards, built from what the steps collected. Every step's card is always present —
+ * "No photos yet", "Not offered"… when nothing was chosen — so its pencil still leads to the step.
+ * Exception: Holiday and each season get a card only when that pricing is set (switched on, with a
+ * % or a custom rate); otherwise base rates apply and the Pricing card already covers them.
+ * A card is `required` when its step is missing something the listing needs to publish (Review
+ * then disables Publish). Order between steps doesn't matter here (Review sorts cards into wizard
+ * order); within a step, cards keep the order below.
  */
 function buildReviewSummary(answers: ListingAnswers): ReviewSummaryItem[] {
 	return [
@@ -342,7 +395,7 @@ function buildReviewSummary(answers: ListingAnswers): ReviewSummaryItem[] {
 		durationItem(answers),
 		locationItem(answers),
 		availabilityItem(answers),
-		// Same step (and pencil) as Pricing; listed right after it.
+		// The Pricing step's sections, in its order; all share its pencil.
 		pricingItem(answers),
 		...holidayItems(answers),
 		...seasonalItems(answers),

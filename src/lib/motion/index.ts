@@ -4,6 +4,7 @@ export {
   standardTransition,
   enterTransition,
   exitTransition,
+  scrollTransition,
   subtleSpring,
   responsiveSpring,
   layoutSpring,
@@ -30,6 +31,8 @@ export {
   glidePattern,
   confirmPattern,
 } from "./patterns";
+
+export { scrollIntoViewSmoothly } from "./scroll";
 
 export {
   reducedMotionTransition,

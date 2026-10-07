@@ -1,13 +1,16 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import * as React from "react";
 
-import { sampleListingDays } from "../../shared/week";
+import { saveDraftSample, withToaster } from "../../shared/save-draft-sample";
 import { PricingStep } from "../pricing/pricing";
-import { AvailabilityStep } from "./availability";
+import { AvailabilityStep, sampleBusinessHours } from "./availability";
 
 const meta: Meta<typeof AvailabilityStep> = {
 	title: "Layouts/NewListing/Availability",
 	component: AvailabilityStep,
+	// "Save as draft" saves (simulated) and confirms with a toast.
+	args: { onSaveDraft: saveDraftSample },
+	decorators: [withToaster],
 	tags: ["autodocs"],
 	parameters: {
 		layout: "fullscreen",
@@ -24,9 +27,18 @@ export const Default: Story = {
 	render: (args) => <AvailabilityToPricing {...args} />,
 };
 
+/**
+ * With the business's hours of operation from Settings: a picked day starts with that day's
+ * hours as its time window (Tue–Sun); Monday, closed, starts empty (Required).
+ */
+export const WithBusinessHours: Story = {
+	args: { businessHours: sampleBusinessHours },
+	render: (args) => <AvailabilityToPricing {...args} />,
+};
+
 function AvailabilityToPricing(props: React.ComponentProps<typeof AvailabilityStep>) {
 	const [screen, setScreen] = React.useState<"availability" | "pricing">("availability");
-	const [days, setDays] = React.useState(sampleListingDays);
+	const [days, setDays] = React.useState<string[]>([]);
 
 	// Each screen is a long page — start the next one at the top.
 	const go = (next: typeof screen) => {
@@ -37,6 +49,11 @@ function AvailabilityToPricing(props: React.ComponentProps<typeof AvailabilitySt
 	return screen === "availability" ? (
 		<AvailabilityStep {...props} days={days} onDaysChange={setDays} onContinue={() => go("pricing")} />
 	) : (
-		<PricingStep days={days} onBack={() => go("availability")} onChangeDays={() => go("availability")} />
+		<PricingStep
+			days={days}
+			onBack={() => go("availability")}
+			onChangeDays={() => go("availability")}
+			onSaveDraft={props.onSaveDraft}
+		/>
 	);
 }

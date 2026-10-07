@@ -1,12 +1,16 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import * as React from "react";
 
+import { saveDraftSample, withToaster } from "../../shared/save-draft-sample";
 import { AvailabilityStep } from "../availability/availability";
 import { ExpectationsStep } from "./expectations";
 
 const meta: Meta<typeof ExpectationsStep> = {
 	title: "Layouts/NewListing/Expectations",
 	component: ExpectationsStep,
+	// "Save as draft" saves (simulated) and confirms with a toast.
+	args: { onSaveDraft: saveDraftSample },
+	decorators: [withToaster],
 	tags: ["autodocs"],
 	parameters: {
 		layout: "fullscreen",
@@ -32,6 +36,6 @@ function ExpectationsToAvailability(props: React.ComponentProps<typeof Expectati
 	return screen === "expectations" ? (
 		<ExpectationsStep {...props} onContinue={() => go("availability")} />
 	) : (
-		<AvailabilityStep onBack={() => go("expectations")} />
+		<AvailabilityStep onBack={() => go("expectations")} onSaveDraft={props.onSaveDraft} />
 	);
 }

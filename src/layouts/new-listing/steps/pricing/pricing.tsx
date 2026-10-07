@@ -4,7 +4,6 @@ import { AnimatePresence, motion } from "motion/react";
 import { Accordion as AccordionPrimitive } from "radix-ui";
 import { CalendarIcon, ChevronDownIcon } from "lucide-react";
 
-import { Button } from "@/components/buttons/button";
 import { Calendar } from "@/components/forms/calendar";
 import { Checkbox } from "@/components/forms/checkbox";
 import { ChoiceChip } from "@/components/forms/choice-chip";
@@ -27,6 +26,7 @@ import {
 } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { NewListingLayout, type NewListingStepProps } from "../../new-listing";
+import { StepActions } from "../../shared/step-actions";
 import { AddLink } from "../../shared/add-link";
 import { dayTileOptions, sampleListingDays } from "../../shared/week";
 import { useReportAnswers } from "../../shared/use-report-answers";
@@ -80,7 +80,7 @@ type Season = {
 /** Figma sample seasons (always offered). */
 const sampleSeasons: Season[] = [
 	{ id: "peak", name: "Peak Season", start: { month: 11, day: 15 }, end: { month: 3, day: 30 }, percent: 0, overrides: {} },
-	{ id: "summer", name: "Summer", start: { month: 4, day: 1 }, end: { month: 7, day: 31 }, percent: 15, overrides: {} },
+	{ id: "summer", name: "Summer", start: { month: 4, day: 1 }, end: { month: 7, day: 31 }, percent: 0, overrides: {} },
 	{ id: "christmas", name: "Christmas & New Year", start: { month: 11, day: 24 }, end: { month: 0, day: 2 }, percent: 0, overrides: {} },
 ];
 
@@ -160,6 +160,7 @@ function PricingStep({
 	currentStep = 9,
 	stepLabel = "Little Atocha · Step 9 of 14",
 	onContinue,
+	onSaveDraft,
 	onChangeDays,
 	days = sampleListingDays,
 	defaultAnswers = samplePricing,
@@ -171,6 +172,10 @@ function PricingStep({
 
 	// Charter rates.
 	const [byDay, setByDay] = React.useState(defaultAnswers.byDay);
+	// Rates by day only make sense with more than one day to compare; with fewer (Availability may
+	// have changed) the option is hidden and any by-day rates don't apply.
+	const byDayAvailable = listingDays.length > 1;
+	const ratesByDay = byDay && byDayAvailable;
 	// Days picked for a different rate. None until the provider picks some.
 	const [adjustedDays, setAdjustedDays] = React.useState<string[]>(defaultAnswers.adjustedDays);
 	// Only days the listing still runs count (Availability may have changed since they were picked).
@@ -219,7 +224,7 @@ function PricingStep({
 
 	// The adjusted-days column shows only when rates differ by day and some days are picked.
 	const dayColumn =
-		byDay && pickedDays.length > 0
+		ratesByDay && pickedDays.length > 0
 			? listingDays
 					.filter((day) => pickedDays.includes(day.value))
 					.map((day) => day.label)
@@ -262,8 +267,8 @@ function PricingStep({
 					<SectionHeader id={`${id}-charter`} description="Set your base price for each duration.">
 						Charter rates
 					</SectionHeader>
-					{/* By-day rates need days to pick from: hidden if the listing has none selected yet. */}
-					{listingDays.length > 0 ? (
+					{/* By-day rates need more than one day to vary across: hidden until the listing has 2+. */}
+					{byDayAvailable ? (
 						<div className="flex items-center justify-between">
 							<Checkbox
 								label="Set different rates by day"
@@ -277,7 +282,7 @@ function PricingStep({
 							{/* Only while rates vary by day — it edits the days shown in the tiles. Fades in/out.
 							    Figma: sm/regular in color/states/link. */}
 							<AnimatePresence initial={false}>
-								{byDay ? (
+								{ratesByDay ? (
 									<motion.button
 										type="button"
 										onClick={onChangeDays}
@@ -293,7 +298,7 @@ function PricingStep({
 							</AnimatePresence>
 						</div>
 					) : null}
-					<Reveal show={byDay && listingDays.length > 0}>
+					<Reveal show={ratesByDay}>
 						<div className="flex flex-col gap-4">
 							{/* The listing's days (Availability step) as Available tiles; pick the ones to adjust.
 							    7 columns so tiles keep the week-row width. */}
@@ -418,9 +423,7 @@ function PricingStep({
 					</Reveal>
 				</section>
 
-				<Button type="submit" size="xl" className="w-full">
-					Continue
-				</Button>
+				<StepActions onSaveDraft={onSaveDraft} />
 			</form>
 		</NewListingLayout>
 	);

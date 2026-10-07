@@ -5,7 +5,13 @@ import { Accordion as AccordionPrimitive } from "radix-ui";
 import { ChevronDownIcon, CircleAlertIcon, Clock4Icon, PlusIcon, XIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { fadeVariants, layoutSpring, revealVariants, useMotionPreference } from "@/lib/motion";
+import {
+	fadeVariants,
+	layoutSpring,
+	revealVariants,
+	scrollIntoViewSmoothly,
+	useMotionPreference,
+} from "@/lib/motion";
 import { Button } from "@/components/buttons/button";
 import {
 	Select,
@@ -57,9 +63,11 @@ const timeSlotItemVariants = cva(
 	"overflow-hidden rounded-input bg-card has-[[data-slot=time-slot-accordion-trigger]:focus-visible]:ring-[3px] has-[[data-slot=time-slot-accordion-trigger]:focus-visible]:ring-input-ring-outside data-[state=open]:shadow-card",
 	{
 		variants: {
-			// Figma Property 1=Required — no complete window yet: danger tint (collapsed only).
+			// Figma Property 1=Required — no complete window yet: card fill with a 1px
+			// color/tone/desctructive/destructive stroke (collapsed only). Drawn as an inset ring so the
+			// row keeps the same height as the others.
 			required: {
-				true: "data-[state=closed]:bg-danger-05",
+				true: "data-[state=closed]:inset-ring data-[state=closed]:inset-ring-destructive",
 				false: "",
 			},
 		},
@@ -80,8 +88,12 @@ type TimeSlotAccordionProps = Omit<
 	defaultValue?: TimeSlotAccordionValue;
 	/** Fires with the full value on every window change. */
 	onValueChange?: (value: TimeSlotAccordionValue) => void;
-	/** Day open initially (one open at a time). */
+	/** Day open initially when uncontrolled (one open at a time). */
 	defaultOpenDay?: string;
+	/** Controlled open day (`""` = all collapsed) — e.g. to open a day as soon as it's added. */
+	openDay?: string;
+	/** Fires when a day is opened (its value) or collapsed (`""`). */
+	onOpenDayChange?: (day: string) => void;
 };
 
 /**
@@ -96,12 +108,40 @@ function TimeSlotAccordion({
 	value,
 	defaultValue = {},
 	onValueChange,
-	defaultOpenDay,
+	defaultOpenDay = "",
+	openDay: openDayProp,
+	onOpenDayChange,
 	...props
 }: TimeSlotAccordionProps) {
 	const [uncontrolled, setUncontrolled] = React.useState(defaultValue);
 	const windowsByDay = value ?? uncontrolled;
+	const [ownOpenDay, setOwnOpenDay] = React.useState(defaultOpenDay);
+	const openDay = openDayProp ?? ownOpenDay;
+	const setOpenDay = (day: string) => {
+		if (openDayProp === undefined) setOwnOpenDay(day);
+		onOpenDayChange?.(day);
+	};
 	const { prefersReducedMotion, resolve } = useMotionPreference();
+
+	// A day opened after mount (clicked, or opened by the parent as it's added) scrolls fully into
+	// view in one eased movement that starts right away and follows the row while it expands or
+	// reveals (and while a previously open day collapses). A controlled open day is also revealed
+	// when the accordion mounts (e.g. the first day picked creates the accordion with that day
+	// open); an uncontrolled `defaultOpenDay` is not.
+	const rowElements = React.useRef(new Map<string, HTMLElement>());
+	// Last open day already handled — seeded so an uncontrolled default isn't revealed on mount.
+	const revealedDay = React.useRef(openDayProp === undefined ? openDay : "");
+	const stopScroll = React.useRef<() => void>(undefined);
+	React.useEffect(() => {
+		if (openDay === revealedDay.current) return;
+		revealedDay.current = openDay;
+		const row = openDay ? rowElements.current.get(openDay) : undefined;
+		if (!row) return;
+		// A newer open takes over from a scroll still in flight.
+		stopScroll.current?.();
+		stopScroll.current = scrollIntoViewSmoothly(row, { reducedMotion: Boolean(prefersReducedMotion) });
+		// Only a change of open day reveals a row.
+	}, [openDay]);
 
 	const setDay = (day: string, windows: TimeWindow[]) => {
 		const next = { ...windowsByDay, [day]: windows };
@@ -113,7 +153,8 @@ function TimeSlotAccordion({
 		<AccordionPrimitive.Root
 			type="single"
 			collapsible
-			defaultValue={defaultOpenDay}
+			value={openDay}
+			onValueChange={setOpenDay}
 			data-slot="time-slot-accordion"
 			// `relative` anchors a leaving row popped out of flow by AnimatePresence.
 			className={cn("relative flex w-full flex-col gap-2", className)}
@@ -126,12 +167,18 @@ function TimeSlotAccordion({
 				{days.map((day) => (
 					<motion.div
 						key={day.value}
+						ref={(node: HTMLDivElement | null) => {
+							if (node) rowElements.current.set(day.value, node);
+							else rowElements.current.delete(day.value);
+						}}
 						layout={prefersReducedMotion ? false : "position"}
 						variants={prefersReducedMotion ? fadeVariants : revealVariants}
 						initial="initial"
 						animate="animate"
 						exit="exit"
 						transition={{ layout: resolve(layoutSpring) }}
+						// Breathing room between the revealed row and the viewport edge.
+						className="scroll-my-4"
 					>
 						<TimeSlotAccordionItem
 							day={day}

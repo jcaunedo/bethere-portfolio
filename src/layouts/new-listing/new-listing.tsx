@@ -1,10 +1,10 @@
 import * as React from "react";
 import { cva } from "class-variance-authority";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 
 import { StepperExperience } from "@/components/stepper/stepper-experience";
 import { Typography } from "@/components/typography";
-import { layoutSpring, useMotionPreference } from "@/lib/motion";
+import { fadeVariants, layoutSpring, useMotionPreference } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 /**
@@ -28,6 +28,12 @@ type NewListingStepProps = {
 	onBack?: () => void;
 	/** Called when the close control is activated. */
 	onClose?: () => void;
+	/**
+	 * Called by the step's "Save as draft" (beside Continue): keep the listing as it is and finish
+	 * later. Return a promise to have the step confirm with a toast when it resolves (an error toast
+	 * when it rejects). Steps handle it themselves — `NewListingLayout` ignores it.
+	 */
+	onSaveDraft?: () => void | Promise<unknown>;
 };
 
 const frameVariants = cva("flex w-full flex-1 flex-col items-center", {
@@ -75,6 +81,37 @@ function NewListingHeader({ className, ...props }: React.ComponentProps<typeof S
 	);
 }
 
+/** Height of the bottom scroll fade, px (its `h-24` class). */
+const SCROLL_FADE_HEIGHT = 96;
+/** Extra room auto-scroll leaves below revealed content, on top of the fade. */
+const AUTO_SCROLL_EXTRA = 400;
+
+/**
+ * Whether the page has more content below the viewport. Rechecked on scroll, on resize, and
+ * whenever `ref`'s element changes size (e.g. an accordion row expanding).
+ */
+function useMoreBelow(ref: React.RefObject<HTMLElement | null>) {
+	const [moreBelow, setMoreBelow] = React.useState(false);
+	React.useEffect(() => {
+		const update = () => {
+			const { scrollHeight } = document.documentElement;
+			// 1px tolerance for fractional scroll positions at the very bottom.
+			setMoreBelow(scrollHeight - (window.scrollY + window.innerHeight) > 1);
+		};
+		update();
+		window.addEventListener("scroll", update, { passive: true });
+		window.addEventListener("resize", update);
+		const observer = new ResizeObserver(update);
+		if (ref.current) observer.observe(ref.current);
+		return () => {
+			window.removeEventListener("scroll", update);
+			window.removeEventListener("resize", update);
+			observer.disconnect();
+		};
+	}, [ref]);
+	return moreBelow;
+}
+
 type NewListingLayoutProps = NewListingStepProps & {
 	/** Step question (Figma `3xl -semibold`). */
 	title: React.ReactNode;
@@ -112,9 +149,23 @@ function NewListingLayout({
 	children,
 }: NewListingLayoutProps) {
 	const { prefersReducedMotion, resolve } = useMotionPreference();
+	const rootRef = React.useRef<HTMLDivElement>(null);
+	const moreBelow = useMoreBelow(rootRef);
+
+	// Auto-scroll (anything scrolled into view, e.g. a time-slot day opening) stops clear of the
+	// scroll fade plus 400px of extra room below — see DESIGN.md "Auto-scroll bottom clearance".
+	React.useEffect(() => {
+		const root = document.documentElement;
+		const previous = root.style.scrollPaddingBottom;
+		root.style.scrollPaddingBottom = `${SCROLL_FADE_HEIGHT + AUTO_SCROLL_EXTRA}px`;
+		return () => {
+			root.style.scrollPaddingBottom = previous;
+		};
+	}, []);
 
 	return (
 		<div
+			ref={rootRef}
 			data-slot="new-listing-layout"
 			className={cn("flex min-h-screen flex-col items-center bg-background p-2", className)}
 		>
@@ -155,6 +206,24 @@ function NewListingLayout({
 					</Typography>
 				</div>
 			</div>
+
+			{/* Provider Portal "Scroll not in 100% position" (node 874:4947): a 96px fade into the page
+			    background at the bottom of the viewport while there's more to scroll; it fades away once
+			    the page reaches the bottom. Figma ramps transparent → ~85% background. */}
+			<AnimatePresence>
+				{moreBelow ? (
+					<motion.div
+						key="scroll-fade"
+						aria-hidden="true"
+						data-slot="new-listing-scroll-fade"
+						variants={fadeVariants}
+						initial="initial"
+						animate="animate"
+						exit="exit"
+						className="pointer-events-none fixed inset-x-0 bottom-0 z-10 h-24 bg-linear-to-b from-background/0 via-background/75 via-75% to-background/85"
+					/>
+				) : null}
+			</AnimatePresence>
 		</div>
 	);
 }

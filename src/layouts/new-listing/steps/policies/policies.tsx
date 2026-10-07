@@ -10,7 +10,6 @@ import {
 	UtensilsIcon,
 } from "lucide-react";
 
-import { Button } from "@/components/buttons/button";
 import { ChoiceButtonIcon } from "@/components/forms/choice-button-icon";
 import { ChoiceCard } from "@/components/forms/choice-card";
 import { ChoiceGroup } from "@/components/forms/choice-group";
@@ -18,6 +17,7 @@ import { FormField } from "@/components/forms/field";
 import { Textarea } from "@/components/forms/textarea";
 import { Typography } from "@/components/typography";
 import { NewListingLayout, type NewListingStepProps } from "../../new-listing";
+import { StepActions } from "../../shared/step-actions";
 import { useReportAnswers } from "../../shared/use-report-answers";
 import type { ListingKind } from "../type/type";
 
@@ -178,6 +178,7 @@ function PoliciesStep({
 	defaultAnswers = samplePolicies,
 	onAnswersChange,
 	onContinue,
+	onSaveDraft,
 	...frame
 }: PoliciesStepProps) {
 	const id = React.useId();
@@ -304,9 +305,7 @@ function PoliciesStep({
 					</div>
 				</section>
 
-				<Button type="submit" size="xl" className="w-full">
-					Continue
-				</Button>
+				<StepActions onSaveDraft={onSaveDraft} />
 			</form>
 		</NewListingLayout>
 	);

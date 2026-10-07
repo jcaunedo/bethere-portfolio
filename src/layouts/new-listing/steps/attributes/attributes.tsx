@@ -1,6 +1,5 @@
 import * as React from "react";
 
-import { Button } from "@/components/buttons/button";
 import { ChoiceGroup } from "@/components/forms/choice-group";
 import { FormField } from "@/components/forms/field";
 import { Input } from "@/components/forms/input";
@@ -8,6 +7,7 @@ import { NumericInput } from "@/components/forms/numeric-input";
 import { Typography } from "@/components/typography";
 import { ChoiceChipGrid } from "../../shared/choice-chip-grid";
 import { NewListingLayout, type NewListingStepProps } from "../../new-listing";
+import { StepActions } from "../../shared/step-actions";
 import { useReportAnswers } from "../../shared/use-report-answers";
 
 const onBoardFeatures = [
@@ -95,6 +95,7 @@ function AttributesStep({
 	defaultAnswers = sampleAttributes,
 	onAnswersChange,
 	onContinue,
+	onSaveDraft,
 	...frame
 }: AttributesStepProps) {
 	const id = React.useId();
@@ -222,9 +223,7 @@ function AttributesStep({
 					onSelectedChange={setAccess}
 				/>
 
-				<Button type="submit" size="xl" className="w-full">
-					Continue
-				</Button>
+				<StepActions onSaveDraft={onSaveDraft} />
 			</form>
 		</NewListingLayout>
 	);

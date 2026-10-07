@@ -1,7 +1,6 @@
 import * as React from "react";
 import { AnimatePresence, motion } from "motion/react";
 
-import { Button } from "@/components/buttons/button";
 import { DaySelectorGroup } from "@/components/forms/day-selector";
 import {
 	TimeSlotAccordion,
@@ -10,7 +9,8 @@ import {
 import { Typography } from "@/components/typography";
 import { fadeVariants, layoutSpring, useMotionPreference } from "@/lib/motion";
 import { NewListingLayout, type NewListingStepProps } from "../../new-listing";
-import { dayTileOptions, sampleListingDays, week } from "../../shared/week";
+import { StepActions } from "../../shared/step-actions";
+import { dayTileOptions, week } from "../../shared/week";
 import { useReportAnswers } from "../../shared/use-report-answers";
 
 const dayOptions = dayTileOptions(week.map((day) => day.value));
@@ -25,6 +25,16 @@ const sampleWindows: TimeSlotAccordionValue = {
 	sun: [{ start: "00:00", end: "23:59" }],
 };
 
+/** Sample business hours of operation (as set in Settings): closed Monday. */
+const sampleBusinessHours: TimeSlotAccordionValue = {
+	tue: [{ start: "09:00", end: "18:00" }],
+	wed: [{ start: "09:00", end: "18:00" }],
+	thu: [{ start: "09:00", end: "18:00" }],
+	fri: [{ start: "09:00", end: "20:00" }],
+	sat: [{ start: "08:00", end: "20:00" }],
+	sun: [{ start: "08:00", end: "18:00" }],
+};
+
 type AvailabilityStepProps = NewListingStepProps & {
 	/** Called when "Continue" is submitted. */
 	onContinue?: () => void;
@@ -33,14 +43,20 @@ type AvailabilityStepProps = NewListingStepProps & {
 	 * to later steps (Pricing's by-day rates) and to restore them when coming back here.
 	 */
 	days?: string[];
-	/** Initial days when uncontrolled. Defaults to the Figma sample (Tue, Thu, Sat, Sun). */
+	/** Initial days when uncontrolled. Defaults to none selected. */
 	defaultDays?: string[];
 	/** Called with the new selection whenever a day is picked or cleared. */
 	onDaysChange?: (days: string[]) => void;
-	/** Time windows to start from (e.g. when revisiting the step). Defaults to the Figma sample. */
+	/** Time windows to start from (e.g. when revisiting the step). Defaults to none set. */
 	defaultWindows?: TimeSlotAccordionValue;
 	/** Called with every day's time windows whenever they change. */
 	onWindowsChange?: (windows: TimeSlotAccordionValue) => void;
+	/**
+	 * The business's hours of operation (from Settings), per day. A day picked with no time
+	 * windows yet starts with that day's business hours as its windows (start and end filled in,
+	 * still editable); a day the business is closed (no hours) starts empty, as without this.
+	 */
+	businessHours?: TimeSlotAccordionValue;
 };
 
 /**
@@ -53,22 +69,43 @@ function AvailabilityStep({
 	currentStep = 8,
 	stepLabel = "Little Atocha · Step 8 of 14",
 	onContinue,
+	onSaveDraft,
 	days: daysProp,
-	defaultDays = sampleListingDays,
+	defaultDays = [],
 	onDaysChange,
-	defaultWindows = sampleWindows,
+	defaultWindows = {},
 	onWindowsChange,
+	businessHours,
 	...frame
 }: AvailabilityStepProps) {
 	const id = React.useId();
 	const [ownDays, setOwnDays] = React.useState(defaultDays);
 	const days = daysProp ?? ownDays;
+	const [windows, setWindows] = React.useState(defaultWindows);
+	useReportAnswers(windows, onWindowsChange);
+	// The time-window row open for editing; a newly picked day opens so its hours can be set.
+	const [openDay, setOpenDay] = React.useState("");
 	const setDays = (next: string[]) => {
 		if (daysProp === undefined) setOwnDays(next);
 		onDaysChange?.(next);
+		// Newly picked days, in week order.
+		const added = week.filter((day) => next.includes(day.value) && !days.includes(day.value));
+		// Seed each with the business hours for that day, unless it already has windows (picked
+		// before, or restored) — re-picking a day keeps what the provider set.
+		const seeded = added.filter(
+			(day) => !windows[day.value]?.length && businessHours?.[day.value]?.length,
+		);
+		if (seeded.length > 0) {
+			setWindows((current) => ({
+				...current,
+				...Object.fromEntries(
+					seeded.map((day) => [day.value, (businessHours?.[day.value] ?? []).map((window) => ({ ...window }))]),
+				),
+			}));
+		}
+		// Several added at once (Select all): open the first in week order.
+		if (added[0]) setOpenDay(added[0].value);
 	};
-	const [windows, setWindows] = React.useState(defaultWindows);
-	useReportAnswers(windows, onWindowsChange);
 
 	// Only the selected days get a time-window row (in week order).
 	const selectedDays = week.filter((day) => days.includes(day.value));
@@ -78,6 +115,8 @@ function AvailabilityStep({
 	const alertDays = days.filter(
 		(day) => !(windows[day] ?? []).some((window) => window.start && window.end),
 	);
+	// Continue needs at least one day, and every selected day with its hours (no Required row left).
+	const canContinue = days.length > 0 && alertDays.length === 0;
 
 	// Selecting/deselecting a day adds/removes its time-window row (TimeSlotAccordion animates the
 	// rows); the form and what follows the rows glide to their new place instead of jumping.
@@ -109,7 +148,7 @@ function AvailabilityStep({
 				className="flex w-full flex-col gap-12"
 				onSubmit={(event) => {
 					event.preventDefault();
-					onContinue?.();
+					if (canContinue) onContinue?.();
 				}}
 			>
 				<section aria-labelledby={`${id}-days`} className="flex flex-col gap-4">
@@ -158,6 +197,8 @@ function AvailabilityStep({
 									days={selectedDays.map(({ value, label }) => ({ value, label }))}
 									value={windows}
 									onValueChange={setWindows}
+									openDay={openDay}
+									onOpenDayChange={setOpenDay}
 								/>
 							</motion.div>
 						) : (
@@ -171,13 +212,11 @@ function AvailabilityStep({
 				</section>
 
 				<motion.div {...glide}>
-					<Button type="submit" size="xl" className="w-full">
-						Continue
-					</Button>
+					<StepActions onSaveDraft={onSaveDraft} continueDisabled={!canContinue} />
 				</motion.div>
 			</motion.form>
 		</NewListingLayout>
 	);
 }
 
-export { AvailabilityStep, sampleWindows };
+export { AvailabilityStep, sampleBusinessHours, sampleWindows };

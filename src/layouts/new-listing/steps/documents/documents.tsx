@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/data-display/a
 import { Typography } from "@/components/typography";
 import { dismissVariants, fadeVariants, layoutSpring, useMotionPreference } from "@/lib/motion";
 import { NewListingLayout, type NewListingStepProps } from "../../new-listing";
+import { StepActions } from "../../shared/step-actions";
 import { AddLink } from "../../shared/add-link";
 import { useReportAnswers } from "../../shared/use-report-answers";
 import type { ListingKind } from "../type/type";
@@ -98,6 +99,7 @@ function DocumentsStep({
 	onDocumentsChange,
 	onAddDocument,
 	onContinue,
+	onSaveDraft,
 	...frame
 }: DocumentsStepProps) {
 	const id = React.useId();
@@ -252,9 +254,7 @@ function DocumentsStep({
 				))}
 
 				<motion.div {...glide}>
-					<Button type="submit" size="xl" className="w-full" disabled={!canContinue}>
-						Continue
-					</Button>
+					<StepActions onSaveDraft={onSaveDraft} continueDisabled={!canContinue} />
 				</motion.div>
 			</form>
 		</NewListingLayout>

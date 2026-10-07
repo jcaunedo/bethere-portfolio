@@ -1,11 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { SELECT_STORY } from "storybook/internal/core-events";
 import { addons } from "storybook/preview-api";
+import { saveDraftSample, withToaster } from "../../shared/save-draft-sample";
 import { PricingStep } from "./pricing";
 
 const meta: Meta<typeof PricingStep> = {
 	title: "Layouts/NewListing/Pricing",
 	component: PricingStep,
+	// "Save as draft" saves (simulated) and confirms with a toast.
+	args: { onSaveDraft: saveDraftSample },
+	decorators: [withToaster],
 	tags: ["autodocs"],
 	parameters: {
 		layout: "fullscreen",

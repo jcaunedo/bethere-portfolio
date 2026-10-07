@@ -1,9 +1,13 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { saveDraftSample, withToaster } from "../../shared/save-draft-sample";
 import { PoliciesStep } from "./policies";
 
 const meta: Meta<typeof PoliciesStep> = {
 	title: "Layouts/NewListing/Policies",
 	component: PoliciesStep,
+	// "Save as draft" saves (simulated) and confirms with a toast.
+	args: { onSaveDraft: saveDraftSample },
+	decorators: [withToaster],
 	tags: ["autodocs"],
 	parameters: {
 		layout: "fullscreen",

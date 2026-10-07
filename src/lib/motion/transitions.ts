@@ -26,6 +26,15 @@ const exitTransition: Transition = {
 };
 
 /**
+ * Page auto-scroll (bringing content into view): page-level timing on the standard curve, so the
+ * page eases in and settles gently instead of the browser's quick native smooth scroll.
+ */
+const scrollTransition: Transition = {
+	...standardTransition,
+	duration: motionDuration.deliberate,
+};
+
+/**
  * Spring presets. CLAUDE.md "Spring" — direct manipulation, drag, press,
  * shared-element movement, responsive layout changes. Deliberately
  * non-bouncy (high damping) per the brand's "Calm/Refined" personality.
@@ -56,6 +65,7 @@ export {
 	standardTransition,
 	enterTransition,
 	exitTransition,
+	scrollTransition,
 	subtleSpring,
 	responsiveSpring,
 	layoutSpring,

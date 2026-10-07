@@ -1,5 +1,5 @@
 import * as React from "react";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import {
 	BlocksIcon,
 	CalendarClockIcon,
@@ -15,6 +15,7 @@ import {
 
 import jumpFromBoat from "@/assets/images/jump-from-boat.webp";
 import { Button } from "@/components/buttons/button";
+import { AlertInline } from "@/components/feedback/alert-inline";
 import { FormField } from "@/components/forms/field";
 import { Input } from "@/components/forms/input";
 import { Textarea } from "@/components/forms/textarea";
@@ -22,12 +23,14 @@ import { AiIcon } from "@/components/icons/ai-icon";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/overlays/tooltip";
 import { Typography, typographyVariants } from "@/components/typography";
 import {
+	fadeVariants,
 	pendingIconReducedVariants,
 	pendingIconVariants,
 	useMotionPreference,
 } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { NewListingLayout, type NewListingStepProps } from "../../new-listing";
+import { useSaveDraft } from "../../shared/step-actions";
 import type { ListingKind } from "../type/type";
 
 /** The earlier steps a summary row links back to. */
@@ -70,6 +73,8 @@ type ReviewSummaryItem = {
 	detail?: string;
 	/** Something this step must have is missing: the card shows "Required" and Publish is disabled. */
 	required?: boolean;
+	/** Brand pill beside the pencil, e.g. a pricing adjustment ("+15%", "Custom"). */
+	badge?: string;
 	/** Leading 64px tile: an icon (gradient-1) on brand-subtle, or a photo. */
 	media:
 		| { type: "icon"; icon: React.ComponentType<React.SVGProps<SVGSVGElement>> }
@@ -80,7 +85,8 @@ type ReviewSummaryItem = {
  * Wizard order of the steps behind each summary row — the order each answer was defined. Rows are
  * shown in this order whatever order `summary` comes in (rows of the same section, e.g. several
  * captains, keep their relative order). Attributes → Expectations (durations, then boarding
- * location) → Availability → Pricing (rates, then add-ons) → Photos → Policies → Documents
+ * location) → Availability → Pricing (charter rates, then holiday and each season when set, then
+ * add-ons) → Photos → Policies → Documents
  * (captain licenses, then the document set).
  */
 const SECTION_ORDER: ReviewSection[] = [
@@ -179,7 +185,8 @@ const sampleSummary: ReviewSummaryItem[] = [
 	},
 ];
 
-type ReviewStepProps = NewListingStepProps & {
+// Review's "Save as draft" also hands over the title and description, so it replaces the steps' one.
+type ReviewStepProps = Omit<NewListingStepProps, "onSaveDraft"> & {
 	/** Listing type picked on the Type step — names it in the copy ("Tell the story of your service"). */
 	listingType?: ListingKind;
 	/**
@@ -206,15 +213,23 @@ type ReviewStepProps = NewListingStepProps & {
 	onEdit?: (section: ReviewSection) => void;
 	/** Called when "Preview" is activated. */
 	onPreview?: () => void;
-	/** Called when "Publish" is submitted. */
+	/** Called when "Publish" is submitted (only once nothing required is missing). */
 	onPublish?: (values: { title: string; description: string }) => void;
+	/**
+	 * Called when "Save as draft" is submitted — the main button while something required is still
+	 * missing, so the provider can keep what they have and finish later. Return a promise to have
+	 * the step confirm the save: a success toast when it resolves, an error toast (its message, or a
+	 * generic one) when it rejects; the button waits while it runs. Toasts need the app's `<Toaster />`.
+	 */
+	onSaveDraft?: (values: { title: string; description: string }) => void | Promise<unknown>;
 };
 
 /**
  * New Listing — review & publish: the title and description (editable, each with an AI mark to
  * regenerate it and versions to switch between; `autoGenerate` can also have AI write them when the
- * step opens), "Preview" / "Publish" with the agreement
- * line, and a summary of every earlier step with a pencil to go back and edit it.
+ * step opens), "Preview" / "Publish" with the agreement line — "Save as draft" instead of
+ * "Publish" while something required is missing — and a summary of every earlier step with a
+ * pencil to go back and edit it.
  * Figma origin: Provider Portal, "14. Review & Publish" (node 160:6093).
  */
 function ReviewStep({
@@ -231,11 +246,12 @@ function ReviewStep({
 	onEdit,
 	onPreview,
 	onPublish,
+	onSaveDraft,
 	...frame
 }: ReviewStepProps) {
 	const id = React.useId();
 	// Stable sort into wizard order (see SECTION_ORDER).
-	// (Publish needs every summary card complete and a title + description — see `canPublish`.)
+	// (Publish needs every summary card complete and a title + description — see `draft`.)
 	const sortedSummary = React.useMemo(
 		() => [...summary].sort((a, b) => SECTION_ORDER.indexOf(a.section) - SECTION_ORDER.indexOf(b.section)),
 		[summary],
@@ -285,7 +301,10 @@ function ReviewStep({
 		text: values[field],
 		maxLength: maxLengthFor(field),
 		listingType,
-		facts: sortedSummary.map((item) => `${item.label}: ${item.value}${item.detail ? ` (${item.detail})` : ""}`),
+		facts: sortedSummary.map(
+			(item) =>
+				`${item.label}: ${item.value}${item.badge ? ` [${item.badge}]` : ""}${item.detail ? ` (${item.detail})` : ""}`,
+		),
 		otherFields: values,
 	});
 	const clip = (field: ReviewField, text: string) => text.slice(0, maxLengthFor(field) ?? text.length);
@@ -327,15 +346,16 @@ function ReviewStep({
 		// Runs once, when the step opens.
 	}, []);
 
-	// Publish needs every card complete (no "Required") and a title and description.
+	// Publish needs every card complete (no "Required") and a title and description. Until then the
+	// main button saves a draft instead, and the hint under it names what's missing.
 	const missingTitle = !improving.title && !title.trim();
 	const missingDescription = !improving.description && !description.trim();
-	const canPublish =
-		!sortedSummary.some((item) => item.required) &&
-		!!title.trim() &&
-		!!description.trim() &&
-		!improving.title &&
-		!improving.description;
+	const draft = missingTitle || missingDescription || sortedSummary.some((item) => item.required);
+	// Same save + toast as every step's "Save as draft".
+	const { saving: savingDraft, save: saveDraftValues } = useSaveDraft(onSaveDraft);
+	const saveDraft = () => saveDraftValues({ title, description });
+	// Nothing can be submitted while AI is still writing a field or a draft is being saved.
+	const busy = !!improving.title || !!improving.description || savingDraft;
 
 	const improve = async (field: ReviewField) => {
 		if (!onImprove || improving[field]) return;
@@ -371,7 +391,9 @@ function ReviewStep({
 					className="flex w-full flex-col gap-12"
 					onSubmit={(event) => {
 						event.preventDefault();
-						if (canPublish) onPublish?.({ title, description });
+						if (busy) return;
+						if (draft) void saveDraft();
+						else onPublish?.({ title, description });
 					}}
 				>
 					{/* The CTAs sit 32px under the story fields (closer than the 48px between sections). */}
@@ -484,17 +506,31 @@ function ReviewStep({
 									type="submit"
 									size="xl"
 									className="flex-1"
-									disabled={!canPublish}
-									aria-describedby={canPublish ? undefined : `${id}-publish-hint`}
+									disabled={busy}
+									aria-busy={savingDraft || undefined}
+									aria-describedby={draft ? `${id}-publish-hint` : undefined}
 								>
-									Publish
+									{/* Publish ↔ Save as draft crossfade in place (the button keeps its size). */}
+									<AnimatePresence initial={false} mode="wait">
+										<motion.span
+											key={draft ? "draft" : "publish"}
+											variants={fadeVariants}
+											initial="initial"
+											animate="animate"
+											exit="exit"
+										>
+											{draft ? "Save as draft" : "Publish"}
+										</motion.span>
+									</AnimatePresence>
 								</Button>
 							</div>
-							{canPublish ? null : (
-								<Typography id={`${id}-publish-hint`} size="xs" className="text-center text-danger">
-									Complete the required sections to publish.
-								</Typography>
-							)}
+							{/* Figma `alert-inline` (info), as on the Photos step — informative, not an error: saving a
+							    draft is a valid way out, not a failed publish. */}
+							{draft ? (
+								<AlertInline id={`${id}-publish-hint`} variant="info" className="text-center">
+									Complete required sections below to publish, or save as draft.
+								</AlertInline>
+							) : null}
 							<Typography size="xs" className="max-w-[482px] text-center text-muted-foreground">
 								By submitting your request, you agree to the{" "}
 								<a
@@ -622,8 +658,9 @@ function ImproveButton({ label, pending, onClick }: { label: string; pending: bo
  * uppercase label over the value and an optional detail line, and a pencil to edit that step.
  * The pencil's hit area stretches over the whole card (one button, no nested controls), so clicking
  * anywhere on the card edits; the card lifts with the `card` shadow on hover, like DocumentCard.
- * A `required` card shows Availability's Required look (TimeSlotAccordion): danger-05 tint and a
- * danger "Required" pill.
+ * A `required` card shows Availability's Required look (TimeSlotAccordion, bethere.ds node
+ * 874:1447): card fill with a 1px color/tone/desctructive/destructive stroke (an inset ring, so the
+ * card keeps its size) and a danger "Required" pill.
  */
 function SummaryRow({ item, onEdit }: { item: ReviewSummaryItem; onEdit: () => void }) {
 	const { media } = item;
@@ -632,8 +669,8 @@ function SummaryRow({ item, onEdit }: { item: ReviewSummaryItem; onEdit: () => v
 		<div
 			data-required={item.required || undefined}
 			className={cn(
-				"relative flex items-center gap-3 rounded-card p-3 transition-shadow has-[button:hover]:shadow-card",
-				item.required ? "bg-danger-05" : "bg-card",
+				"relative flex items-center gap-3 rounded-card bg-card p-3 transition-shadow has-[button:hover]:shadow-card",
+				item.required && "inset-ring inset-ring-destructive",
 			)}
 		>
 			<div className="flex min-w-0 flex-1 items-center gap-4">
@@ -659,6 +696,12 @@ function SummaryRow({ item, onEdit }: { item: ReviewSummaryItem; onEdit: () => v
 					) : null}
 				</div>
 			</div>
+			{/* Same pill as the Pricing step's season cards: color/tone/brand/subtle fill, brand xs label. */}
+			{item.badge != null ? (
+				<span className="shrink-0 rounded-full bg-primary-subtle px-2 py-0.5 text-xs leading-[18px] whitespace-nowrap text-primary">
+					{item.badge}
+				</span>
+			) : null}
 			{item.required ? (
 				<span className="shrink-0 rounded-full bg-danger-05 px-2 py-0.5 text-xs leading-[18px] whitespace-nowrap text-danger">
 					Required
@@ -669,7 +712,7 @@ function SummaryRow({ item, onEdit }: { item: ReviewSummaryItem; onEdit: () => v
 				variant="ghost"
 				size="icon"
 				className="text-icon-subtle after:absolute after:inset-0 after:rounded-card"
-				aria-label={`Edit ${item.label.toLowerCase()}: ${item.value}${item.required ? " (required)" : ""}`}
+				aria-label={`Edit ${item.label.toLowerCase()}: ${item.value}${item.badge ? ` (${item.badge})` : ""}${item.required ? " (required)" : ""}`}
 				onClick={onEdit}
 			>
 				<PencilIcon />

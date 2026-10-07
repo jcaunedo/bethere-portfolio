@@ -1,9 +1,9 @@
 import * as React from "react";
 
-import { Button } from "@/components/buttons/button";
 import { BusinessChoiceCard } from "@/components/forms/business-choice-card";
 import { RadioGroup } from "@/components/forms/radio-group";
 import { NewListingLayout, type NewListingStepProps } from "../../new-listing";
+import { StepActions } from "../../shared/step-actions";
 import { AddLink } from "../../shared/add-link";
 import type { ListingKind } from "../type/type";
 
@@ -45,6 +45,7 @@ function BusinessStep({
 	businesses,
 	onAddBusiness = () => {},
 	onContinue,
+	onSaveDraft,
 	...frame
 }: BusinessStepProps) {
 	const multiple = businesses.length > 1;
@@ -100,9 +101,7 @@ function BusinessStep({
 					<AddLink onClick={onAddBusiness}>Add another business</AddLink>
 				</div>
 
-				<Button type="submit" size="xl" className="w-full" disabled={!canContinue}>
-					Continue
-				</Button>
+				<StepActions onSaveDraft={onSaveDraft} continueDisabled={!canContinue} />
 			</form>
 		</NewListingLayout>
 	);

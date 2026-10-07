@@ -1,12 +1,16 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import * as React from "react";
 
+import { saveDraftSample, withToaster } from "../../shared/save-draft-sample";
 import { ExpectationsStep } from "../expectations/expectations";
 import { AttributesStep } from "./attributes";
 
 const meta: Meta<typeof AttributesStep> = {
 	title: "Layouts/NewListing/Attributes",
 	component: AttributesStep,
+	// "Save as draft" saves (simulated) and confirms with a toast.
+	args: { onSaveDraft: saveDraftSample },
+	decorators: [withToaster],
 	tags: ["autodocs"],
 	parameters: {
 		layout: "fullscreen",
@@ -32,6 +36,6 @@ function AttributesToExpectations(props: React.ComponentProps<typeof AttributesS
 	return screen === "attributes" ? (
 		<AttributesStep {...props} onContinue={() => go("expectations")} />
 	) : (
-		<ExpectationsStep onBack={() => go("attributes")} />
+		<ExpectationsStep onBack={() => go("attributes")} onSaveDraft={props.onSaveDraft} />
 	);
 }

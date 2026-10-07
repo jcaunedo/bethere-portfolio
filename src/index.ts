@@ -359,6 +359,8 @@ export {
   AlertDescription,
   alertVariants,
 } from "./components/feedback/alert";
+export { AlertInline, alertInlineVariants } from "./components/feedback/alert-inline";
+export type { AlertInlineProps } from "./components/feedback/alert-inline";
 
 export { Toaster, toast, type ToasterProps } from "./components/feedback/sonner";
 

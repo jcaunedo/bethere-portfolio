@@ -1,12 +1,12 @@
 import * as React from "react";
 
-import { Button } from "@/components/buttons/button";
 import { ExperienceLocation, type ExperienceLocationValue } from "@/components/cards/experience-location";
 import { SortableList, type SortableListItemValue } from "@/components/forms/sortable-list";
 import { Typography } from "@/components/typography";
 import { ChoiceChipGrid } from "../../shared/choice-chip-grid";
 import { AddLink } from "../../shared/add-link";
 import { NewListingLayout, type NewListingStepProps } from "../../new-listing";
+import { StepActions } from "../../shared/step-actions";
 import { useReportAnswers } from "../../shared/use-report-answers";
 
 const durations = ["1 hr", "2 hr", "4 hr", "6 hr", "8 hr", "10 hr", "Full Day", "Multi-Day"];
@@ -45,13 +45,11 @@ const boardingLocation: ExperienceLocationValue = {
 		"Head south on Crandon Blvd and turn right onto Harbor Drive — you'll see the yacht club on your left. Park in the Guest area near the flagpoles (your booking confirmation works as a pass). Pop into the dock office to check in, then follow the signs to Dock B, Slip 14. Your captain will be there to welcome you aboard!",
 };
 
-const destinations: SortableListItemValue[] = [
-	{ id: "biscayne-bay", label: "Biscayne Bay" },
-	{ id: "star-island", label: "Star Island" },
-	{ id: "monument-island", label: "Monument Island" },
-	{ id: "nixon-sandbar", label: "Nixon Sandbar" },
-	{ id: "marine-stadium", label: "Marine Stadium" },
-];
+/** Id of the destination seeded from the boarding location — it tracks that location's name. */
+const boardingPlaceId = "boarding-location";
+
+/** First time through, the only destination is where the yacht boards. */
+const destinations: SortableListItemValue[] = [{ id: boardingPlaceId, label: boardingLocation.name }];
 
 /** What this step collects — reported to the flow and used to restore the step on a revisit. */
 type ExpectationsAnswers = {
@@ -94,6 +92,7 @@ function ExpectationsStep({
 	defaultAnswers = sampleExpectations,
 	onAnswersChange,
 	onContinue,
+	onSaveDraft,
 	...frame
 }: ExpectationsStepProps) {
 	const id = React.useId();
@@ -116,6 +115,16 @@ function ExpectationsStep({
 		[selectedDurations, location, places, types, included],
 	);
 	useReportAnswers(answers, onAnswersChange);
+
+	// Saving a new boarding location renames the seeded destination, unless the provider renamed it.
+	const saveLocation = (next: ExperienceLocationValue) => {
+		setPlaces((current) =>
+			current.map((place) =>
+				place.id === boardingPlaceId && place.label === location.name ? { ...place, label: next.name } : place,
+			),
+		);
+		setLocation(next);
+	};
 
 	// "Add place" appends an empty row and focuses it for typing.
 	const addPlace = () => {
@@ -161,7 +170,7 @@ function ExpectationsStep({
 					<SectionHeader id={`${id}-boarding`} description="Choose the primary departure marina.">
 						Where will guests board your yacht?
 					</SectionHeader>
-					<ExperienceLocation defaultValue={defaultAnswers.location} onSave={setLocation} />
+					<ExperienceLocation defaultValue={defaultAnswers.location} onSave={saveLocation} />
 				</section>
 
 				<section aria-labelledby={`${id}-places`} className="flex flex-col gap-4">
@@ -214,9 +223,7 @@ function ExpectationsStep({
 					/>
 				</section>
 
-				<Button type="submit" size="xl" className="w-full">
-					Continue
-				</Button>
+				<StepActions onSaveDraft={onSaveDraft} />
 			</form>
 		</NewListingLayout>
 	);

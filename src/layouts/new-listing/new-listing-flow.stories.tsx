@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { AnimatePresence, motion } from "motion/react";
 import * as React from "react";
 
+import { Toaster } from "@/components/feedback/sonner";
 import { fadeVariants, revealVariants, useMotionPreference } from "@/lib/motion";
 import { NewListingHeader } from "./new-listing";
 // Steps, in flow order.
@@ -12,7 +13,7 @@ import { MatchesStep, type Match } from "./steps/matches/matches";
 import { sampleMatches } from "./steps/matches/sample-matches";
 import { AttributesStep } from "./steps/attributes/attributes";
 import { ExpectationsStep } from "./steps/expectations/expectations";
-import { AvailabilityStep } from "./steps/availability/availability";
+import { AvailabilityStep, sampleBusinessHours } from "./steps/availability/availability";
 import { PricingStep } from "./steps/pricing/pricing";
 import { PhotosStep, type Photo } from "./steps/photos/photos";
 import { BusinessStep } from "./steps/business/business";
@@ -21,6 +22,7 @@ import { PoliciesStep } from "./steps/policies/policies";
 import { DocumentsStep } from "./steps/documents/documents";
 import { ReviewStep, type ReviewSection } from "./steps/review/review";
 import { improveWithClaude } from "./shared/improve-with-claude";
+import { saveDraftSample } from "./shared/save-draft-sample";
 import { buildReviewSummary, sampleListingAnswers, type ListingAnswers } from "./shared/listing-summary";
 
 /**
@@ -90,10 +92,13 @@ function NewListingFlow() {
 	const [attributesFrom, setAttributesFrom] = React.useState<Screen>("matches");
 	// What each step collected, starting from their sample defaults. Steps report changes here and
 	// are seeded from it when revisited, so their answers survive going back (Back, "Change days",
-	// a Review pencil) — and Review's summary cards show exactly what was chosen. Photos start empty.
+	// a Review pencil) — and Review's summary cards show exactly what was chosen. Days, time
+	// windows and photos start empty.
 	const [answers, setAnswers] = React.useState<ListingAnswers>(() => ({
 		...sampleListingAnswers,
 		match: null,
+		days: [],
+		windows: {},
 		photos: [],
 	}));
 	const setAnswer =
@@ -212,6 +217,7 @@ function NewListingFlow() {
 						screen === "attributes" ? (
 							<AttributesStep
 								showStepper={false}
+								onSaveDraft={saveDraftSample}
 								className={screenClassName}
 								defaultAnswers={answers.attributes}
 								onAnswersChange={setAnswer("attributes")}
@@ -221,6 +227,7 @@ function NewListingFlow() {
 							screen === "expectations" ? (
 								<ExpectationsStep
 									showStepper={false}
+									onSaveDraft={saveDraftSample}
 									className={screenClassName}
 									defaultAnswers={answers.expectations}
 									onAnswersChange={setAnswer("expectations")}
@@ -230,16 +237,20 @@ function NewListingFlow() {
 								screen === "availability" ? (
 									<AvailabilityStep
 										showStepper={false}
+										onSaveDraft={saveDraftSample}
 										className={screenClassName}
 										days={listingDays}
 										onDaysChange={setListingDays}
 										defaultWindows={answers.windows}
 										onWindowsChange={setAnswer("windows")}
+										// Picked days start from the business's hours of operation (Settings).
+										businessHours={sampleBusinessHours}
 										onContinue={() => advance("pricing")}
 									/>
 								) : screen === "pricing" ? (
 									<PricingStep
 										showStepper={false}
+										onSaveDraft={saveDraftSample}
 										className={screenClassName}
 										days={listingDays}
 										defaultAnswers={answers.pricing}
@@ -250,6 +261,7 @@ function NewListingFlow() {
 								) : screen === "photos" ? (
 									<PhotosStep
 										showStepper={false}
+										onSaveDraft={saveDraftSample}
 										className={screenClassName}
 										defaultPhotos={photos}
 										onPhotosChange={setPhotos}
@@ -261,6 +273,7 @@ function NewListingFlow() {
 									// The common case: the account has one business to confirm.
 									<BusinessStep
 										showStepper={false}
+										onSaveDraft={saveDraftSample}
 										className={screenClassName}
 										businesses={sampleBusinesses.slice(0, 1)}
 										onContinue={() => setScreen("policies")}
@@ -268,6 +281,7 @@ function NewListingFlow() {
 								) : screen === "policies" ? (
 									<PoliciesStep
 										showStepper={false}
+										onSaveDraft={saveDraftSample}
 										className={screenClassName}
 										defaultAnswers={answers.policies}
 										onAnswersChange={setAnswer("policies")}
@@ -277,6 +291,7 @@ function NewListingFlow() {
 									screen === "documents" ? (
 										<DocumentsStep
 											showStepper={false}
+											onSaveDraft={saveDraftSample}
 											className={screenClassName}
 											defaultDocuments={answers.documents}
 											onDocumentsChange={setAnswer("documents")}
@@ -292,6 +307,7 @@ function NewListingFlow() {
 												setScreen(reviewEditScreen[section]);
 											}}
 											onImprove={improveWithClaude}
+											onSaveDraft={saveDraftSample}
 										/>
 									)
 								)
@@ -300,6 +316,9 @@ function NewListingFlow() {
 					)}
 				</motion.div>
 			</AnimatePresence>
+
+			{/* The app's toast host — Review's "Save as draft" confirms with a toast. */}
+			<Toaster />
 		</div>
 	);
 }

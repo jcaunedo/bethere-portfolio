@@ -721,6 +721,50 @@ directly.
 
 ---
 
+## Auto-scroll bottom clearance: scroll fade + 400px (`src/layouts/new-listing/new-listing.tsx`)
+
+**Rule:** Whenever a page scrolls content into view automatically (a
+`TimeSlotAccordion` day opening or being added open, and any future
+`scrollIntoView` on these pages), the revealed content must stop **400px
+above the top of the bottom scroll fade** — not flush with the viewport edge
+and not under the fade. On New Listing pages this is enforced once, in
+`NewListingLayout`, as the document's scroll padding:
+
+```ts
+const SCROLL_FADE_HEIGHT = 96; // the fade's h-24
+const AUTO_SCROLL_EXTRA = 400;
+root.style.scrollPaddingBottom = `${SCROLL_FADE_HEIGHT + AUTO_SCROLL_EXTRA}px`;
+```
+
+The scrolled element's own `scroll-margin` (e.g. the accordion row's
+`scroll-my-4`) adds on top, so a time-slot day lands ~512px above the
+viewport bottom.
+
+**Why:** The first auto-scroll stopped 16px above the viewport bottom, which
+left a newly opened day's card under the 96px scroll fade ("Scroll not in
+100% position", Provider Portal node 874:4947) — technically in view, but
+read as still hidden behind the scroll. Clearing only the fade was then judged
+too tight as well: the card should land with clear room below it, so it reads
+as fully revealed with the rest of the form still in sight. 200px was tried
+first and raised to 400px — don't tighten it back.
+
+**How to apply:**
+- Don't add per-component bottom offsets for this (a larger `scroll-mb-*` on a
+  row, manual `window.scrollBy` math) — auto-scroll goes through
+  `scrollIntoViewSmoothly` (`src/lib/motion/scroll.ts`), which reads the
+  document's `scroll-padding` the same way native `scrollIntoView` does, so
+  every auto-scroll on the page picks this up. Use that helper (not native
+  `scrollIntoView({ behavior: "smooth" })`) for new auto-scrolls so they share
+  the same eased timing.
+- If the fade's height changes, update `SCROLL_FADE_HEIGHT` with it — the two
+  must stay in sync.
+- Scroll padding can't scroll past the end of the page: content near the very
+  bottom (the last day row) gets as much clearance as the page has left below it.
+- A new layout that adds the same fade and auto-scroll should set the same
+  scroll padding while it's mounted (and restore the previous value on unmount).
+
+---
+
 ## Composed components are black boxes to their parents — never reach into a nested component's internals (`src/components/cards/integration-card/integration-card.tsx`)
 
 **Rule:** Once a component (e.g. `AddIndicator`) is inserted into a layout or

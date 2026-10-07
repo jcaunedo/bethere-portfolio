@@ -44,7 +44,14 @@ it. A flow that renders one persistent stepper above the steps uses `NewListingH
 sticks the same way.
 
 Every step's props extend `NewListingStepProps` (`showStepper`, `steps`, `currentStep`, `stepLabel`,
-`onBack`, `onClose`, `className`) and forward them to the shell.
+`onBack`, `onClose`, `className`, `onSaveDraft`) and forward them to the shell.
+
+**Save as draft.** Every step with a Continue ends with `StepActions` (`shared/step-actions.tsx`):
+"Save as draft" (outline) beside Continue, equal width (Figma node 106:2827). It calls the step's
+`onSaveDraft` and confirms with a toast (needs the app's `<Toaster />`); it stays enabled while
+Continue is disabled. Review has its own: "Save as draft" replaces Publish while something required
+is missing, and its `onSaveDraft` also receives the title and description. Stories wire
+`shared/save-draft-sample.tsx` (a simulated save + the toast host).
 
 Storybook lists the group in wizard order (Flow, Shell, then the steps); that order lives in
 `.storybook/preview.ts` → `storySort`.

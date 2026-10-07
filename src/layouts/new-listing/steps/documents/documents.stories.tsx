@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import * as React from "react";
 
+import { saveDraftSample, withToaster } from "../../shared/save-draft-sample";
 import { improveWithClaude } from "../../shared/improve-with-claude";
 import { buildReviewSummary, sampleListingAnswers } from "../../shared/listing-summary";
 import { ReviewStep } from "../review/review";
@@ -42,6 +43,7 @@ function DocumentsThenReview(args: DocumentsStepProps) {
 					listingType={args.listingType}
 					summary={buildReviewSummary({ ...sampleListingAnswers, documents })}
 					onImprove={improveWithClaude}
+					onSaveDraft={args.onSaveDraft}
 					onBack={() => setScreen("documents")}
 					// Captain and document cards were defined on this step — their pencils come back here.
 					onEdit={(section) => {
@@ -56,6 +58,9 @@ function DocumentsThenReview(args: DocumentsStepProps) {
 const meta: Meta<typeof DocumentsStep> = {
 	title: "Layouts/NewListing/Documents",
 	component: DocumentsStep,
+	// "Save as draft" saves (simulated) and confirms with a toast.
+	args: { onSaveDraft: saveDraftSample },
+	decorators: [withToaster],
 	tags: ["autodocs"],
 	parameters: {
 		layout: "fullscreen",
