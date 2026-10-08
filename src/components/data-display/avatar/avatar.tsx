@@ -19,7 +19,7 @@ function Avatar({
 }: React.ComponentProps<typeof AvatarPrimitive.Root> & {
   /**
    * `lg` is 36px (`size-9`) — Figma's actual avatar size — not shadcn's own
-   * 40px default; every BeThere avatar spec seen so far is 36px. `xl` is
+   * 40px default; every Bethere avatar spec seen so far is 36px. `xl` is
    * 72px (`size-18`), the large avatar used in `ProfileHeader`.
    */
   size?: "default" | "sm" | "lg" | "xl";

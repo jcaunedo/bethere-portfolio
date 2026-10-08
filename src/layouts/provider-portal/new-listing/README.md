@@ -8,7 +8,8 @@ and `product-specs/onboarding-master-flow.md`.
 new-listing/
   new-listing.tsx              NewListingLayout — the page frame every step renders inside
   new-listing.stories.tsx      Layouts/ProviderPortal/NewListing/Shell
-  new-listing-flow.stories.tsx Layouts/ProviderPortal/NewListing/Flow — the steps stitched into one flow
+  new-listing-flow.tsx         NewListingFlow — the steps stitched into one flow (also opened from the Portal's Listings)
+  new-listing-flow.stories.tsx Layouts/ProviderPortal/NewListing/Flow
   shared/                      helpers used by several steps (not exported from the package)
     choice-chip-grid.tsx
   steps/                       one folder per step: <step>.tsx + <step>.stories.tsx
@@ -79,7 +80,7 @@ lives in the step's defaults/props, not in its file or component name.
    `NewListingStepProps & { … }`, that renders its content inside
    `<NewListingLayout title="…" {...frame}>`.
 2. Add `<word>.stories.tsx` titled `Layouts/ProviderPortal/NewListing/<Name>`.
-3. Wire it into the flow in `new-listing-flow.stories.tsx` (step number + `previous`), and add its
+3. Wire it into the flow in `new-listing-flow.tsx` (step number + `previous`), and add its
    name to the New Listing order in `.storybook/preview.ts`.
 
 A Service path (undesigned today) reuses the shared steps and adds any service-specific steps

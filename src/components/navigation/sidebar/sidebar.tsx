@@ -199,7 +199,7 @@ interface SidebarAccountMenuItem {
   label: string;
   /** Trailing secondary text, e.g. a current setting value (Figma "Auto"/"English"). */
   shortcut?: string;
-  /** Figma "Log Out" row: destructive-tinted text/icon. */
+  /** Figma "Log out" row: destructive-tinted text/icon. */
   variant?: "default" | "destructive";
   /** Renders a divider above this item instead of a menu row. */
   separator?: boolean;
@@ -264,13 +264,19 @@ interface SidebarProps
    */
   onNavigate?: (navigateTo: string) => void;
   /**
-   * Whether the Sidebar starts collapsed (icon rail, no labels — Figma
-   * "Single/Multiple Collapsed"). Defaults to expanded. The Sidebar owns
-   * the collapsed state internally after that — use `onCollapsedChange` to
-   * react to the user toggling it (e.g. to persist the preference).
+   * Controlled collapsed state (icon rail, no labels — Figma "Single
+   * Collapsed"). Pass it with `onCollapsedChange` when the page shell owns
+   * the state, e.g. to auto-collapse at narrow widths (`useLayoutSidebar`).
+   * Omit it to let the Sidebar manage its own state from `defaultCollapsed`.
+   */
+  collapsed?: boolean;
+  /**
+   * Whether the Sidebar starts collapsed when uncontrolled. Defaults to
+   * expanded. Use `onCollapsedChange` to react to the user toggling it
+   * (e.g. to persist the preference).
    */
   defaultCollapsed?: boolean;
-  /** Called with the new collapsed state whenever the user toggles it. */
+  /** Called with the new collapsed state whenever the user toggles it, controlled or not. */
   onCollapsedChange?: (collapsed: boolean) => void;
 }
 
@@ -289,13 +295,15 @@ function Sidebar({
   onCollapse,
   defaultActiveItem = "Home",
   onNavigate,
+  collapsed: collapsedProp,
   defaultCollapsed = false,
   onCollapsedChange,
   className,
   ...props
 }: SidebarProps) {
   const [activeItem, setActiveItem] = React.useState(defaultActiveItem);
-  const [collapsed, setCollapsed] = React.useState(defaultCollapsed);
+  const [uncontrolledCollapsed, setUncontrolledCollapsed] = React.useState(defaultCollapsed);
+  const collapsed = collapsedProp ?? uncontrolledCollapsed;
   const [isRailHovered, setIsRailHovered] = React.useState(false);
   const { resolve, prefersReducedMotion } = useMotionPreference();
   const iconSwapMotion = prefersReducedMotion ? iconSwapReducedVariants : iconSwapVariants;
@@ -320,7 +328,7 @@ function Sidebar({
 
   const handleToggleCollapsed = () => {
     const next = !collapsed;
-    setCollapsed(next);
+    setUncontrolledCollapsed(next);
     onCollapsedChange?.(next);
     onCollapse?.();
   };

@@ -41,6 +41,26 @@ contexts.
 
 ---
 
+## Brand name: always "Bethere"
+
+**Rule:** the brand is written **Bethere** — capital B, everything else
+lowercase — everywhere: UI copy, legal lines ("Bethere Group"), alt text,
+stories, docs, specs, comments, package metadata and AI prompts. Never
+"BeThere", "Be There" or "BETHERE" (all-caps only when a component uppercases
+text with CSS, like the settings rail's group labels).
+
+**Why:** design direction (2026-10-08). The repo had drifted to "BeThere" in
+75 places across UI copy, specs, docs and comments, while the logo, Figma
+(`Bethere Logo`, `Bethere Symbol`) and some copy already read "Bethere".
+
+**How to apply:** write "Bethere" in any new copy or doc. Before merging copy
+changes, `grep -rn "BeThere" --exclude-dir=node_modules --exclude-dir=dist .`
+should match only this rule and the copy guide's matching rule. Identifiers that aren't user-facing (the npm scope
+`@bethere-group`, the Figma file `bethere.ds`, CSS/JS names) keep their
+lowercase forms.
+
+---
+
 ## Brand voice — copy tone across UCL-consuming apps
 
 **Rule:** Bethere is a city planner, not a trip planner. Guest-facing,
@@ -246,22 +266,28 @@ itself specifies a non-default size for that specific button.
 
 ## Heading element → `Typography` `size` pairing (`src/components/typography/typography.tsx`)
 
-**Rule:** `Typography`'s `as` (semantic element) and `size` (visual scale)
-are independent props — `as="h1"` alone does not imply any particular
-`size`. When a page heading uses a semantic heading element, pair it with
-the matching `size`/`weight` below rather than picking a size by eye:
+**Rule:** headings use these definitions, from the bethere.ds text-style
+descriptions (confirmed 2026-10-08):
 
-- `h1` → `size="2xl" weight="semibold"` (24px/32px line-height, `font-display`).
-  Confirmed against Figma (`get_variable_defs` on the Business Profile page's
-  business-name header, bethere.ds `font-size/2xl` + `font-weight/semibold`,
-  no letter-spacing override). Also the size used for plain page titles
-  (e.g. `BusinessProfilesLayout`'s "Business profiles" heading) — both a
-  page title and an entity-name header (like the business-name case above)
-  are `h1`-level and share this pairing.
-- `h2` → `size="lg" weight="semibold"`. Not yet independently confirmed
-  against a Figma binding in this codebase — re-verify with
-  `get_variable_defs` on an actual `h2`-level Figma node before treating
-  this as load-bearing the way the `h1` pairing is.
+| Element | `size` / `weight`  | Figma text style      | Metrics                    |
+| ------- | ------------------ | --------------------- | -------------------------- |
+| `h1`    | `2xl` / `semibold` | `2xl/2xl -semibold`   | 24/32, `font-display`      |
+| `h2`    | `xl` / `semibold`  | `xl/xl -semibold`     | 20/30, 1% tracking, `font-display` |
+| `h3`    | `lg` / `semibold`  | `lg/lg -semibold`     | 18/24, 1% tracking, `font-sans` |
+
+Figma also describes `2xl/2xl -semibold` as "Page Title" and "Modal Title",
+so page titles and entity-name headers (e.g. a business name) are `h1`-level.
+
+`Typography` applies these on its own: `as="h1" | "h2" | "h3"` without
+`size`/`weight` renders the definition (`typographyHeadings`). Pass `size` or
+`weight` only when a specific Figma frame binds something else; that value
+wins for that instance.
+
+ℹ️ Existing headings that set a different size or weight were left as they
+are when the definitions landed: the sign-up / sign-in and onboarding
+(Business Profile, Business Verification) `h1`s are `2xl` medium, and New
+Listing uses a `3xl` `h1` and `lg` `h2`s. Re-check them against their Figma
+frames before changing them.
 
 **Why:** `src/layouts/provider-portal/account-settings/pages/business-profile/
 business-profile.tsx`'s business-name header was first built against a
@@ -273,11 +299,11 @@ the tracking override removed. `3xl` is a plausible-looking size for an
 re-introduce that same "reasonable-looking but not what Figma actually
 binds" guess.
 
-**How to apply:** Any new page-level `h1`/`h2` in `src/layouts/**` should
-default to this pairing. If a specific Figma frame binds a heading node to
-a different size/weight, that Figma value wins for that instance — but
-don't invent a size for a heading element without checking, since `3xl`
-looked equally plausible here and was wrong.
+**How to apply:** for a new `h1`/`h2`/`h3`, write `<Typography as="h2">`
+and let the definition apply. If a specific Figma frame binds a heading node
+to a different size/weight, pass that value for that instance — but don't
+invent a size for a heading element without checking, since `3xl` looked
+equally plausible here and was wrong.
 
 ---
 
@@ -368,7 +394,7 @@ Other load-bearing details on this same component:
 
 ## `--state-hover` token (`src/styles/theme.css`)
 
-**Rule:** `--state-hover` (`#3a342808` — sand-900 at ~3% alpha, exposed as
+**Rule:** `--state-hover` (`#3a34280a` — sand-900 at 4% alpha, exposed as
 the `bg-state-hover` Tailwind utility) is the bethere.ds design-system token
 `color/states/hover`, pulled directly from Figma's `get_variable_defs` on a
 component with a defined `Property 1=Hover` variant. It is deliberately this
@@ -520,6 +546,13 @@ was already correctly top-only, so the bottom rounding was coming from the
 wrapper alone — an easy thing to miss since `rounded-xl` on a clipping
 wrapper still renders *something* plausible, it's just not the intended
 shape.
+
+**Bottom edge:** every body row has a 1px `border-border` bottom border,
+**including the last one**, so a table always ends on a line (Figma
+Provider-Portal `Team members`, 601:6140 — confirmed 2026-10-08). `TableBody`
+used to strip it with `[&_tr:last-child]:border-0` (shadcn's default); don't
+reintroduce that. `TableFooter` has no top border for the same reason — the
+last row's border already separates it.
 
 **How to apply:** Any new table wrapper (a page-level table, a new shared
 table component) must use `rounded-t-xl` (or `rounded-t-*` matching the
@@ -795,3 +828,92 @@ Figma.
   slot's wrapper already applies and confirm they're scoped to direct
   children, not deep descendants, before assuming the slot is safe to reuse
   as-is.
+
+---
+
+## Page shell responsiveness — one behavior for every layout (`src/layouts/`)
+
+**Rule:** Every page layout with the app `Sidebar` uses the same shell and
+the same responsive behavior: the `Sidebar` on the left, and a canvas column
+that fills the rest and scrolls on its own. Don't give one page its own
+gutters, breakpoints, or sidebar logic. Today that shell is
+`ProviderPortalLayout` (`src/layouts/provider-portal/provider-portal.tsx`).
+
+Boundaries include the frame width: each row starts 1px past the previous
+breakpoint (see "Breakpoints include their own width").
+
+| Width                | Sidebar        | Canvas padding (x), left / right                                                         |
+| -------------------- | -------------- | ---------------------------------------------------------------------------------------- |
+| `lg` (1024) and below | auto-collapsed | `px-12` (48 / 48)                                                                        |
+| 1025 to `xl` (1280)  | user's choice  | `px-12` (48 / 48)                                                                        |
+| 1281 to `2xl` (1536) | user's choice  | expanded: `xl:pl-6` + `pr-12` (24 / 48); collapsed: `xl:px-24` (96 / 96)                 |
+| 1537 and up          | user's choice  | expanded: `2xl:pl-16 2xl:pr-40` (64 / 160); collapsed: `2xl:pl-40 2xl:pr-40` (160 / 160) |
+
+- **Canvas padding** comes from `layoutCanvasPaddingClassName(sidebarCollapsed)`
+  in `src/layouts/shared/layout-canvas.ts`. From `xl` up, collapsing the
+  sidebar widens the left gutter to match the right one, so the content sits
+  evenly between the rail and the window edge. At `xl` and below both gutters
+  are already equal. Vertical padding stays the layout's own (Provider
+  Portal: `py-14`, 56px top and bottom at every breakpoint).
+- **Padding motion:** the left padding transitions with the same duration and
+  curve as the sidebar's width (`enterTransition`: 500ms, `[0.16, 1, 0.3, 1]`),
+  so the content glides instead of jumping, and the transition is off under
+  reduced motion. These values are written as CSS classes because CSS can't
+  read `src/lib/motion`, so if `enterTransition` changes, update
+  `layout-canvas.ts` too.
+- **Sidebar auto-collapse:** at `lg` (1024) and below the sidebar collapses on
+  its own, including on first load at a narrow width. Crossing back above
+  `lg` restores the earlier state, but only if the collapse was automatic.
+  Once the user toggles the sidebar, their choice sticks. The logic lives in
+  `useLayoutSidebar` (`src/layouts/shared/use-layout-sidebar.ts`), which
+  drives the `Sidebar`'s controlled `collapsed` / `onCollapsedChange` props.
+- **Not in scope:** full-screen flows without the app `Sidebar` (New Listing,
+  Business Profile, Business Verification, Account Settings) keep their own
+  layouts.
+
+**Why:** ported from verita-ai's page shell (2026-10-08) so both products
+resize the same way. verita-ai's layouts had each set their own canvas
+padding and drifted apart until the gutters moved into one shared helper.
+The Provider Portal shell used Figma "Frame 2"'s fixed 24 / 56px gutters,
+which this table replaces.
+
+**How to apply:**
+
+- **New layout with the Sidebar:** render it inside `ProviderPortalLayout`,
+  or copy its shell (Sidebar driven by `useLayoutSidebar`, canvas with
+  `layoutCanvasPaddingClassName`). Don't hand-write `px-*`/`pr-*`/`pl-*` on
+  the canvas or copy the collapse logic.
+- **Changing the gutters:** edit `layoutCanvasPaddingClassName` and update
+  the table above in the same change. Don't override it in one layout.
+- **Verify:** check the layout in Storybook at exactly 1024, 1280, and 1536
+  and 1px above each, with the sidebar both open and collapsed.
+
+---
+
+## Breakpoints include their own width (`src/styles/theme.css`, `src/lib/breakpoints.ts`)
+
+**Rule:** whatever applies to a breakpoint includes its frame width: the
+breakpoint covers widths up to and including it. The frames are sm 640,
+md 768, lg 1024, xl 1280, 2xl 1536, and 3xl 1920. So the lg frame at exactly
+1024px gets the "lg and below" layout, and the next layout starts at 1025px.
+
+**Why:** designs are reviewed at those exact frame widths, and each frame has
+to show the layout designed for it. With Tailwind's default min-width
+breakpoints, a frame at exactly 1024px or 1280px got the next layout up.
+Same convention as verita-ai (adopted here 2026-10-08).
+
+**How it's built:**
+
+- `theme.css` registers each Tailwind breakpoint 1px past its frame width
+  (`--breakpoint-lg: 1025px`, …). `lg:` means above 1024 and `max-lg:` means
+  1024 and below. Write the usual `lg:`/`xl:` classes; never an arbitrary
+  `min-[1025px]:`.
+- ⚠️ **Constraint:** `theme.css` ships to consumers (`dist/styles.css`), so
+  consuming apps' own `sm:`–`3xl:` classes follow these boundaries too.
+- JS media queries use `mediaAbove("lg")` from `@/lib/breakpoints` (with
+  `useMediaQuery` from `@/lib/hooks/use-media-query`) instead of a
+  hand-written `(min-width: …)`. It follows the same +1px boundary.
+- Keep `theme.css` and `src/lib/breakpoints.ts` in sync when a breakpoint
+  changes.
+- Describe breakpoints in comments and specs as "at `lg` (1024) and below" /
+  "above `lg`", not "below `lg`" / "from `lg`".

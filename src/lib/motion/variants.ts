@@ -121,6 +121,18 @@ const staggerContainerVariants: Variants = {
 };
 
 /**
+ * Takeover: a full-screen surface opening over the page, e.g. the New Listing flow opened from
+ * Listings. Fades in while rising `motionDistance.medium` (24px, CLAUDE.md "Panel/page
+ * transition" range) on `enterTransition` (quick start, gentle finish); leaves faster on
+ * `exitTransition`, sinking back the same distance. Under reduced motion, use `fadeVariants`.
+ */
+const takeoverVariants: Variants = {
+  initial: { opacity: 0, y: motionDistance.medium },
+  animate: { opacity: 1, y: 0, transition: enterTransition },
+  exit: { opacity: 0, y: motionDistance.medium, transition: exitTransition },
+};
+
+/**
  * Account menu entrance: a fade plus a `motionDistance.small` (12px) slide up, on
  * `standardTransition`. It opens over its trigger at the bottom of the screen, so it should read as
  * rising out of it. No scale: the slide already carries the arrival. Exit is a plain fade.
@@ -185,6 +197,7 @@ export {
   panelVariants,
   slideVariants,
   staggerContainerVariants,
+  takeoverVariants,
   accountMenuVariants,
   iconSwapVariants,
   iconSwapReducedVariants,

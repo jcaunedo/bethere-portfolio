@@ -47,6 +47,10 @@ const buttonVariants = cva(
 					"size-9 rounded-xl [&_svg:not([class*='size-'])]:size-4",
 				"icon-xl":
 					"size-10 rounded-xl [&_svg:not([class*='size-'])]:size-4",
+				// Navigation icon button (close X / back arrow): icon-lg's 36px box and
+				// radius/button-lg, with a larger 20px icon.
+				"icon-nav":
+					"size-9 rounded-xl [&_svg:not([class*='size-'])]:size-5",
 			},
 		},
 		compoundVariants: [

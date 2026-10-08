@@ -1,11 +1,16 @@
 import * as React from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { Building2Icon, ChevronLeftIcon } from "lucide-react";
+import { BuildingIcon, ChevronLeftIcon } from "lucide-react";
 
-import { AccountSettingsLayout } from "@/layouts/provider-portal/account-settings/account-settings";
+import {
+	AccountSettingsLayout,
+	useBusinessProfilesLabel,
+} from "@/layouts/provider-portal/account-settings/account-settings";
 import { AccountSettingsMenuLayout } from "@/layouts/provider-portal/account-settings/account-settings-menu";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/navigation/tabs";
 import { Typography } from "@/components/typography";
+import { mediaAbove } from "@/lib/breakpoints";
+import { useMediaQuery } from "@/lib/hooks/use-media-query";
 import { slideVariants } from "@/lib/motion";
 
 import { ProfileTab } from "./profile-tab";
@@ -59,8 +64,16 @@ type RowKey = FieldKey | VerificationFieldKey | "businessOwner" | "primaryContac
 type BusinessProfileLayoutProps = {
 	/** Business name shown in the header (Figma: header text). */
 	name?: string;
-	/** Called when "Back to businesses" is activated. */
+	/**
+	 * Called when "Back to businesses" is activated. Pass it only when the account has several
+	 * businesses (the page was opened from the Business profiles list); omit it for a single
+	 * business — the default — and the link is hidden, since there's no list to go back to.
+	 */
 	onBack?: () => void;
+	/** Leaves Account Settings, e.g. back to the Provider Portal: the header's X above `md`, and the mobile settings menu's X. Omit it and the X opens the settings menu instead (the standalone Storybook reference has nowhere to go). */
+	onClose?: () => void;
+	/** Called with a settings section's route (e.g. "/settings/team-members") when it's picked in the rail or the mobile settings menu, so the app can switch pages. */
+	onNavigate?: (navigateTo: string) => void;
 	/** Called when Insurance provider's "Edit" is activated — hooks into a (future) insurance-edit flow. */
 	onEditInsuranceProvider?: () => void;
 	/** Called when the Documents tab's search button is activated — hooks into a (future) document search/filter. */
@@ -85,11 +98,17 @@ type BusinessProfileLayoutProps = {
 function BusinessProfileLayout({
 	name = "Key Biscayne Yacht Club",
 	onBack,
+	onClose,
+	onNavigate,
 	onEditInsuranceProvider,
 	onSearchDocuments,
 	onAddDocument,
 	onDocumentActions,
 }: BusinessProfileLayoutProps) {
+	// "Business profile" or "Business profiles", from `AccountSettingsProvider`'s business count.
+	const businessesLabel = useBusinessProfilesLabel();
+	// Above `md` the header shows an X (closes settings, `onClose`); at `md` and below it shows a back arrow to the mobile settings menu.
+	const isMdUp = useMediaQuery(mediaAbove("md"));
 	// Mobile-only: the header's back arrow (AccountSettingsLayout's onClose)
 	// has nowhere to route to in this standalone Storybook reference layout,
 	// so it swaps in the mobile "Account Settings" menu in place of this
@@ -319,6 +338,9 @@ function BusinessProfileLayout({
 				focusedRowKey(openOrder) ?? openOrder[openOrder.length - 1];
 
 			if (event.key === "Escape") {
+				// Handled: AccountSettingsLayout's Esc-to-close skips a prevented Escape, so this
+				// press only cancels the row.
+				event.preventDefault();
 				switch (activeKey) {
 					case "businessOwner":
 						cancelEditingBusinessOwner();
@@ -363,10 +385,12 @@ function BusinessProfileLayout({
 			className="absolute inset-0 h-screen"
 		>
 			<AccountSettingsMenuLayout
-				onClose={goToBusinessProfile}
+				onClose={onClose ?? goToBusinessProfile}
 				onNavigate={(navigateTo) => {
 					if (navigateTo === "/settings/business-profiles") {
 						goToBusinessProfile();
+					} else {
+						onNavigate?.(navigateTo);
 					}
 				}}
 			/>
@@ -383,20 +407,27 @@ function BusinessProfileLayout({
 			exit="exit"
 			className="absolute inset-0 h-screen"
 		>
-			<AccountSettingsLayout activeItem="Business profiles" onClose={goToMenu}>
+			<AccountSettingsLayout
+				activeItem={businessesLabel}
+				onClose={isMdUp && onClose ? onClose : goToMenu}
+				onNavigate={onNavigate}
+			>
 				<div className="flex flex-col items-start gap-8 pb-24">
-					<button
-						type="button"
-						onClick={onBack}
-						className="inline-flex items-center gap-2 text-sm font-medium text-primary outline-none hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50"
-					>
-						<ChevronLeftIcon className="size-4" />
-						Back to businesses
-					</button>
+					{onBack ? (
+						<button
+							type="button"
+							onClick={onBack}
+							className="inline-flex items-center gap-2 text-sm font-medium text-primary outline-none hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50"
+						>
+							<ChevronLeftIcon className="size-4" />
+							Back to businesses
+						</button>
+					) : null}
 
 					<div className="flex w-full flex-col gap-8">
 						<div className="flex w-full items-center gap-4">
-							<Building2Icon className="size-6 shrink-0 text-foreground" />
+							{/* Figma: `building`, 24px, color/icon/foreground — the same icon as the settings menu's Business row. */}
+							<BuildingIcon className="size-6 shrink-0 text-icon-foreground" />
 							<Typography
 								as="h1"
 								size="2xl"

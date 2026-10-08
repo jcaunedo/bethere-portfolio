@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import {
   CircleUserIcon,
-  GlobeIcon,
+  LanguagesIcon,
   LogOutIcon,
   SettingsIcon,
   SunMoonIcon,
@@ -35,18 +35,18 @@ export const Default: Story = {
         <AccountMenuItem showIcon icon={<CircleUserIcon />}>
           My profile
         </AccountMenuItem>
-        <AccountMenuItem showIcon icon={<SunMoonIcon />} shortcut="Auto">
-          Theme
-        </AccountMenuItem>
-        <AccountMenuItem showIcon icon={<GlobeIcon />} shortcut="English">
-          Language
-        </AccountMenuItem>
         <AccountMenuItem showIcon icon={<SettingsIcon />}>
           Account settings
         </AccountMenuItem>
+        <AccountMenuItem showIcon icon={<SunMoonIcon />} shortcut="Auto">
+          Theme
+        </AccountMenuItem>
+        <AccountMenuItem showIcon icon={<LanguagesIcon />} shortcut="English">
+          Language
+        </AccountMenuItem>
         <AccountMenuSeparator />
         <AccountMenuItem showIcon icon={<LogOutIcon />} variant="destructive">
-          Log Out
+          Log out
         </AccountMenuItem>
       </AccountMenuContent>
     </AccountMenu>
@@ -111,18 +111,18 @@ export const WithSelectAccountInfoTrigger: Story = {
         <AccountMenuItem showIcon icon={<CircleUserIcon />}>
           My profile
         </AccountMenuItem>
-        <AccountMenuItem showIcon icon={<SunMoonIcon />} shortcut="Auto">
-          Theme
-        </AccountMenuItem>
-        <AccountMenuItem showIcon icon={<GlobeIcon />} shortcut="English">
-          Language
-        </AccountMenuItem>
         <AccountMenuItem showIcon icon={<SettingsIcon />}>
           Account settings
         </AccountMenuItem>
+        <AccountMenuItem showIcon icon={<SunMoonIcon />} shortcut="Auto">
+          Theme
+        </AccountMenuItem>
+        <AccountMenuItem showIcon icon={<LanguagesIcon />} shortcut="English">
+          Language
+        </AccountMenuItem>
         <AccountMenuSeparator />
         <AccountMenuItem showIcon icon={<LogOutIcon />} variant="destructive">
-          Log Out
+          Log out
         </AccountMenuItem>
       </AccountMenuContent>
     </AccountMenu>
@@ -147,7 +147,7 @@ export const AllVariants: Story = {
             </AccountMenuItem>
             <AccountMenuSeparator />
             <AccountMenuItem showIcon icon={<LogOutIcon />} variant="destructive">
-              Log Out
+              Log out
             </AccountMenuItem>
           </AccountMenuContent>
         </AccountMenu>
@@ -191,7 +191,7 @@ export const AllVariants: Story = {
             </AccountMenuItem>
             <AccountMenuSeparator />
             <AccountMenuItem showIcon icon={<LogOutIcon />} variant="destructive">
-              Log Out
+              Log out
             </AccountMenuItem>
           </AccountMenuContent>
         </AccountMenu>

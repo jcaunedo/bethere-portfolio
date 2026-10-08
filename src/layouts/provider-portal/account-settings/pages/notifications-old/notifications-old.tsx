@@ -85,7 +85,7 @@ const INITIAL_NOTIFICATION_SECTIONS: NotificationSection[] = [
     id: "listings",
     title: "Listings",
     description:
-      "Receive updates when your listings are reviewed, approved, rejected, or flagged by the BeThere team.",
+      "Receive updates when your listings are reviewed, approved, rejected, or flagged by the Bethere team.",
     rows: [
       { id: "listing-approved-rejected", label: "Listing approved / rejected", checked: false, activeChannels: [] },
       { id: "listing-flagged-or-taken-down", label: "Listing flagged or taken down", checked: false, activeChannels: [] },
@@ -267,7 +267,7 @@ function NotificationsLayoutOld() {
               Notifications
             </Typography>
             <Typography size="base">
-              Choose which BeThere notifications you receive and how they're
+              Choose which Bethere notifications you receive and how they're
               delivered.
             </Typography>
           </div>

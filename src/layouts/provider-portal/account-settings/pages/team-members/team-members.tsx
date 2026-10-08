@@ -9,6 +9,7 @@ import {
 
 import { AccountSettingsLayout } from "@/layouts/provider-portal/account-settings/account-settings";
 import { Button } from "@/components/buttons/button";
+import { EmptyState } from "@/components/feedback/empty-state";
 import { Typography } from "@/components/typography";
 import { TransferOwnershipIcon } from "@/components/icons/transfer-ownership-icon";
 import { TableCellUser } from "@/components/data-display/table-cell-user";
@@ -536,8 +537,10 @@ type TeamMembersLayoutProps = {
   pendingError?: string;
   activeError?: string;
   onRetry?: (scope: "pending" | "active") => void;
-  /** Called when the header's close ("Done") button is activated. */
+  /** Called when the header's close (X) button is activated. */
   onClose?: () => void;
+  /** Called with a settings section's route (e.g. "/settings/team-members") when it's picked in the rail or the mobile settings menu, so the app can switch pages. */
+  onNavigate?: (navigateTo: string) => void;
   /**
    * Called with the filled-in rows when the "Invite team members" dialog's
    * "Send Invites" is activated. The dialog closes itself either way.
@@ -595,6 +598,7 @@ function TeamMembersLayout({
   activeError,
   onRetry,
   onClose,
+  onNavigate,
   onSendInvites,
   onEditMember,
   onRemoveMember,
@@ -647,6 +651,16 @@ function TeamMembersLayout({
   const showActive =
     activeError !== undefined || loading || filteredActive.length > 0;
   const showNoMatches = isSearching && !loading && !showPending && !showActive;
+  // Nobody to manage yet: no pending invites and no active member besides the owner. Shown under
+  // the Active table (which still lists the owner), inviting the first teammate.
+  const showNoTeam =
+    !isSearching &&
+    !loading &&
+    pendingError === undefined &&
+    activeError === undefined &&
+    pendingRows.length === 0 &&
+    activeRows.every((row) => row.role === "Owner");
+  const [inviteOpen, setInviteOpen] = React.useState(false);
 
   function openEditDialog(row: MemberRow) {
     setFeedback(null);
@@ -690,7 +704,7 @@ function TeamMembersLayout({
     : null;
 
   return (
-    <AccountSettingsLayout activeItem="Team members" onClose={onClose}>
+    <AccountSettingsLayout activeItem="Team members" onClose={onClose} onNavigate={onNavigate}>
       <div className="flex flex-col gap-8 pb-24">
         <div className="flex flex-col">
           <Typography size="2xl" weight="semibold">
@@ -714,6 +728,9 @@ function TeamMembersLayout({
               onClear={() => setSearchQuery("")}
             />
             <InviteTeamMembersDialog
+              // Controlled so the empty state's "Invite team members" can open it too.
+              open={inviteOpen}
+              onOpenChange={setInviteOpen}
               existingEmails={activeRows.map((row) => row.email)}
               pendingEmails={pendingRows.map((row) => row.email)}
               onSendInvites={(invites) => {
@@ -809,20 +826,30 @@ function TeamMembersLayout({
           />
         ) : null}
 
+        {showNoTeam ? (
+          <EmptyState
+            className="py-12"
+            title="No team members yet"
+            description="Invite people to help run your business on Bethere. You decide what each person can access."
+            buttonLabel="Invite team members"
+            buttonIcon={<UserPlusIcon />}
+            buttonProps={{
+              onClick: () => {
+                setFeedback(null);
+                setInviteOpen(true);
+              },
+            }}
+          />
+        ) : null}
+
         {showNoMatches ? (
-          <div className="flex flex-col items-center gap-3 py-12 text-center">
-            <Typography size="base" className="text-muted-foreground">
-              No team members match “{searchQuery.trim()}”.
-            </Typography>
-            <Button
-              type="button"
-              variant="outline"
-              size="lg"
-              onClick={() => setSearchQuery("")}
-            >
-              Clear search
-            </Button>
-          </div>
+          <EmptyState
+            className="py-12"
+            title={`No matches for “${searchQuery.trim()}”`}
+            description="Check the spelling, or search by another name or email."
+            buttonLabel="Clear search"
+            buttonProps={{ variant: "outline", onClick: () => setSearchQuery("") }}
+          />
         ) : null}
       </div>
 

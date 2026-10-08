@@ -18,11 +18,16 @@ const heroImages = [hero01, hero02, hero03, hero04];
 // render, so every screen in this file shows the same hero for the session.
 const heroImage = heroImages[Math.floor(Math.random() * heroImages.length)];
 
+interface SignUpSignInProps {
+  /** Called with the provider when a social login button (Google, Microsoft, Apple) is clicked. */
+  onSocialLogin?: (provider: "google" | "microsoft" | "apple") => void;
+}
+
 /**
  * Provider Portal sign-in screen. Figma origin: Sign-Up/Sign-In → "Social Login" frame.
  * Hero image column + logo/social/email form column.
  */
-function SignUpSignIn() {
+function SignUpSignIn({ onSocialLogin }: SignUpSignInProps = {}) {
   const [email, setEmail] = React.useState("");
 
   return (
@@ -47,7 +52,7 @@ function SignUpSignIn() {
               </Typography>
             </div>
 
-            <SocialLoginOptions />
+            <SocialLoginOptions onProviderClick={onSocialLogin} />
 
             <Typography size="sm" className="text-muted-foreground">
               or continue with email
@@ -87,7 +92,7 @@ function SignUpSignIn() {
 
           <div className="flex flex-col items-center gap-1 text-center">
             <Typography size="xs" className="text-muted-foreground">
-              By continuing, you have read and agree to BeThere Group
+              By continuing, you have read and agree to Bethere Group
             </Typography>
             <Typography size="xs">
               <a href="#" className="text-primary hover:underline">
@@ -111,7 +116,7 @@ function SignUpSignIn() {
  * shell as SignUpSignIn, with the single email step swapped for an
  * email + password form (password field has a show/hide toggle).
  */
-function SignUpSignInPassword() {
+function SignUpSignInPassword({ onSocialLogin }: SignUpSignInProps = {}) {
   const [email, setEmail] = React.useState("lucysmith@gmail.com");
   const [password, setPassword] = React.useState("");
   const [showPassword, setShowPassword] = React.useState(false);
@@ -138,7 +143,7 @@ function SignUpSignInPassword() {
               </Typography>
             </div>
 
-            <SocialLoginOptions />
+            <SocialLoginOptions onProviderClick={onSocialLogin} />
 
             <Typography size="sm" className="text-foreground-subtle">
               or continue with email
@@ -214,7 +219,7 @@ function SignUpSignInPassword() {
 
           <div className="flex flex-col items-center gap-1 text-center">
             <Typography size="xs" className="text-muted-foreground">
-              By continuing, you have read and agree to BeThere Group
+              By continuing, you have read and agree to Bethere Group
             </Typography>
             <Typography size="xs">
               <a href="#" className="text-primary hover:underline">
@@ -239,7 +244,7 @@ function SignUpSignInPassword() {
  * destructive Alert banner between the password field and the submit
  * button once the credentials fail to validate.
  */
-function SignUpSignInPasswordError() {
+function SignUpSignInPasswordError({ onSocialLogin }: SignUpSignInProps = {}) {
   const [email, setEmail] = React.useState("lucysmith@gmail.com");
   const [password, setPassword] = React.useState("");
   const [showPassword, setShowPassword] = React.useState(false);
@@ -266,7 +271,7 @@ function SignUpSignInPasswordError() {
               </Typography>
             </div>
 
-            <SocialLoginOptions />
+            <SocialLoginOptions onProviderClick={onSocialLogin} />
 
             <Typography size="sm" className="text-foreground-subtle">
               or continue with email
@@ -350,7 +355,7 @@ function SignUpSignInPasswordError() {
 
           <div className="flex flex-col items-center gap-1 text-center">
             <Typography size="xs" className="text-muted-foreground">
-              By continuing, you have read and agree to BeThere Group
+              By continuing, you have read and agree to Bethere Group
             </Typography>
             <Typography size="xs">
               <a href="#" className="text-primary hover:underline">
@@ -498,7 +503,7 @@ function SignUpSignInCompleteProfile() {
 
           <div className="flex flex-col items-center gap-1 text-center">
             <Typography size="xs" className="text-muted-foreground">
-              By continuing, you have read and agree to BeThere Group
+              By continuing, you have read and agree to Bethere Group
             </Typography>
             <Typography size="xs">
               <a href="#" className="text-primary hover:underline">
@@ -574,7 +579,7 @@ function SignUpSignInOtp() {
 
           <div className="flex flex-col items-center gap-1 text-center">
             <Typography size="xs" className="text-muted-foreground">
-              By continuing, you have read and agree to BeThere Group
+              By continuing, you have read and agree to Bethere Group
             </Typography>
             <Typography size="xs">
               <a href="#" className="text-primary hover:underline">
@@ -660,7 +665,7 @@ function SignUpSignInOtpInvalid() {
 
           <div className="flex flex-col items-center gap-1 text-center">
             <Typography size="xs" className="text-muted-foreground">
-              By continuing, you have read and agree to BeThere Group
+              By continuing, you have read and agree to Bethere Group
             </Typography>
             <Typography size="xs">
               <a href="#" className="text-primary hover:underline">
@@ -722,3 +727,4 @@ export {
   SignUpSignInOtpInvalid,
   SignUpSignInLoading,
 };
+export type { SignUpSignInProps };

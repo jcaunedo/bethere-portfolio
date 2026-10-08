@@ -5,8 +5,8 @@ import { Button } from "@/components/buttons/button";
 import { FormikInput } from "@/components/forms/input";
 import { FormikSelect } from "@/components/forms/select";
 import { Typography } from "@/components/typography";
-import { StepperOnboarding } from "@/components/stepper/stepper-onboarding";
 import { Logo } from "@/components/data-display/logo";
+import { PROTOTYPE_STORIES, openStory } from "@/layouts/shared/prototype-links";
 
 // Business category taxonomy — provider-facing labels. See
 // product-specs/onboarding-business.md "Category list" / "v1 category scope"
@@ -26,7 +26,6 @@ const PROVIDER_TYPE_OPTIONS = [
 type BusinessProfileValues = {
   companyName: string;
   providerType: string;
-  phoneNumber: string;
   website: string;
 };
 
@@ -43,21 +42,18 @@ function validate(values: BusinessProfileValues) {
 
 /**
  * Business onboarding — "Tell us about your business" step. Figma origin:
- * Sign-Up/Sign-In → "Business profile" frame. Step 1 of 3 in the onboarding stepper.
+ * Sign-Up/Sign-In → "Business profile" frame. No onboarding stepper (removed Oct 08, 2026).
  */
 function BusinessProfile() {
   const initialValues: BusinessProfileValues = {
     companyName: "",
     providerType: "",
-    phoneNumber: "",
     website: "",
   };
 
   return (
     <div className="flex h-screen items-center overflow-clip bg-background p-2">
       <div className="flex h-full w-full flex-1 flex-col items-center justify-between">
-        <StepperOnboarding steps={3} currentStep={1} />
-
         <div className="flex w-full max-w-[464px] flex-1 flex-col items-center justify-center gap-6">
           <div className="flex items-center justify-center py-6.5">
             <Logo className="h-10 w-auto" />
@@ -76,25 +72,22 @@ function BusinessProfile() {
             <Formik
               initialValues={initialValues}
               validate={validate}
+              // Validate on mount so the buttons start disabled: they unlock once the required
+              // fields (business name and what it offers) are filled.
+              validateOnMount
               onSubmit={() => {
-                // Prototype-only cross-layout navigation: jump to the next step's
-                // Storybook story so the flow can be clicked through end to end.
-                // The story renders inside Storybook's preview iframe, so the
-                // manager window (window.top) — not this frame's own location —
-                // is what understands the "?path=/story/..." route. The path must
-                // be built as an absolute URL off window.top's own origin: a bare
-                // "?path=..." resolves relative to whatever sub-path the manager
-                // happens to be on and can bounce to the wrong route.
-                const top = window.top && window.top !== window ? window.top : window;
-                top.location.href = `${top.location.origin}/?path=/story/layouts-businessverification--default`;
+                // Prototype-only cross-layout navigation: onboarding done, open the Provider Portal.
+                openStory(PROTOTYPE_STORIES.providerPortal);
               }}
             >
+              {({ isValid }) => (
               <Form className="flex w-full flex-col gap-6">
                 <div className="flex w-full flex-col gap-4">
                   <FormikInput
                     name="companyName"
                     label="Business name"
-                    placeholder="Blue Yachts Miami"
+                    // First field of a new user's first step: ready to type on arrival.
+                    autoFocus
                     size="xl"
                   />
                   <FormikSelect
@@ -105,12 +98,6 @@ function BusinessProfile() {
                     size="xl"
                   />
                   <FormikInput
-                    name="phoneNumber"
-                    label="Phone number"
-                    type="tel"
-                    size="xl"
-                  />
-                  <FormikInput
                     name="website"
                     label="Website"
                     placeholder="https://"
@@ -118,15 +105,24 @@ function BusinessProfile() {
                   />
                 </div>
                 <div className="flex w-full flex-col gap-2">
-                  <Button type="submit" size="xl" className="w-full">
+                  {/* Both CTAs move the new user forward, so both wait for the required fields. */}
+                  <Button type="submit" size="xl" className="w-full" disabled={!isValid}>
                     Take me to my portal
                   </Button>
-                  {/* Figma has no defined destination for this CTA yet — visual-only stub. */}
-                  <Button type="button" variant="outline" size="xl" className="w-full">
+                  {/* Prototype: also opens the Provider Portal (no dedicated destination yet). */}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="xl"
+                    className="w-full"
+                    disabled={!isValid}
+                    onClick={() => openStory(PROTOTYPE_STORIES.providerPortal)}
+                  >
                     Create my first experience
                   </Button>
                 </div>
               </Form>
+              )}
             </Formik>
           </div>
         </div>

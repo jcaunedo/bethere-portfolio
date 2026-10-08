@@ -188,8 +188,11 @@ function AccountMenuContent({
 							initial='initial'
 							animate='animate'
 							exit='exit'
+							// Figma "Account Menu" (511:2314): 280px wide, items 16px in from the outer edge. Figma's
+							// stroke sits inside without taking layout space; a CSS border does, so the padding is
+							// 15px (+1px border) to keep the items where Figma puts them.
 							className={cn(
-								"z-50 flex max-h-(--radix-dropdown-menu-content-available-height) w-[282px] flex-col gap-1.5 overflow-x-hidden overflow-y-auto rounded-popover border border-border bg-card px-4 py-4 text-foreground shadow-[var(--shadow-popover)]",
+								"z-50 flex max-h-(--radix-dropdown-menu-content-available-height) w-[280px] flex-col gap-1.5 overflow-x-hidden overflow-y-auto rounded-popover border border-border bg-card p-[15px] text-foreground shadow-[var(--shadow-popover)]",
 								className,
 							)}
 						>
@@ -239,7 +242,10 @@ function AccountMenuItem({
 			data-slot='account-menu-item'
 			data-variant={variant}
 			className={cn(
-				"relative flex h-9 cursor-pointer items-center gap-2 rounded-menu-option px-2 py-[7px] text-sm text-foreground outline-hidden select-none hover:bg-state-hover focus:bg-state-hover data-[disabled]:pointer-events-none data-[disabled]:cursor-not-allowed data-[disabled]:text-muted-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:hover:bg-destructive-subtle/50 data-[variant=destructive]:focus:bg-destructive-subtle/50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground data-[variant=destructive]:[&_svg:not([class*='text-'])]:text-destructive",
+				// Figma "Select Item" (39:4695): 36px row, 8px/7px padding, 8px gap, 16px icon.
+				// Hover: color/states/hover fill, radius/select-item (8px). Icon: #222a34 (neutral-800,
+				// Figma colors/base/foreground); Disabled: label and icon in color/foreground/muted.
+				"relative flex h-9 cursor-pointer items-center gap-2 rounded-select-item px-2 py-[7px] text-sm text-foreground outline-hidden select-none hover:bg-state-hover focus:bg-state-hover data-[disabled]:pointer-events-none data-[disabled]:cursor-not-allowed data-[disabled]:text-muted-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:hover:bg-destructive-subtle/50 data-[variant=destructive]:focus:bg-destructive-subtle/50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-neutral-800 data-[disabled]:[&_svg:not([class*='text-'])]:text-muted-foreground data-[variant=destructive]:[&_svg:not([class*='text-'])]:text-destructive",
 				className,
 			)}
 			{...props}
@@ -249,7 +255,7 @@ function AccountMenuItem({
 				<DropdownMenuPrimitive.ItemIndicator asChild forceMount>
 					<span
 						aria-hidden
-						className='flex size-4 shrink-0 items-center justify-center rounded-[4px] border border-foreground'
+						className='flex size-4 shrink-0 items-center justify-center rounded-[4px] border border-neutral-800'
 					>
 						<CheckIcon className='size-3' />
 					</span>
@@ -268,7 +274,10 @@ function AccountMenuItem({
 					{shortcut}
 				</span>
 			)}
-			{showChevron && <ChevronRightIcon className='size-4 shrink-0' />}
+			{showChevron && (
+				// Figma: chevron-right in muted (#686f7d), not the icon color.
+				<ChevronRightIcon className='size-4 shrink-0 text-muted-foreground' />
+			)}
 		</DropdownMenuPrimitive.Item>
 	);
 }
@@ -281,7 +290,9 @@ function AccountMenuLabel({
 		<DropdownMenuPrimitive.Label
 			data-slot='account-menu-label'
 			className={cn(
-				"px-4 py-1.5 text-xs font-medium text-muted-foreground",
+				// Figma "Select Item" Type=Label - Small: 28px tall, xs/regular in color/foreground/muted,
+				// text 6px further in than the panel's item column starts.
+				"flex h-7 items-center px-1.5 text-xs text-muted-foreground",
 				className,
 			)}
 			{...props}
@@ -296,7 +307,10 @@ function AccountMenuSeparator({
 	return (
 		<DropdownMenuPrimitive.Separator
 			data-slot='account-menu-separator'
-			className={cn("h-px w-full bg-border-soft", className)}
+			// Figma "Select Item" Type=Divider: an 8px row with the line centered, running 8px past the
+			// item column on each side (264px in the 280px panel). Account Menu colors it
+			// color/border/border-soft.
+			className={cn("-mx-2 my-[3.5px] h-px shrink-0 bg-border-soft", className)}
 			{...props}
 		/>
 	);

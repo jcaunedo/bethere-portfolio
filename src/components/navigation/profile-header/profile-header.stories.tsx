@@ -31,11 +31,11 @@ export const WithAvatarImage: Story = {
 };
 
 /**
- * Below Tailwind's `md` breakpoint (< 768px): avatar grows to 88px, name/
- * email drop to the mobile type scale, and the role badge moves below the
- * email instead of sitting next to the name (Figma `Profile Header`,
- * `Property 1=Mobile`). Resize the preview or use Storybook's viewport
- * toolbar to see the swap.
+ * At `md` (768px) and below: everything stacks centered, the avatar is 72px
+ * (64px on desktop), the email drops to `sm`, and the role badge moves to the
+ * end of the stack instead of sitting next to the name (Figma `Profile Header`,
+ * `Property 1=Mobile`). Resize the preview or use Storybook's viewport toolbar
+ * to see the swap.
  */
 export const Mobile: Story = {
   args: {

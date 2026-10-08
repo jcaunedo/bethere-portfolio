@@ -20,6 +20,7 @@ export {
   panelVariants,
   slideVariants,
   staggerContainerVariants,
+  takeoverVariants,
   accountMenuVariants,
   iconSwapVariants,
   iconSwapReducedVariants,

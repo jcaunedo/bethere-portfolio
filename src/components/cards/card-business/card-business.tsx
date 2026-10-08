@@ -1,7 +1,7 @@
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Slot } from "radix-ui";
-import { Building2Icon, ChevronRightIcon } from "lucide-react";
+import { BuildingIcon, ChevronRightIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Badge, type badgeVariants } from "@/components/data-display/badge";
@@ -61,7 +61,8 @@ function CardBusiness({
 		<>
 			<div className='flex min-w-0 flex-1 flex-col items-start gap-4'>
 				<div className='flex w-full items-center gap-4'>
-					<Building2Icon className='size-5 shrink-0 text-foreground' />
+					{/* `building`, the same icon as the settings menu's Business row and the Business Profile heading. */}
+					<BuildingIcon className='size-5 shrink-0 text-foreground' />
 					<span className='min-w-0 flex-1 truncate font-sans text-lg font-semibold tracking-[0.18px] text-foreground'>
 						{name}
 					</span>

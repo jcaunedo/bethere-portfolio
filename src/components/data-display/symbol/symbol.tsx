@@ -27,7 +27,7 @@ const symbolVariants = cva("h-9 w-auto shrink-0", {
 type SymbolProps = React.ComponentProps<"svg"> &
   VariantProps<typeof symbolVariants>;
 
-/** BeThere brand mark. Figma: bethere.ds `Bethere Symbol`. */
+/** Bethere brand mark. Figma: bethere.ds `Bethere Symbol`. */
 function Symbol({ className, variant = "black", ...props }: SymbolProps) {
   const gradientId = `bethere-symbol-gradient-${React.useId()}`;
   const isGradient = variant === "gradient";

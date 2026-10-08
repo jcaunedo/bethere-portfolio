@@ -1,7 +1,7 @@
 <!--
 Created: Aug 04, 2026
 Created by: Julio Caunedo
-Last updated: Aug 09, 2026
+Last updated: Oct 08, 2026 (desktop X replaces Done; unsaved-changes confirmation; Esc closes settings)
 -->
 
 # My Profile — Provider Portal
@@ -25,17 +25,20 @@ A `ProfileHeader` sits above the field stack: avatar (with an edit-photo afforda
 ## Page composition & shell integration
 
 - Rendered inside `AccountSettingsLayout` (desktop: header + `SidebarSettings` rail + this content column; mobile: header only, sidebar hidden below `md`).
-- `AccountSettingsLayout`'s `activeItem="My profile"` drives the sidebar's active-item highlight and, per the `SettingsHeader` refine, the *mobile* top-bar title override (`mobileTitle`) — desktop shows the static "Account Settings" title regardless of which sub-page is active.
+- `AccountSettingsLayout`'s `activeItem="My profile"` drives the sidebar's active-item highlight and, per the `SettingsHeader` refine, the *mobile* top-bar title override (`mobileTitle`) — desktop shows the static "Settings" title (it read "Account Settings" until Oct 08, 2026) regardless of which sub-page is active.
 - Content wrapper: `flex flex-col gap-6 pb-24` — the `pb-24` bottom padding reserves room so the last row's expanded edit form/Save button never sits flush against the viewport edge.
 - Fields are separated with `divide-y divide-border` and each gets `py-6` — a plain divided list, not individual cards.
 
-### Entry and exit: default landing page + Done button
+### Entry and exit: default landing page + close (X) button
 
 Account Settings is not a bookmarkable multi-route section from the rest of the product's point of view — it's entered and exited as a single overlay/destination:
 
 - **Default landing page**: whenever Account Settings is opened (e.g. from an account/avatar menu elsewhere in the app), it opens **directly to My Profile** — there is no intermediate "settings home" or section-picker screen on desktop. (On mobile, `AccountSettingsMenuLayout`'s section list *is* effectively that picker, but only when reached via the header's back arrow from within a sub-page — see [Mobile back-navigation](#mobile-back-navigation-reference-layout-only-behavior).)
-- **Done button** (desktop, top-right of `SettingsHeader`) **closes Account Settings entirely and returns the user to whatever page they were on before they opened it** — not to a fixed destination (e.g. not always "the dashboard"). Account Settings behaves like a modal/overlay context in this respect: it remembers nothing about how it was entered beyond "go back to that."
-- This is the same `onClose` callback `SettingsHeader` already exposes and `AccountSettingsLayout` forwards. ⚠️ **Not yet wired**: the Storybook reference layout only connects `onClose` to the mobile menu-swap (see below), since there's no real router here to demonstrate "return to the previous page" against. Integrating this layout into a real app still requires wiring `onClose` to actual browser/router back-navigation (e.g. `router.back()` or an explicit "previous page" reference) — a hardcoded route would not satisfy the "return whence you came" behavior specified above.
+- **Close button** (desktop, an X on the left of `SettingsHeader`, before the "Settings" title; it replaced the top-right "Done" button on Oct 08, 2026) **closes Account Settings entirely and returns the user to whatever page they were on before they opened it** — not to a fixed destination (e.g. not always "the dashboard"). Account Settings behaves like a modal/overlay context in this respect: it remembers nothing about how it was entered beyond "go back to that."
+- **Esc** closes Account Settings the same way, when nothing is pending. It does nothing extra while something else owns the key: an open edit row (Esc cancels that row first), an open dialog or menu (Esc closes that), or focus in a text field. With unsaved changes, Esc doesn't leave. `AccountSettingsLayout` owns this, so every settings page gets it.
+- **Unsaved changes:** if a row is open with an edit that hasn't been saved, the X and the settings rail first ask "Discard unsaved changes?" ("Keep editing" stays on the page with the draft intact; "Discard changes" leaves). `AccountSettingsLayout` owns the confirmation through its `hasUnsavedChanges` prop.
+- This is the same `onClose` callback `SettingsHeader` already exposes and `AccountSettingsLayout` forwards. ℹ️ The Provider Portal story wires it to close settings and return to the portal page you came from; the standalone My Profile story has no previous page, so its X opens the settings menu instead.
+- ℹ️ Icon rule: the X leaves settings (desktop header, mobile settings menu); the back chevron moves up a level inside settings (mobile sub-pages → settings menu). ⚠️ Figma Provider-Portal `Profile` (540:15892) still shows an arrow and needs the X. Integrating this layout into a real app still requires wiring `onClose` to actual browser/router back-navigation (e.g. `router.back()` or an explicit "previous page" reference) — a hardcoded route would not satisfy the "return whence you came" behavior specified above.
 
 ### Mobile back-navigation (reference-layout-only behavior)
 
@@ -148,4 +151,4 @@ Collapsed-state display re-composes the stored E.164 value back into `+1 (305) 5
 - ⚠️ Time zone options are a **hardcoded static list of 9 US zones** (including territories), using standard-time offsets/abbreviations shown for simplicity rather than resolving DST live (e.g. "Eastern Standard Time (EST) · UTC−05:00" year-round, not switching to EDT/UTC−04:00 in summer). A production version would need either a live DST-aware library or explicit product sign-off that static standard-time labels are acceptable.
 - ⚠️ Phone/WhatsApp are hard-scoped to US numbers (10-digit, `+1`-only). Any international-provider expansion needs a country picker and a real phone-validation library (e.g. libphonenumber) — the current regex-based approach does not generalize.
 - ⚠️ This page has no persistence layer — `save`/`saveValue` only update in-memory React state (`initialFields` is hardcoded seed data: "Jenny Wilson" / "jennywilson@email.com" / etc., while `ProfileHeader` above it is separately hardcoded to "Johanna Wilson" — **these two names don't currently match**, a reference-layout inconsistency worth fixing before this becomes a real page). No API calls, no optimistic-update/error-rollback behavior is defined yet.
-- ⚠️ No "unsaved changes" warning exists if a user navigates away (or the mobile back arrow is tapped) while one or more rows are still expanded with unsaved edits — edits are simply discarded silently along with the component's state.
+- ✅ **Resolved (Oct 08, 2026):** leaving with unsaved edits on desktop (X or rail) asks for confirmation first. ⚠️ **Gap:** on mobile, the back arrow only swaps to the settings menu (drafts survive it), but leaving settings from that menu isn't guarded yet.

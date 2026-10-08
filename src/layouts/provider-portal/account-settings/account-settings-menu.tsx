@@ -2,17 +2,24 @@ import * as React from "react";
 
 import { SettingsHeader } from "@/components/navigation/settings-header";
 import { NavigationListItem } from "@/components/navigation/navigation-list-item";
-import { settingsMenuItems } from "@/layouts/provider-portal/account-settings/account-settings";
-import type { SidebarNavItem } from "@/components/navigation/sidebar";
+import {
+  BusinessCountContext,
+  createSettingsMenuGroups,
+} from "@/layouts/provider-portal/account-settings/account-settings";
+import { SidebarDivider, type SidebarNavItem } from "@/components/navigation/sidebar";
+import type { SidebarSettingsGroup } from "@/components/navigation/sidebar-settings";
 
 interface AccountSettingsMenuLayoutProps {
   /**
-   * Settings sections to list. Defaults to `settingsMenuItems`. Pass the same
-   * list given to `AccountSettingsLayout` so the mobile menu and the desktop
-   * rail can't diverge.
+   * Settings sections, grouped under labels. Defaults to the rail's groups
+   * (`createSettingsMenuGroups`, with the business count from `AccountSettingsProvider`). Pass the same groups given to
+   * `AccountSettingsLayout` so the mobile menu and the desktop rail can't
+   * diverge.
    */
+  groups?: SidebarSettingsGroup[];
+  /** A single, ungrouped list of sections instead of `groups`. */
   items?: SidebarNavItem[];
-  /** Called when the header's back action is activated. */
+  /** Called when the header's close (X) action is activated. */
   onClose?: () => void;
   /** Called with a settings menu item's `navigateTo` route when tapped. */
   onNavigate?: (navigateTo: string) => void;
@@ -20,38 +27,69 @@ interface AccountSettingsMenuLayoutProps {
 
 /**
  * Mobile "Account Settings" menu (Figma Provider-Portal → `Account Settings
- * Menu`). The screen a mobile user lands on after tapping the settings
- * back arrow from a sub-page (e.g. `MyProfileLayout`) — the mobile
- * equivalent of the desktop `SidebarSettings` rail, which
- * `AccountSettingsLayout` hides below `md`. Renders one `NavigationListItem`
- * row per section in `items`.
+ * Menu`, 570:3326). The settings root on mobile — the equivalent of the
+ * desktop `SidebarSettings` rail, which `AccountSettingsLayout` hides at `md`
+ * and below: an X to close settings, then one `NavigationListItem` row per
+ * section, grouped under the same "Profile" / "Account" labels with a
+ * divider between groups.
  */
 function AccountSettingsMenuLayout({
-  items = settingsMenuItems,
+  groups,
+  items,
   onClose,
   onNavigate,
 }: AccountSettingsMenuLayoutProps) {
+  const groupId = React.useId();
+  const businessCount = React.useContext(BusinessCountContext);
+  const menuGroups = items ? undefined : (groups ?? createSettingsMenuGroups({ businessCount }));
+
+  const renderItem = (item: SidebarNavItem) => (
+    <NavigationListItem
+      key={item.label}
+      icon={item.icon}
+      label={item.label}
+      onClick={() => {
+        // Same dispatch precedence as SidebarSettings: onClick wins
+        // over navigateTo when an item defines both.
+        if (item.onClick) item.onClick();
+        else if (item.navigateTo) onNavigate?.(item.navigateTo);
+      }}
+    />
+  );
+
   return (
     <div className="flex h-screen flex-col items-start overflow-hidden bg-card">
+      {/* Figma: 24px side padding for the header and the list. */}
       <SettingsHeader
-        className="shrink-0"
+        className="shrink-0 px-6"
         onClose={onClose}
-        title="Account Settings"
+        mobileAction="close"
+        title="Settings"
       />
-      <div className="flex w-full flex-1 flex-col overflow-y-auto px-4 pt-6">
-        {items.map((item) => (
-          <NavigationListItem
-            key={item.label}
-            icon={item.icon}
-            label={item.label}
-            onClick={() => {
-              // Same dispatch precedence as SidebarSettings: onClick wins
-              // over navigateTo when an item defines both.
-              if (item.onClick) item.onClick();
-              else if (item.navigateTo) onNavigate?.(item.navigateTo);
-            }}
-          />
-        ))}
+      {/* Figma: 24px between the header and the list; labels, rows and the divider row 12px apart. */}
+      <div className="flex w-full flex-1 flex-col gap-3 overflow-y-auto px-6 pt-3 pb-6">
+        {menuGroups
+          ? menuGroups.map((group, index) => (
+              <React.Fragment key={group.label}>
+                {/* Figma: a 24px row with the line centered. */}
+                {index > 0 ? <SidebarDivider className="my-[11.5px]" /> : null}
+                <div
+                  role="group"
+                  aria-labelledby={`${groupId}-${index}`}
+                  className="flex w-full flex-col gap-3"
+                >
+                  {/* Same group label as the desktop rail (SidebarSettings). */}
+                  <p
+                    id={`${groupId}-${index}`}
+                    className="text-[10px] leading-[18px] tracking-[1px] text-muted-foreground uppercase"
+                  >
+                    {group.label}
+                  </p>
+                  {group.items.map(renderItem)}
+                </div>
+              </React.Fragment>
+            ))
+          : items?.map(renderItem)}
       </div>
     </div>
   );

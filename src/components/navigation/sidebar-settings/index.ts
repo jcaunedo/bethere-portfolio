@@ -1,1 +1,5 @@
-export { SidebarSettings, type SidebarSettingsProps } from "./sidebar-settings";
+export {
+  SidebarSettings,
+  type SidebarSettingsGroup,
+  type SidebarSettingsProps,
+} from "./sidebar-settings";

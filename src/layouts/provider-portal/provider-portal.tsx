@@ -23,6 +23,8 @@ import {
   type SidebarNavItem,
 } from "@/components/navigation/sidebar";
 import { Typography } from "@/components/typography";
+import { layoutCanvasPaddingClassName } from "@/layouts/shared/layout-canvas";
+import { useLayoutSidebar } from "@/layouts/shared/use-layout-sidebar";
 import { cn } from "@/lib/utils";
 
 /** The Provider Portal's pages — one per Sidebar item. */
@@ -75,7 +77,10 @@ interface ProviderPortalLayoutProps {
   accountMenuItems?: SidebarAccountMenuItem[];
   /** Called with a Sidebar item's route ("/", "/inbox", "/listings"…) when it's clicked. */
   onNavigate?: (route: string) => void;
-  /** Whether the Sidebar starts collapsed (Figma's Provider Portal frames show it collapsed). */
+  /**
+   * Whether the Sidebar starts collapsed (Figma's Provider Portal frames show it collapsed). At `lg`
+   * (1024) and below it auto-collapses regardless (`useLayoutSidebar`).
+   */
   defaultCollapsed?: boolean;
   /** The page's content, rendered in the content area beside the Sidebar. */
   children?: React.ReactNode;
@@ -84,6 +89,8 @@ interface ProviderPortalLayoutProps {
 /**
  * Provider Portal app shell: the Sidebar on the left and the current page beside it. Its pages are
  * the sibling folders (`./home/`, …). Figma: Provider Portal "Dashboard (Home)" (node 886:10115).
+ * Responsive behavior (sidebar auto-collapse, canvas gutters) follows DESIGN.md "Page shell
+ * responsiveness".
  */
 function ProviderPortalLayout({
   page,
@@ -93,6 +100,8 @@ function ProviderPortalLayout({
   defaultCollapsed = true,
   children,
 }: ProviderPortalLayoutProps) {
+  const { sidebarCollapsed, handleSidebarCollapsedChange } = useLayoutSidebar(defaultCollapsed);
+
   return (
     <div data-slot="provider-portal" className="flex h-screen w-full bg-background">
       <Sidebar
@@ -101,11 +110,22 @@ function ProviderPortalLayout({
         account={account}
         accountMenuItems={accountMenuItems}
         defaultActiveItem={PAGE_LABEL[page]}
-        defaultCollapsed={defaultCollapsed}
+        collapsed={sidebarCollapsed}
+        onCollapsedChange={handleSidebarCollapsedChange}
         onNavigate={onNavigate}
       />
-      {/* Figma "Frame 2": 24px left, top and bottom; 56px right. Scrolls on its own beside the Sidebar. */}
-      <main className="flex min-w-0 flex-1 flex-col overflow-y-auto py-6 pr-14 pl-6">{children}</main>
+      {/* 56px top and bottom at every breakpoint (was Figma "Frame 2"'s 24px until Oct 08, 2026).
+          Side gutters come from the shared shell helper
+          (DESIGN.md "Page shell responsiveness"). Scrolls on its own beside the Sidebar. Also the
+          positioning box for content centered in the canvas, e.g. a page's empty state. */}
+      <main
+        className={cn(
+          "relative flex min-w-0 flex-1 flex-col overflow-y-auto py-14",
+          layoutCanvasPaddingClassName(sidebarCollapsed),
+        )}
+      >
+        {children}
+      </main>
     </div>
   );
 }

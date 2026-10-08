@@ -15,7 +15,7 @@ type Story = StoryObj<typeof SearchInput>;
 
 export const Default: Story = {};
 export const ExtraLarge: Story = { args: { size: "xl" } };
-export const HasValue: Story = { args: { defaultValue: "BeThere" } };
+export const HasValue: Story = { args: { defaultValue: "Bethere" } };
 export const Disabled: Story = { args: { disabled: true } };
 
 export const Clearable: Story = {

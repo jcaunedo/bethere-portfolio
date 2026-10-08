@@ -1,18 +1,18 @@
-# BeThere Copy Guide
+# Bethere Copy Guide
 
-Use this reference when writing or reviewing BeThere product copy.
+Use this reference when writing or reviewing Bethere product copy.
 
 ## Product Context
 
-BeThere is a curated experiences platform that connects guests with trusted local providers and helps providers create, manage, and publish bookable hospitality experiences. It supports provider onboarding, business verification, experience creation, document collection, pricing, policies, photos, review, publishing, guest discovery, booking requests, and operational follow-through.
+Bethere is a curated experiences platform that connects guests with trusted local providers and helps providers create, manage, and publish bookable hospitality experiences. It supports provider onboarding, business verification, experience creation, document collection, pricing, policies, photos, review, publishing, guest discovery, booking requests, and operational follow-through.
 
-BeThere is not a generic vendor directory. It helps providers package their offerings into polished experiences guests can understand, trust, and book.
+Bethere is not a generic vendor directory. It helps providers package their offerings into polished experiences guests can understand, trust, and book.
 
 Useful positioning by context:
 
-- **Emotional:** BeThere helps people find memorable local experiences while giving providers the tools to bring those moments to life.
-- **Product:** BeThere is a curated experiences platform for discovering, creating, managing, and publishing bookable hospitality experiences.
-- **Enterprise:** BeThere provides provider portal and marketplace infrastructure for onboarding, managing, and publishing hospitality experiences at scale.
+- **Emotional:** Bethere helps people find memorable local experiences while giving providers the tools to bring those moments to life.
+- **Product:** Bethere is a curated experiences platform for discovering, creating, managing, and publishing bookable hospitality experiences.
+- **Enterprise:** Bethere provides provider portal and marketplace infrastructure for onboarding, managing, and publishing hospitality experiences at scale.
 
 ## Voice
 
@@ -76,6 +76,10 @@ Use accurate status and visibility language such as:
 Favor `Review`, `Edit`, `Save`, `Preview`, `Approve`, `Publish`, and `Update`. Avoid language implying the system or AI made a final decision unless that is literally true.
 
 ## Preferred Terminology
+
+### Brand name
+
+Always write **Bethere** (capital B, the rest lowercase). Never "BeThere", "Be There" or "BETHERE". See DESIGN.md "Brand name: always "Bethere"".
 
 ### Platform
 
@@ -173,7 +177,7 @@ State what the step is and why it matters. Do not repeat the title.
 - Add the details guests need to understand what is included.
 - Set pricing by duration, day type, or season.
 - Upload photos that show guests what to expect.
-- Review your experience before publishing it to BeThere.
+- Review your experience before publishing it to Bethere.
 
 ### Form Labels
 
@@ -185,7 +189,7 @@ Use questions in guided flows: `What type of experience are you offering?`, `Whe
 
 Use helper text to prevent confusion or improve quality:
 
-- Use the name guests will see on BeThere.
+- Use the name guests will see on Bethere.
 - Add the address or marina where guests will board.
 - Include anything guests need to know before booking.
 - Upload clear photos without watermarks.
@@ -201,7 +205,7 @@ Explain what is missing, why it matters, and what to do next.
 
 ```text
 No experiences yet
-Create your first experience so guests can discover and request it on BeThere.
+Create your first experience so guests can discover and request it on Bethere.
 Create experience
 ```
 
@@ -238,7 +242,7 @@ Confirm what changed:
 
 Use warnings for risk, loss, or meaningful consequences:
 
-- Deleting this experience will remove it from BeThere. Existing booking requests will not be deleted.
+- Deleting this experience will remove it from Bethere. Existing booking requests will not be deleted.
 - This document is required before the experience can be published.
 - Guests will not see these changes until you publish the experience.
 
@@ -247,7 +251,7 @@ Use warnings for risk, loss, or meaningful consequences:
 - **Saved:** Your changes are saved.
 - **Ready to review:** Your experience is ready to review.
 - **Ready to publish:** All required details are complete. Review your experience before publishing.
-- **Published:** Your experience is now live on BeThere.
+- **Published:** Your experience is now live on Bethere.
 - **Needs attention:** A few details are needed before this experience can be published.
 
 ## AI-Assisted Copy
@@ -282,7 +286,7 @@ Example:
 
 ```text
 Create your experience
-Tell us what you offer, and we'll guide you through the details needed to publish it on BeThere.
+Tell us what you offer, and we'll guide you through the details needed to publish it on Bethere.
 Choose experience type
 ```
 
@@ -322,4 +326,4 @@ Use `Package`, `Access`, `Reservation`, `Guest count`, `Arrival time`, `Dress co
 
 ## Quality Standard
 
-Make BeThere feel like a modern concierge for guests and a guided business tool for providers: simple enough to move quickly, warm enough for hospitality, precise enough for operations, and polished enough to feel curated rather than generic.
+Make Bethere feel like a modern concierge for guests and a guided business tool for providers: simple enough to move quickly, warm enough for hospitality, precise enough for operations, and polished enough to feel curated rather than generic.

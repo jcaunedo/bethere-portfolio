@@ -1,6 +1,6 @@
-# BeThere UCL (Unified Content Library)
+# Bethere UCL (Unified Content Library)
 
-Shared React component library for all BeThere frontend applications.
+Shared React component library for all Bethere frontend applications.
 
 ## Tech Stack
 
@@ -30,7 +30,7 @@ Storybook launches on [http://localhost:6006](http://localhost:6006) where you c
 | `npm run lint`            | Type-check with TypeScript              |
 | `npm run build-storybook` | Build static Storybook site             |
 
-## Using in a BeThere App
+## Using in a Bethere App
 
 `@bethere-group/ucl` is published to **GitHub Packages** (private, under the
 `bethere-group` org). Consuming apps need a root `.npmrc` that points the

@@ -14,6 +14,8 @@ import {
   SelectValue,
 } from "@/components/forms/select";
 import { Typography } from "@/components/typography";
+import { mediaAbove } from "@/lib/breakpoints";
+import { useMediaQuery } from "@/lib/hooks/use-media-query";
 import { slideVariants } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
@@ -148,11 +150,24 @@ const initialFields: Record<FieldKey, FieldState> = {
  * then a divided stack of `SettingsDetailRow`s for each profile field, each
  * row expanding in place to edit its own value.
  */
-function MyProfileLayout() {
-  // Mobile-only: the header's back arrow (AccountSettingsLayout's onClose) has
-  // nowhere to route to in this standalone Storybook reference layout, so
-  // it swaps in the mobile "Account Settings" menu in place of this screen
-  // instead — mirroring how a real app would navigate back one level.
+interface MyProfileLayoutProps {
+  /**
+   * Leaves Account Settings, e.g. back to the Provider Portal. Called by the header's X above
+   * `md`, and by the mobile settings menu's X. Omit it and the X opens the settings menu instead
+   * (the standalone Storybook reference has nowhere to go).
+   */
+  onClose?: () => void;
+  /** Called with a settings section's route (e.g. "/settings/team-members") when it's picked in the rail or the mobile settings menu, so the app can switch pages. */
+  onNavigate?: (navigateTo: string) => void;
+}
+
+function MyProfileLayout({ onClose, onNavigate }: MyProfileLayoutProps = {}) {
+  // Above `md` the header shows an X (closes settings); at `md` and below it shows a back arrow
+  // that goes up one level, to the mobile "Account Settings" menu. Both are the same `onClose`.
+  const isMdUp = useMediaQuery(mediaAbove("md"));
+  // Mobile-only: the header's back arrow (AccountSettingsLayout's onClose)
+  // swaps in the mobile "Account Settings" menu in place of this screen —
+  // mirroring how a real app would navigate back one level.
   const [mobileScreen, setMobileScreen] = React.useState<"profile" | "menu">(
     "profile",
   );
@@ -312,6 +327,9 @@ function MyProfileLayout() {
     return keys.every((k) => drafts[k] === fields[k].value);
   }
 
+  // An open row whose draft differs from its saved value — leaving now would lose it.
+  const hasUnsavedChanges = FIELD_KEYS.some((k) => fields[k].editing && !isUnchanged(k));
+
   // Esc cancels / Enter saves whichever open row currently has focus inside
   // it (e.g. several rows are open and the user clicked back into an
   // earlier one to keep editing) — same as clicking that row's own
@@ -327,6 +345,9 @@ function MyProfileLayout() {
       const activeKey =
         focusedRowKey(openOrder) ?? openOrder[openOrder.length - 1];
       if (event.key === "Escape") {
+        // Handled: AccountSettingsLayout's Esc-to-close skips a prevented Escape, so this press
+        // only cancels the row.
+        event.preventDefault();
         cancelEditing(fieldGroup(activeKey));
       } else if (
         event.key === "Enter" &&
@@ -362,12 +383,13 @@ function MyProfileLayout() {
       className="absolute inset-0 h-screen"
     >
       <AccountSettingsMenuLayout
-        onClose={goToProfile}
+        onClose={onClose ?? goToProfile}
         onNavigate={(navigateTo) => {
           // Only "My profile" has a built destination screen in this
           // reference layout — every other row is presentational until
           // its own sub-page exists.
           if (navigateTo === "/settings/profile") goToProfile();
+          else onNavigate?.(navigateTo);
         }}
       />
     </motion.div>
@@ -383,7 +405,14 @@ function MyProfileLayout() {
       exit="exit"
       className="absolute inset-0 h-screen"
     >
-      <AccountSettingsLayout activeItem="My profile" onClose={goToMenu}>
+      <AccountSettingsLayout
+        activeItem="My profile"
+        onClose={isMdUp && onClose ? onClose : goToMenu}
+        // Mobile back only swaps to the settings menu (drafts live up here and survive it), so the
+        // unsaved-changes check guards desktop navigation: the X and the rail.
+        hasUnsavedChanges={isMdUp && hasUnsavedChanges}
+        onNavigate={onNavigate}
+      >
       <div className="flex flex-col gap-6 pb-24">
         <ProfileHeader
           name="Johanna Wilson"
@@ -691,3 +720,4 @@ function MyProfileLayout() {
 }
 
 export { MyProfileLayout };
+export type { MyProfileLayoutProps };

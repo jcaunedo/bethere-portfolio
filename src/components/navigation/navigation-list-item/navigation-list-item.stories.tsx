@@ -4,11 +4,11 @@ import {
   BlocksIcon,
   BuildingIcon,
   CircleUserIcon,
-  CreditCardIcon,
   ShieldIcon,
-  TagsIcon,
   UsersIcon,
 } from "lucide-react";
+import { TagsIcon } from "@/components/icons/tags-icon";
+import { ReceiptIcon } from "@/components/icons/receipt-icon";
 
 import { NavigationListItem } from "./navigation-list-item";
 
@@ -58,7 +58,7 @@ export const AllVariants: Story = {
       <NavigationListItem icon={CircleUserIcon} label="My profile" />
       <NavigationListItem icon={BuildingIcon} label="Business profiles" />
       <NavigationListItem icon={UsersIcon} label="Team members" />
-      <NavigationListItem icon={CreditCardIcon} label="Billing" />
+      <NavigationListItem icon={ReceiptIcon} label="Billing" />
       <NavigationListItem icon={BellIcon} label="Notifications" />
       <NavigationListItem icon={TagsIcon} label="Promo codes" />
       <NavigationListItem icon={ShieldIcon} label="Security" />

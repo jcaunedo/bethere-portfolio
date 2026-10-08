@@ -18,3 +18,8 @@ export const Default: Story = {
     onEditCalendars: () => alert("Edit calendars"),
   },
 };
+
+/** Nothing to connect yet: the empty state. */
+export const Empty: Story = {
+  args: { availableIntegrations: [] },
+};

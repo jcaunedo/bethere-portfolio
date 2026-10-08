@@ -1,11 +1,11 @@
 ---
 name: ucl-bethereds-sync
-description: Sync the BeThere design system from Figma (bethere.ds) into the @bethere/ucl component library — design tokens into theme.css and components/typography into src/components. Trigger whenever the user shares a bethere.ds Figma URL, asks to import/update tokens, colors, typography, or a component (button, card, input, etc.) "from Figma", or to make UCL match the design system.
+description: Sync the Bethere design system from Figma (bethere.ds) into the @bethere/ucl component library — design tokens into theme.css and components/typography into src/components. Trigger whenever the user shares a bethere.ds Figma URL, asks to import/update tokens, colors, typography, or a component (button, card, input, etc.) "from Figma", or to make UCL match the design system.
 ---
 
 # Figma → UCL sync
 
-Translate the BeThere design system in Figma into the `@bethere/ucl` library. This is a recurring task: pull tokens / text styles / component specs from the Figma file, then apply them to `theme.css` or the relevant component using UCL's conventions.
+Translate the Bethere design system in Figma into the `@bethere/ucl` library. This is a recurring task: pull tokens / text styles / component specs from the Figma file, then apply them to `theme.css` or the relevant component using UCL's conventions.
 
 ## Key facts
 

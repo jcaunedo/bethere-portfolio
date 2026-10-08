@@ -14,8 +14,8 @@ type Story = StoryObj<typeof SettingsHeader>;
 
 export const Default: Story = {
   args: {
-    title: "Account Settings",
-    onClose: () => alert("Done"),
+    title: "Settings",
+    onClose: () => alert("Back"),
   },
 };
 
@@ -29,8 +29,8 @@ export const WithContent: Story = {
     </div>
   ),
   args: {
-    title: "Account Settings",
-    onClose: () => alert("Done"),
+    title: "Settings",
+    onClose: () => alert("Back"),
   },
 };
 

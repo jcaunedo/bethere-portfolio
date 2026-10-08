@@ -7,6 +7,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/components/data-display/avatar";
+import { Badge } from "@/components/data-display/badge";
 import { Typography } from "@/components/typography";
 
 type ProfileHeaderProps = React.ComponentProps<"div"> & {
@@ -28,8 +29,8 @@ type ProfileHeaderProps = React.ComponentProps<"div"> & {
 
 /**
  * Profile summary header for the Settings "My Profile" section (Figma
- * `Profile Header`): large avatar with an edit overlay, name + role badge,
- * and email.
+ * `Profile Header`, Desktop / Mobile): avatar with an edit overlay, name, role
+ * badge (`Badge`, gray) and email.
  */
 function ProfileHeader({
   className,
@@ -52,21 +53,22 @@ function ProfileHeader({
   return (
     <div
       data-slot="profile-header"
+      // Figma `Profile Header`: Mobile stacks avatar, name/email and the role badge, centered, 16px
+      // apart; Desktop puts the avatar beside the text, 24px apart.
       className={cn(
-        "flex flex-col items-center gap-4 text-center md:flex-row md:items-center md:gap-6 md:text-left",
+        "flex flex-col items-center gap-4 text-center md:flex-row md:gap-6 md:text-left",
         className,
       )}
       {...props}
     >
       <div className="relative shrink-0">
-        {/* 88px on mobile vs. 72px (`xl`) on desktop — Figma's mobile
-            Profile Header variant has no existing Avatar size token, so the
-            larger size is a one-off override scoped to this component.
-            `!size-22` is required to beat Avatar's own `data-[size=xl]:size-18`
-            rule, which shares specificity with an unscoped override. */}
-        <Avatar size="xl" className="!size-22 md:!size-18">
+        {/* 72px on mobile (Avatar `xl`) vs. 64px on desktop. `!` is required to beat Avatar's own
+            `data-[size=xl]:size-18` rule, which is more specific than an unscoped override. */}
+        <Avatar size="xl" className="md:!size-16">
           {avatarSrc ? <AvatarImage src={avatarSrc} alt="" /> : null}
-          <AvatarFallback tone="business">
+          {/* Figma initials: semibold, 24px at 72px and 21.33px at 64px (Avatar `xl` sets bold
+              24px through a group selector, hence `!`). */}
+          <AvatarFallback tone="business" className="!font-semibold md:!text-[21.33px]">
             {avatarFallback ?? initials}
           </AvatarFallback>
         </Avatar>
@@ -75,45 +77,32 @@ function ProfileHeader({
           data-slot="profile-header-edit-avatar"
           onClick={onEditAvatar}
           aria-label={editAvatarLabel}
-          className="absolute right-0 bottom-0 flex size-6 items-center justify-center rounded-full bg-white shadow-xs hover:bg-accent focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+          // Figma Edit Button: 20px circle with a 10px pencil (a 24px button scaled to 0.833, so its
+          // 0.833px shadow is the `shadow-xs` token scaled — kept as the token).
+          className="absolute right-0 bottom-0 flex size-5 items-center justify-center rounded-full bg-white shadow-xs hover:bg-accent focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
         >
-          <PencilIcon className="size-3 text-foreground" />
+          <PencilIcon className="size-2.5 text-foreground" />
         </button>
       </div>
       <div className="flex flex-col items-center justify-center gap-0.5 md:items-start">
-        <div className="flex flex-col items-center gap-2 md:flex-row md:items-center md:gap-3">
-          <Typography
-            as="span"
-            size="2xl"
-            weight="semibold"
-            className="text-foreground md:text-3xl md:tracking-[0.3px]"
-          >
+        <div className="flex items-center gap-3">
+          {/* Figma: 2xl/semibold (24/32) on both variants. */}
+          <Typography as="span" size="2xl" weight="semibold" className="text-foreground">
             {name}
           </Typography>
-          {/* Desktop: badge inline next to the name. Mobile: hidden here,
-              re-rendered after the email below instead (Figma's mobile
-              variant moves it to the end of the stack). */}
-          <span
-            data-slot="profile-header-role-badge"
-            className="hidden h-7 shrink-0 items-center justify-center rounded-full bg-neutral-100 px-2.5 py-0.5 md:flex"
-          >
-            <Typography as="span" size="sm" className="text-neutral-800">
-              {role}
-            </Typography>
-          </span>
+          {/* Desktop: role badge inline next to the name. */}
+          <Badge data-slot="profile-header-role-badge" className="hidden md:inline-flex">
+            {role}
+          </Badge>
         </div>
         <Typography as="span" size="sm" className="text-muted-foreground md:text-base">
           {email}
         </Typography>
-        <span
-          data-slot="profile-header-role-badge-mobile"
-          className="mt-2 flex h-7 shrink-0 items-center justify-center rounded-full bg-neutral-100 px-2.5 py-0.5 md:hidden"
-        >
-          <Typography as="span" size="sm" className="text-neutral-800">
-            {role}
-          </Typography>
-        </span>
       </div>
+      {/* Mobile: the role badge moves to the end of the stack, 16px below the email. */}
+      <Badge data-slot="profile-header-role-badge-mobile" className="md:hidden">
+        {role}
+      </Badge>
     </div>
   );
 }

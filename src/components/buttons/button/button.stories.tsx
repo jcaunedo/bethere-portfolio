@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { ChevronRight, Mail } from "lucide-react";
+import { ArrowLeft, ChevronRight, Mail, X } from "lucide-react";
 import { Button } from "./button";
 
 const meta: Meta<typeof Button> = {
@@ -33,6 +33,7 @@ const meta: Meta<typeof Button> = {
         "icon",
         "icon-lg",
         "icon-xl",
+        "icon-nav",
       ],
     },
     disabled: { control: "boolean" },
@@ -132,6 +133,20 @@ export const IconOnly: Story = {
   },
 };
 
+/** `size="icon-nav"`: a 36px icon button with a 20px icon, for close (X) and back (arrow) actions, e.g. the settings header. */
+export const IconNav: Story = {
+  render: () => (
+    <div className="flex items-center gap-2">
+      <Button variant="ghost" size="icon-nav" aria-label="Close">
+        <X />
+      </Button>
+      <Button variant="ghost" size="icon-nav" aria-label="Back">
+        <ArrowLeft />
+      </Button>
+    </div>
+  ),
+};
+
 export const Loading: Story = {
   args: {
     loading: true,
@@ -188,6 +203,9 @@ export const AllVariants: Story = {
         </Button>
         <Button size="icon-xl">
           <ChevronRight />
+        </Button>
+        <Button variant="ghost" size="icon-nav" aria-label="Close">
+          <X />
         </Button>
       </div>
     </div>

@@ -6,6 +6,8 @@ import { AccountSettingsLayout } from "@/layouts/provider-portal/account-setting
 import { AccountSettingsMenuLayout } from "@/layouts/provider-portal/account-settings/account-settings-menu";
 import { Typography } from "@/components/typography";
 import { NotificationToggle } from "@/components/forms/notification-toggle";
+import { mediaAbove } from "@/lib/breakpoints";
+import { useMediaQuery } from "@/lib/hooks/use-media-query";
 import { slideVariants } from "@/lib/motion";
 
 type ToggleRow = {
@@ -67,7 +69,7 @@ const INITIAL_NOTIFICATION_SECTIONS: NotificationSection[] = [
     id: "listings",
     title: "Listings",
     description:
-      "Receive updates when your listings are reviewed, approved, rejected, or flagged by the BeThere team.",
+      "Receive updates when your listings are reviewed, approved, rejected, or flagged by the Bethere team.",
     rows: [
       { id: "listing-approved-rejected", label: "Listing approved / rejected", checked: true },
       { id: "listing-flagged-or-taken-down", label: "Listing flagged or taken down", checked: false },
@@ -130,7 +132,16 @@ const INITIAL_NOTIFICATION_SECTIONS: NotificationSection[] = [
  * no per-row channel selector (see `NotificationsLayoutOld` in
  * `../notifications-old/notifications-old.tsx` for that fuller version).
  */
-function NotificationsLayout() {
+interface NotificationsLayoutProps {
+  /** Leaves Account Settings, e.g. back to the Provider Portal: the header's X above `md`, and the mobile settings menu's X. Omit it and the X opens the settings menu instead (the standalone Storybook reference has nowhere to go). */
+  onClose?: () => void;
+  /** Called with a settings section's route (e.g. "/settings/team-members") when it's picked in the rail or the mobile settings menu, so the app can switch pages. */
+  onNavigate?: (navigateTo: string) => void;
+}
+
+function NotificationsLayout({ onClose, onNavigate }: NotificationsLayoutProps = {}) {
+  // Above `md` the header shows an X (closes settings, `onClose`); at `md` and below it shows a back arrow to the mobile settings menu.
+  const isMdUp = useMediaQuery(mediaAbove("md"));
   // Mobile-only: the header's back arrow (AccountSettingsLayout's onClose) has
   // nowhere to route to in this standalone Storybook reference layout, so it
   // swaps in the mobile "Account Settings" menu in place of this screen
@@ -205,13 +216,15 @@ function NotificationsLayout() {
       className="absolute inset-0 h-screen"
     >
       <AccountSettingsMenuLayout
-        onClose={goToNotifications}
+        onClose={onClose ?? goToNotifications}
         onNavigate={(navigateTo) => {
           // Only "Notifications" has a built destination screen in this
           // reference layout — every other row is presentational until its
           // own sub-page exists.
           if (navigateTo === "/settings/notifications") {
             goToNotifications();
+          } else {
+            onNavigate?.(navigateTo);
           }
         }}
       />
@@ -228,7 +241,11 @@ function NotificationsLayout() {
       exit="exit"
       className="absolute inset-0 h-screen"
     >
-      <AccountSettingsLayout activeItem="Notifications" onClose={goToMenu}>
+      <AccountSettingsLayout
+        activeItem="Notifications"
+        onClose={isMdUp && onClose ? onClose : goToMenu}
+        onNavigate={onNavigate}
+      >
         <div className="flex flex-col gap-8 pb-24">
           <div className="flex w-full flex-col gap-2">
             <Typography as="h1" size="2xl" weight="semibold">
@@ -302,3 +319,4 @@ function NotificationsLayout() {
 }
 
 export { NotificationsLayout };
+export type { NotificationsLayoutProps };

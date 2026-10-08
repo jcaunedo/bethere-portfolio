@@ -1,14 +1,15 @@
 <!--
 Created: Jun 20, 2026
 Created by: Julio Caunedo
-Last updated: Jul 02, 2026
+Last updated: Oct 08, 2026 (scope: preferences are per user)
 -->
 
 # Notifications — Provider Portal
 
 **Location:** Settings → Notifications  
 **Audience:** Business owner / provider  
-**Description:** Choose which BeThere notifications you receive and how they're delivered.  
+**Description:** Choose which Bethere notifications you receive and how they're delivered.  
+**Scope:** Per user. Preferences belong to the signed-in user, not the business, even when a notification is about business activity (see `account-menu.md`).  
 **Figma:** [Provider Portal — Notifications](https://www.figma.com/design/WcuVufMxyCvkEJ2BuxPpX6/Provider-Portal?node-id=342-168)
 
 ---
@@ -88,7 +89,7 @@ This avoids overriding intentional per-item preferences and treats the master sw
 
 ### Listings
 
-> Receive updates when your listings are reviewed, approved, rejected, or flagged by the BeThere team.
+> Receive updates when your listings are reviewed, approved, rejected, or flagged by the Bethere team.
 
 - Listing approved / rejected
 - Listing flagged or taken down

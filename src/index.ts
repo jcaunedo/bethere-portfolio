@@ -360,7 +360,9 @@ export {
   alertVariants,
 } from "./components/feedback/alert";
 export { AlertInline, alertInlineVariants } from "./components/feedback/alert-inline";
+
 export type { AlertInlineProps } from "./components/feedback/alert-inline";
+export { EmptyState, type EmptyStateProps } from "./components/feedback/empty-state";
 
 export { Toaster, toast, type ToasterProps } from "./components/feedback/sonner";
 
@@ -474,6 +476,7 @@ export {
 
 export {
   SidebarSettings,
+  type SidebarSettingsGroup,
   type SidebarSettingsProps,
 } from "./components/navigation/sidebar-settings";
 
@@ -545,6 +548,8 @@ export {
 export {
   Typography,
   typographyVariants,
+  typographyHeadings,
+  type TypographyHeading,
   type TypographyProps,
   type TypographySize,
   type TypographyWeight,
@@ -589,13 +594,18 @@ export { StepperExperience } from "./components/stepper/stepper-experience";
   exception: the settings section's chrome (header + rail, and its mobile menu
   counterpart) is identical in every consuming app, so shipping it keeps one
   implementation instead of a re-creation per app. Their nav is fully
-  parent-driven via `items`/`activeItem`/`onNavigate`, so nothing about the
+  parent-driven via `groups`/`items`/`activeItem`/`onNavigate`, so nothing about the
   consumer's routing is baked in here.
 */
 
 export {
   AccountSettingsLayout,
+  AccountSettingsProvider,
+  businessProfilesLabel,
+  createSettingsMenuGroups,
+  settingsMenuGroups,
   settingsMenuItems,
+  useBusinessProfilesLabel,
   type AccountSettingsLayoutProps,
 } from "./layouts/provider-portal/account-settings/account-settings";
 
@@ -613,5 +623,13 @@ export { GalleryHorizontalEndSolidIcon } from "./components/icons/gallery-horizo
 export { CalendarSolidIcon } from "./components/icons/calendar-solid-icon";
 export { BankNoteIcon } from "./components/icons/bank-note-icon";
 export { BankNoteSolidIcon } from "./components/icons/bank-note-solid-icon";
+export { BuildingSolidIcon } from "./components/icons/building-solid-icon";
+export { UsersSolidIcon } from "./components/icons/users-solid-icon";
+export { ReceiptIcon } from "./components/icons/receipt-icon";
+export { ReceiptSolidIcon } from "./components/icons/receipt-solid-icon";
+export { TagsIcon } from "./components/icons/tags-icon";
+export { TagsSolidIcon } from "./components/icons/tags-solid-icon";
+export { BlocksSolidIcon } from "./components/icons/blocks-solid-icon";
 export { FileTextSolidIcon } from "./components/icons/file-text-solid-icon";
 export { ChartColumnSolidIcon } from "./components/icons/chart-column-solid-icon";
+export { CircleUserSolidIcon } from "./components/icons/circle-user-solid-icon";

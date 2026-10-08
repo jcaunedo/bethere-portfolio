@@ -1,6 +1,6 @@
-# BeThere UCL (Unified Content Library)
+# Bethere UCL (Unified Content Library)
 
-Shared React component library for all BeThere frontend applications. Built with Tailwind CSS 4, shadcn/ui, and TypeScript.
+Shared React component library for all Bethere frontend applications. Built with Tailwind CSS 4, shadcn/ui, and TypeScript.
 
 ## Quick Reference
 
@@ -851,7 +851,7 @@ Consumers build forms with **Formik + Yup**. UCL ships Formik-connected fields s
 All color variables live in `src/styles/theme.css`:
 
 - **Semantic colors** (primary, secondary, muted, etc.) — used by shadcn components via `@theme inline` mappings
-- **Brand colors** (brand-50 through brand-950) — custom palette for BeThere branding, usable as `bg-brand-500`, `text-brand-700`, etc.
+- **Brand colors** (brand-50 through brand-950) — custom palette for Bethere branding, usable as `bg-brand-500`, `text-brand-700`, etc.
 - **Dark mode** — override values in the `.dark` block
 
 To add a new color scale, add variables to `@theme inline`, `:root`, and `.dark` blocks in `theme.css`.

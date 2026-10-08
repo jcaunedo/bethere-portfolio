@@ -1,7 +1,7 @@
 <!--
 Created: Aug 15, 2026
 Created by: Julio Caunedo
-Last updated: Sep 05, 2026 (added cross-reference to taxonomy.md, the new business-category × Experience/Service subtype matrix)
+Last updated: Oct 08, 2026 (Phone number removed; both CTAs need the required fields and open the Provider Portal)
 
 Scope: Provider-side "Create Business" onboarding funnel — currently just the "Tell us about your
 business" screen and its business-category dropdown. Not the Business Profile detail page (see
@@ -21,7 +21,7 @@ guest-facing Concierge mood-tile taxonomy it should stay legible against.
 
 Define the "What does your business offer?" dropdown on the "Tell us about your business" onboarding screen. This is Manage-register copy (account/provider setup) — plain and precise, not Discover-stage conversational phrasing — but should still read as the same product as the guest-facing Concierge tiles. See [../DESIGN.md](../DESIGN.md) "Brand voice."
 
-✅ **Confirmed in Figma:** the screen is a single step — Business name, this dropdown, Phone number, Website, then two exit actions ("Take me to my portal" / "Create my first experience"). No second "business type" question exists on this screen.
+✅ **Confirmed in Figma:** the screen is a single step — Business name, this dropdown, Website, then two exit actions ("Take me to my portal" / "Create my first experience"). No second "business type" question exists on this screen. Phone number was removed from the screen on Oct 08, 2026.
 
 ## Category list
 
@@ -170,4 +170,4 @@ The onboarding category informs and personalizes the listing-details step (which
 ## Open Questions
 
 - ⚠️ What happens after this screen's two exit actions ("Take me to my portal" vs. "Create my first experience")? Neither destination is specced yet — see `business-profiles.md`'s "Add business"/Create Business gap.
-- ⚠️ Business name, phone number, and website (the screen's other three fields) aren't covered by this doc — add if/when they need their own spec notes.
+- ⚠️ Business name and website (the screen's other two fields) aren't covered by this doc — add if/when they need their own spec notes.

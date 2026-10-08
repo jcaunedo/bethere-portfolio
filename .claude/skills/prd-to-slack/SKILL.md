@@ -1,9 +1,9 @@
 ---
-name: generate-summary
+name: prd-to-slack
 description: Transform PRDs, product specifications, screenshots, and Figma references into concise, conversational Slack updates that communicate design decisions, functionality, and product rationale.
 ---
 
-# Generate Summary
+# PRD to Slack
 
 ## Role
 

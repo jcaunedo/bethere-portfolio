@@ -15,7 +15,7 @@ type Story = StoryObj<typeof AccountSettingsMenuLayout>;
 
 export const Default: Story = {
   args: {
-    onClose: () => alert("Back"),
+    onClose: () => alert("Close"),
     onNavigate: (navigateTo) => alert(`Navigate to ${navigateTo}`),
   },
 };

@@ -1,12 +1,12 @@
 <!--
 Created: Aug 05, 2026
 Created by: Julio Caunedo
-Last updated: Sep 25, 2026
+Last updated: Oct 08, 2026 (single business by default: Business profiles opens the detail page directly; list only with several businesses)
 -->
 
 # Business Profiles — Provider Portal
 
-**Location:** Settings → Business profiles (list) → a business's own detail page
+**Location:** Settings → Account → Business profile(s) — the row reads "Business profile" for one business, "Business profiles" for several. With a single business (the default, and the most common case) this opens that business's detail page directly; with several businesses it opens the list first, then a business's detail page. Opened from the account menu's "Account settings".
 **Audience:** Business owner / provider (same audience as My Profile)
 **Description:** Manage the businesses tied to a provider account — a list of businesses with status, and a per-business detail page covering profile fields, verification/compliance fields, and grouped compliance documents.
 **Figma:** Provider Portal — "Businesses" frame (list), "Business Profile" frame (detail: Profile tab), "Business Compliance" frame (detail: Compliance tab), "Business Documents" frame (detail: Documents tab)
@@ -23,6 +23,8 @@ This feature is two pages plus the design-system components needed to build them
 
 1. **Business profiles** (list) — a page title + description, an "Add business" action, and a stack of `CardBusiness` rows, one per business the account owns. Clicking a card is meant to navigate to that business's detail page.
 2. **Business Profile** (detail) — the page a user lands on after clicking a business card: a "Back to businesses" link, the business's name, and three tabs (Profile / Compliance / Documents), all three now built out.
+
+**Single business is the default** (Oct 08, 2026). Most accounts have one business, so Business profiles opens its detail page directly: no list, and no "Back to businesses" link (`BusinessProfileLayout` hides it when `onBack` isn't passed). The list only appears when the account has several businesses; in the prototype that scenario is reached from the account menu's "Multiple businesses" link (see [account-menu.md](account-menu.md)).
 
 Both pages share `AccountSettingsLayout`'s shell (header, `SidebarSettings` rail, mobile back-navigation) — see [my-profile.md](my-profile.md) for that shell's full behavior, which is not re-documented here except where these pages diverge from it.
 
@@ -63,8 +65,8 @@ Three hardcoded businesses, one per `CardBusiness` badge color currently exercis
 
 ### Header
 
-- "Back to businesses" — `ChevronLeftIcon` + text link, `text-primary`, calls `onBack`.
-- Business name as `Typography as="h1" size="2xl" weight="semibold"` + a `Building2Icon` (`size-6`, 24px). No status badge — see [Design decisions](#design-decisions--the-aug-24-revision).
+- "Back to businesses" — `ChevronLeftIcon` + text link, `text-primary`, calls `onBack`. Shown only with several businesses (when `onBack` is passed); hidden for a single business, the default.
+- Business name as `Typography as="h1" size="2xl" weight="semibold"` + a `BuildingIcon` (`size-6`, 24px, `text-icon-foreground` — the same icon as the settings rail's Business profiles row). No status badge — see [Design decisions](#design-decisions--the-aug-24-revision).
 - 💬 The header's icon size and heading size/weight both went through a correction pass — see [Design decisions](#design-decisions--h1-sizing-drifted-from-a-stale-figma-pull).
 
 ### Tabs

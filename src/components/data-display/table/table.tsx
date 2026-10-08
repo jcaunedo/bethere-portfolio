@@ -35,7 +35,9 @@ function TableBody({ className, ...props }: React.ComponentProps<"tbody">) {
   return (
     <tbody
       data-slot="table-body"
-      className={cn("[&_tr:last-child]:border-0", className)}
+      // Every row keeps its bottom border, the last one included (Figma `table-card`: each row,
+      // last too, has a 1px color/border/border bottom), so the table ends on a line.
+      className={cn(className)}
       {...props}
     />
   );
@@ -46,7 +48,8 @@ function TableFooter({ className, ...props }: React.ComponentProps<"tfoot">) {
     <tfoot
       data-slot="table-footer"
       className={cn(
-        "border-t border-border bg-muted/50 font-medium [&>tr]:last:border-b-0",
+        // No top border: the last body row's own bottom border already separates the footer.
+        "bg-muted/50 font-medium [&>tr]:last:border-b-0",
         className,
       )}
       {...props}

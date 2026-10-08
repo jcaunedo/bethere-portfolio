@@ -1,7 +1,7 @@
 <!--
 Created: Aug 31, 2026
 Created by: Julio Caunedo
-Last updated: Sep 03, 2026 (removed "This doesn't delete their BeThere account." from the remove-member confirmation. Resolved Permissions: Staff see the page read-only, gated in the dashboard by an allowlist-only CanShow component over the new Business.myRole field and enforced server-side; the pending-invites query is skipped for Staff rather than hidden)
+Last updated: Sep 03, 2026 (removed "This doesn't delete their Bethere account." from the remove-member confirmation. Resolved Permissions: Staff see the page read-only, gated in the dashboard by an allowlist-only CanShow component over the new Business.myRole field and enforced server-side; the pending-invites query is skipped for Staff rather than hidden)
 -->
 
 # Team Members — Provider Portal
@@ -50,7 +50,7 @@ These were confirmed explicitly and are the reason several "obvious" alternative
 
 ## Page composition & shell integration
 
-- Rendered inside `AccountSettingsLayout` with `activeItem="Team members"` — same shell as My Profile and Business Profiles (header + `SidebarSettings` rail on desktop, header only below `md`). See [my-profile.md § Page composition](my-profile.md#page-composition--shell-integration) for the shell's full behavior, including the Done button's "return whence you came" semantics and mobile back-navigation; none of it is re-specified here because this page doesn't diverge from it.
+- Rendered inside `AccountSettingsLayout` with `activeItem="Team members"` — same shell as My Profile and Business Profiles (header + `SidebarSettings` rail on desktop, header only below `md`). See [my-profile.md § Page composition](my-profile.md#page-composition--shell-integration) for the shell's full behavior, including the close (X) button's "return whence you came" semantics and mobile back-navigation; none of it is re-specified here because this page doesn't diverge from it.
 - Content wrapper: `flex flex-col gap-8 pb-24`. The `gap-8` (32px) applies uniformly between the title block, the controls row, the pending section, and the active section. `pb-24` keeps the last table off the viewport edge.
 - Title block: `Typography size="2xl" weight="semibold"` — "Team members" — over `Typography size="base"` — "Add people to your business and control what they can access." Per `DESIGN.md`'s "Heading element → `Typography` `size` pairing", this is the standard `h1` treatment shared with `BusinessProfilesLayout`.
 - Section headings: `Typography size="lg" weight="semibold"` (the `h2` pairing), reading "{n} pending invites" and "{n} active" — the count is part of the heading text, not a separate badge.
@@ -378,7 +378,7 @@ Rules:
 - **The owner can't be removed** — the action is never offered (see [Row actions](#row-actions)).
 - ⚠️ **Self-removal needs a guard.** An admin can currently remove their own row and lock themselves out of the page that would let them undo it. Either hide the action on your own row, or confirm with distinct copy ("You'll lose access to this business immediately") — the generic third-person copy is misleading when the person is you.
 - ⚠️ **Last-admin guard** — open question. Removing the final admin leaves only the owner able to manage the team. That may be fine (the owner is always there), but if owners are ever non-operational accounts it's a lockout. Decide before shipping; the check is cheap.
-- Removal affects **business membership only** — the user's BeThere account, their other business memberships, and their historical records are untouched. The confirm copy no longer says so — it states only what the person loses.
+- Removal affects **business membership only** — the user's Bethere account, their other business memberships, and their historical records are untouched. The confirm copy no longer says so — it states only what the person loses.
 
 ---
 

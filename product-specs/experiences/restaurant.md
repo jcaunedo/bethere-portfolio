@@ -10,7 +10,7 @@ Last updated: Sep 25, 2026
 
 **Status:** Proposed.
 
-**Model:** Unlike other Experience categories, a Restaurant listing is a **venue profile, not a priced bookable product** — similar to a Google Business listing. Guests at the hotel browse it in the BeThere app; reservations happen through the restaurant's existing channels (Resy, OpenTable, etc.) or via the concierge. So this flow has **no pricing, availability, or duration steps** — it's: look up the restaurant, confirm the profile, add reservation channels, photos, verify, publish.
+**Model:** Unlike other Experience categories, a Restaurant listing is a **venue profile, not a priced bookable product** — similar to a Google Business listing. Guests at the hotel browse it in the Bethere app; reservations happen through the restaurant's existing channels (Resy, OpenTable, etc.) or via the concierge. So this flow has **no pricing, availability, or duration steps** — it's: look up the restaurant, confirm the profile, add reservation channels, photos, verify, publish.
 
 ```mermaid
 flowchart TD
@@ -48,17 +48,17 @@ Mostly pre-filled from Step 3; provider edits rather than enters. The Highlights
 
 - **Reservation channels** (at least one required): Resy, OpenTable, SevenRooms, Tock, Google Reserve, restaurant website, phone, walk-in (+ add custom) — each with its URL/number
 - **Delivery/pickup** (optional): DoorDash, Uber Eats, own website (+ add custom)
-- **BeThere guest perks** (optional, strongly encouraged) — see below.
+- **Bethere guest perks** (optional, strongly encouraged) — see below.
 
-### BeThere Guest Perks
+### Bethere Guest Perks
 
-This is the listing's differentiator: the same restaurant exists on Google and OpenTable, but only BeThere can promise the guest special treatment. Perks are the provider's offer to hotel guests who book through BeThere — the concrete expression of the venue's relationship with the hotel and concierge.
+This is the listing's differentiator: the same restaurant exists on Google and OpenTable, but only Bethere can promise the guest special treatment. Perks are the provider's offer to hotel guests who book through Bethere — the concrete expression of the venue's relationship with the hotel and concierge.
 
 **Suggested perk catalog** (multi-select chips + add custom, same pattern as amenities):
 
 | Perk               | What the guest gets                                                        |
 | ------------------ | --------------------------------------------------------------------------- |
-| Priority seating   | Preferred tables or hard-to-get time slots held for BeThere requests.       |
+| Priority seating   | Preferred tables or hard-to-get time slots held for Bethere requests.       |
 | Welcome drink      | A complimentary glass of champagne, cocktail, or house aperitif on arrival. |
 | Chef greeting      | The chef stops by the table to welcome the party.                           |
 | Complimentary item | A dessert, appetizer, or signature dish on the house.                       |
@@ -69,14 +69,14 @@ This is the listing's differentiator: the same restaurant exists on Google and O
 
 - A short guest-facing description (pre-written default, editable) — this is the copy shown in the app.
 - **Conditions** (optional): minimum party size, specific days/services (e.g., weekdays only), or advance-notice requirement (e.g., chef greeting needs 24h notice).
-- **How it's honored**: automatically for any BeThere reservation, or on concierge request — this tells the concierge what they can promise without calling first.
+- **How it's honored**: automatically for any Bethere reservation, or on concierge request — this tells the concierge what they can promise without calling first.
 
 **Rules / Interactions:**
 
-- Perks render as a **"BeThere guests" badge** on the listing card and an expanded perks section on the detail view — placed above the reservation channels, since the perk is the reason to book through the app rather than tapping the same restaurant in Maps.
+- Perks render as a **"Bethere guests" badge** on the listing card and an expanded perks section on the detail view — placed above the reservation channels, since the perk is the reason to book through the app rather than tapping the same restaurant in Maps.
 - Perks with conditions show the condition inline ("Weekdays only", "Parties of 4+") — never let a guest discover a restriction at the table; an unmet promise is worse than no perk on a white-glove platform.
 - Listings without perks publish fine, but the publish review (Step 8) should nudge: providers with at least one perk get materially better placement/conversion, and the perk is also the provider's lever for standing out among nearby restaurants in the app.
-- Perk fulfillment is a trust loop: the concierge/hotel should be able to flag a perk that wasn't honored, and repeated misses should surface to the partnership owner — the badge is BeThere's promise to the guest, so the platform has to stand behind it.
+- Perk fulfillment is a trust loop: the concierge/hotel should be able to flag a perk that wasn't honored, and repeated misses should surface to the partnership owner — the badge is Bethere's promise to the guest, so the platform has to stand behind it.
 
 **Other rules:**
 

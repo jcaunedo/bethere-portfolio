@@ -1,11 +1,11 @@
 ---
 name: ucl-ux-copywriter
-description: Improve, create, audit, or standardize UX copy for BeThere, its curated guest marketplace, provider portal, and internal operations tools. Use for screen titles, descriptions, CTAs, forms, helper text, onboarding, empty states, errors, warnings, success messages, verification, pricing, policies, publishing, booking flows, AI-assisted drafts, and guest-facing experience listings. Apply BeThere's audience-specific voice for guests, providers, and internal operators without requiring a separate UX-writing skill.
+description: Improve, create, audit, or standardize UX copy for Bethere, its curated guest marketplace, provider portal, and internal operations tools. Use for screen titles, descriptions, CTAs, forms, helper text, onboarding, empty states, errors, warnings, success messages, verification, pricing, policies, publishing, booking flows, AI-assisted drafts, and guest-facing experience listings. Apply Bethere's audience-specific voice for guests, providers, and internal operators without requiring a separate UX-writing skill.
 ---
 
-# UX Write BeThere
+# UX Write Bethere
 
-Create clear, warm, actionable product copy for BeThere. Keep the experience premium and hospitality-led without becoming formal, vague, or overhyped.
+Create clear, warm, actionable product copy for Bethere. Keep the experience premium and hospitality-led without becoming formal, vague, or overhyped.
 
 ## Workflow
 
@@ -106,5 +106,5 @@ Before responding, verify:
 - The CTA names a real outcome.
 - The tone fits the audience and risk level.
 - The copy does not promise approval, availability, safety, quality, or booking outcomes without support.
-- Terminology is consistent with BeThere.
+- Terminology is consistent with Bethere.
 - The recommendation is concise enough for the component.

@@ -2,7 +2,8 @@ import * as React from "react";
 
 /**
  * Solid (filled) Analytics icon — the Active-state counterpart of its outline icon (chart-column) in
- * a `SidebarMenuItem` (Figma: bethere.ds `chart-column-01-solid`, node 934:5534). Fills with
+ * a `SidebarMenuItem` (Figma: bethere.ds `chart-column-01-solid`, node 934:5534; all four corners
+ * rounded as of Oct 08, 2026). Fills with
  * `currentColor`, so it takes the item's color.
  */
 function ChartColumnSolidIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -16,7 +17,7 @@ function ChartColumnSolidIcon(props: React.SVGProps<SVGSVGElement>) {
 			aria-hidden="true"
 			{...props}
 		>
-			<path d="M19 2C20.6569 2 22 3.34315 22 5V21C22 21.5523 21.5523 22 21 22H5C4.20435 22 3.44151 21.6837 2.87891 21.1211C2.3163 20.5585 2 19.7957 2 19V3C2 2.44772 2.44772 2 3 2H19ZM7 13C6.44772 13 6 13.4477 6 14V17C6 17.5523 6.44772 18 7 18C7.55228 18 8 17.5523 8 17V14C8 13.4477 7.55228 13 7 13ZM12 5C11.4477 5 11 5.44772 11 6V17C11 17.5523 11.4477 18 12 18C12.5523 18 13 17.5523 13 17V6C13 5.44772 12.5523 5 12 5ZM17 9C16.4477 9 16 9.44772 16 10V17C16 17.5523 16.4477 18 17 18C17.5523 18 18 17.5523 18 17V10C18 9.44772 17.5523 9 17 9Z" />
+			<path d="M19 2C20.6569 2 22 3.34315 22 5V19C22 20.6569 20.6569 22 19 22H5C3.34315 22 2 20.6569 2 19V5C2 3.34315 3.34315 2 5 2H19ZM7 13C6.44772 13 6 13.4477 6 14V17C6 17.5523 6.44772 18 7 18C7.55228 18 8 17.5523 8 17V14C8 13.4477 7.55228 13 7 13ZM12 5C11.4477 5 11 5.44772 11 6V17C11 17.5523 11.4477 18 12 18C12.5523 18 13 17.5523 13 17V6C13 5.44772 12.5523 5 12 5ZM17 9C16.4477 9 16 9.44772 16 10V17C16 17.5523 16.4477 18 17 18C17.5523 18 18 17.5523 18 17V10C18 9.44772 17.5523 9 17 9Z" />
 		</svg>
 	);
 }

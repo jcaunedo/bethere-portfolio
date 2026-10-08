@@ -111,13 +111,13 @@ Shown only after OTP verification succeeds — this is what completes account cr
 
 Collecting the name alongside the already-verified email gives a complete profile (name + email) for account communication going forward.
 
-**3D** [Getting setup — loading state](https://www.figma.com/design/Yxntd0OUl1SMXtYSu41h3P/Sign-Up--Sign-In?node-id=27-1001) — shown after "Set password & Sign In" is clicked, while the account is created: BeThere logo, spinner, "Getting setup..." — no user action, transitions automatically.
+**3D** [Getting setup — loading state](https://www.figma.com/design/Yxntd0OUl1SMXtYSu41h3P/Sign-Up--Sign-In?node-id=27-1001) — shown after "Set password & Sign In" is clicked, while the account is created: Bethere logo, spinner, "Getting setup..." — no user action, transitions automatically.
 
 Verification success functions as the login — there's no separate login screen for a brand-new account. "Set password & Sign In" both completes signup and starts the session in one action.
 
 ### 5. SSO account creation
 
-If a new user signs up via an SSO provider instead of email, the provider's own consent screen (e.g. Google "Choose an account") handles verification — no separate BeThere verification step.
+If a new user signs up via an SSO provider instead of email, the provider's own consent screen (e.g. Google "Choose an account") handles verification — no separate Bethere verification step.
 [Frame: Account creation by choosing SSO](https://www.figma.com/design/Yxntd0OUl1SMXtYSu41h3P/Sign-Up--Sign-In?node-id=23-658)
 
 ---

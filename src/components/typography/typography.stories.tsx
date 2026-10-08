@@ -51,13 +51,18 @@ export const Display: Story = {
   },
 };
 
-export const Heading: Story = {
-  args: {
-    size: "2xl",
-    weight: "semibold",
-    as: "h2",
-    children: "Section heading",
-  },
+/**
+ * Heading definitions (Figma bethere.ds text-style descriptions): `as` alone sets the size and
+ * weight. h1 = 2xl semibold (also page and modal titles), h2 = xl semibold, h3 = lg semibold.
+ */
+export const Headings: Story = {
+  render: () => (
+    <div className="space-y-3">
+      <Typography as="h1">h1 — Page title</Typography>
+      <Typography as="h2">h2 — Section heading</Typography>
+      <Typography as="h3">h3 — Subsection heading</Typography>
+    </div>
+  ),
 };
 
 export const Body: Story = {

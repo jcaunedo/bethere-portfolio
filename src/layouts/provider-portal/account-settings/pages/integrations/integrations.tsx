@@ -4,12 +4,15 @@ import { Calendar } from "lucide-react";
 
 import { AccountSettingsLayout } from "@/layouts/provider-portal/account-settings/account-settings";
 import { AccountSettingsMenuLayout } from "@/layouts/provider-portal/account-settings/account-settings-menu";
+import { EmptyState } from "@/components/feedback/empty-state";
 import { Typography } from "@/components/typography";
 import { AddIndicator } from "@/components/primitives/add-indicator";
 import {
   IntegrationCard,
   type IntegrationCardDetail,
 } from "@/components/cards/integration-card";
+import { mediaAbove } from "@/lib/breakpoints";
+import { useMediaQuery } from "@/lib/hooks/use-media-query";
 import { slideVariants } from "@/lib/motion";
 import googleCalendarLogo from "./images/google-calendar.png";
 import slackLogo from "./images/slack.png";
@@ -84,7 +87,10 @@ const INITIAL_INTEGRATIONS: Integration[] = [
  * connection details, mirroring the Google Calendar row's two Figma variants.
  */
 function IntegrationsLayout({
+  availableIntegrations,
   onEditCalendars,
+  onClose,
+  onNavigate,
 }: {
   /**
    * Called when Google Calendar's "Edit" link (next to its "Calendars" row)
@@ -93,8 +99,23 @@ function IntegrationsLayout({
    * pattern as `BusinessProfilesLayout`'s `onAddBusiness`.
    */
   onEditCalendars?: () => void;
+  /** Leaves Account Settings, e.g. back to the Provider Portal: the header's X above `md`, and the mobile settings menu's X. Omit it and the X opens the settings menu instead (the standalone Storybook reference has nowhere to go). */
+  onClose?: () => void;
+  /** Called with a settings section's route (e.g. "/settings/team-members") when it's picked in the rail or the mobile settings menu, so the app can switch pages. */
+  onNavigate?: (navigateTo: string) => void;
+  /**
+   * Which of the example integrations are offered, by id. Defaults to all of them; pass `[]` for
+   * the empty state (nothing to connect yet).
+   */
+  availableIntegrations?: IntegrationId[];
 } = {}) {
-  const [integrations, setIntegrations] = React.useState(INITIAL_INTEGRATIONS);
+  // Above `md` the header shows an X (closes settings, `onClose`); at `md` and below it shows a back arrow to the mobile settings menu.
+  const isMdUp = useMediaQuery(mediaAbove("md"));
+  const [integrations, setIntegrations] = React.useState(() =>
+    availableIntegrations
+      ? INITIAL_INTEGRATIONS.filter((integration) => availableIntegrations.includes(integration.id))
+      : INITIAL_INTEGRATIONS,
+  );
 
   function toggleConnection(id: IntegrationId) {
     setIntegrations((prev) =>
@@ -142,13 +163,15 @@ function IntegrationsLayout({
       className="absolute inset-0 h-screen"
     >
       <AccountSettingsMenuLayout
-        onClose={goToIntegrations}
+        onClose={onClose ?? goToIntegrations}
         onNavigate={(navigateTo) => {
           // Only "Integrations" has a built destination screen in this
           // reference layout — every other row is presentational until its
           // own sub-page exists.
           if (navigateTo === "/settings/integrations") {
             goToIntegrations();
+          } else {
+            onNavigate?.(navigateTo);
           }
         }}
       />
@@ -165,7 +188,11 @@ function IntegrationsLayout({
       exit="exit"
       className="absolute inset-0 h-screen"
     >
-      <AccountSettingsLayout activeItem="Integrations" onClose={goToMenu}>
+      <AccountSettingsLayout
+        activeItem="Integrations"
+        onClose={isMdUp && onClose ? onClose : goToMenu}
+        onNavigate={onNavigate}
+      >
         <div className="flex flex-col items-start gap-6 pb-24">
           <div className="flex w-full flex-col gap-0">
             <Typography as="h1" size="2xl" weight="semibold">
@@ -177,28 +204,37 @@ function IntegrationsLayout({
             </Typography>
           </div>
 
-          <div className="flex w-full flex-col gap-4">
-            {integrations.map((integration) => (
-              <IntegrationCard
-                key={integration.id}
-                icon={integration.icon}
-                title={integration.title}
-                description={integration.description}
-                connected={integration.connected}
-                details={integration.details?.map((detail) =>
-                  detail.editLabel
-                    ? { ...detail, onEditClick: onEditCalendars }
-                    : detail,
-                )}
-                onConnect={
-                  integration.id === "add-calendar"
-                    ? connectViaNylas
-                    : () => toggleConnection(integration.id)
-                }
-                onDisconnect={() => toggleConnection(integration.id)}
-              />
-            ))}
-          </div>
+          {integrations.length === 0 ? (
+            // Centered in the settings canvas (the area right of the rail), not under the title.
+            <EmptyState
+              className="absolute inset-x-0 top-1/2 -translate-y-1/2 px-4"
+              title="No integrations available yet"
+              description="Tools you can connect to Bethere, like calendars, will appear here."
+            />
+          ) : (
+            <div className="flex w-full flex-col gap-4">
+              {integrations.map((integration) => (
+                <IntegrationCard
+                  key={integration.id}
+                  icon={integration.icon}
+                  title={integration.title}
+                  description={integration.description}
+                  connected={integration.connected}
+                  details={integration.details?.map((detail) =>
+                    detail.editLabel
+                      ? { ...detail, onEditClick: onEditCalendars }
+                      : detail,
+                  )}
+                  onConnect={
+                    integration.id === "add-calendar"
+                      ? connectViaNylas
+                      : () => toggleConnection(integration.id)
+                  }
+                  onDisconnect={() => toggleConnection(integration.id)}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </AccountSettingsLayout>
     </motion.div>

@@ -6,9 +6,9 @@ import {
   CircleUserIcon,
   FileTextIcon,
   GalleryHorizontalEndIcon,
-  GlobeIcon,
   HouseIcon,
   InboxIcon,
+  LanguagesIcon,
   LogOutIcon,
   SettingsIcon,
   SunMoonIcon,
@@ -65,20 +65,18 @@ const secondaryMenuItems: SidebarNavItem[] = [
   { icon: ChartColumnIcon, activeIcon: ChartColumnSolidIcon, label: "Analytics", navigateTo: "/analytics" },
 ];
 
-/** Figma "Account Menu": items for the footer's SelectAccountInfo popover.
- * Rows either navigate (`navigateTo` → `onNavigate`) or act (`onClick`). */
+/** Figma "Account Menu": items for the footer's SelectAccountInfo popover —
+ * My profile and Account settings open those settings sections directly
+ * (product-specs/account-menu.md). Rows either navigate (`navigateTo` →
+ * `onNavigate`) or act (`onClick`). */
 const accountMenuItems: SidebarAccountMenuItem[] = [
-  { icon: CircleUserIcon, label: "My profile", navigateTo: "/profile" },
+  { icon: CircleUserIcon, label: "My profile", navigateTo: "/settings/profile" },
+  { icon: SettingsIcon, label: "Account settings", navigateTo: "/settings/business-profiles" },
   { icon: SunMoonIcon, label: "Theme", shortcut: "Auto" },
-  { icon: GlobeIcon, label: "Language", shortcut: "English" },
-  {
-    icon: SettingsIcon,
-    label: "Account settings",
-    navigateTo: "/settings",
-  },
+  { icon: LanguagesIcon, label: "Language", shortcut: "English" },
   {
     icon: LogOutIcon,
-    label: "Log Out",
+    label: "Log out",
     variant: "destructive",
     separator: true,
     onClick: () => console.log("[Sidebar story] sign out"),

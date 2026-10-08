@@ -72,7 +72,7 @@ Figma: Provider Portal "12. Policies" (node 109:3517). Age requirements, resched
 
 ℹ️ Where the frame's buttons and the Figma annotations disagree, the reference layout follows the buttons: Rescheduling notice offers "Not allowed" (annotation: "7 days"), and Weather policy offers "Host review" (annotation: "Reschedule or refund", marked as the recommended default).
 
-⚠️ **Copy needed:** these summaries are draft copy (written to BeThere's provider voice), with no Figma or annotation source yet:
+⚠️ **Copy needed:** these summaries are draft copy (written to Bethere's provider voice), with no Figma or annotation source yet:
 
 | Section | Option | Draft summary |
 | --- | --- | --- |

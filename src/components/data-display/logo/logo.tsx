@@ -24,7 +24,7 @@ const logoVariants = cva("", {
 type LogoProps = React.ComponentProps<"svg"> & VariantProps<typeof logoVariants>;
 
 /**
- * BeThere wordmark per Figma's `Bethere Logo` component set. Single path at
+ * Bethere wordmark per Figma's `Bethere Logo` component set. Single path at
  * its native Figma coordinates (rather than composed some other way) so it
  * scales correctly at any size, including the sidebar's shrunk instances.
  */
