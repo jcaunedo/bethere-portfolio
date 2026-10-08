@@ -6,9 +6,9 @@ import {
   GalleryHorizontalEndIcon,
   HouseIcon,
   InboxIcon,
-  WalletIcon,
 } from "lucide-react";
 
+import { BankNoteIcon } from "@/components/icons/bank-note-icon";
 import { BankNoteSolidIcon } from "@/components/icons/bank-note-solid-icon";
 import { CalendarSolidIcon } from "@/components/icons/calendar-solid-icon";
 import { ChartColumnSolidIcon } from "@/components/icons/chart-column-solid-icon";
@@ -44,7 +44,7 @@ const portalPrimaryItems: SidebarNavItem[] = [
 const portalSecondaryItems: SidebarNavItem[] = [
   { icon: GalleryHorizontalEndIcon, activeIcon: GalleryHorizontalEndSolidIcon, label: "Listings", navigateTo: "/listings" },
   { icon: CalendarIcon, activeIcon: CalendarSolidIcon, label: "Calendar", navigateTo: "/calendar" },
-  { icon: WalletIcon, activeIcon: BankNoteSolidIcon, label: "Transactions", navigateTo: "/transactions" },
+  { icon: BankNoteIcon, activeIcon: BankNoteSolidIcon, label: "Transactions", navigateTo: "/transactions" },
   { icon: FileTextIcon, activeIcon: FileTextSolidIcon, label: "Documents", navigateTo: "/documents" },
   { icon: ChartColumnIcon, activeIcon: ChartColumnSolidIcon, label: "Analytics", navigateTo: "/analytics" },
 ];

@@ -602,12 +602,13 @@ export {
 } from "./layouts/provider-portal/account-settings/account-settings-menu";
 
 /* -------------------------------------------------------------------------- */
-/* Icons — solid nav icons (SidebarMenuItem Active state)                     */
+/* Icons — nav icons (SidebarMenuItem; solid = Active state)                  */
 /* -------------------------------------------------------------------------- */
 export { HomeSolidIcon } from "./components/icons/home-solid-icon";
 export { InboxSolidIcon } from "./components/icons/inbox-solid-icon";
 export { GalleryHorizontalEndSolidIcon } from "./components/icons/gallery-horizontal-end-solid-icon";
 export { CalendarSolidIcon } from "./components/icons/calendar-solid-icon";
+export { BankNoteIcon } from "./components/icons/bank-note-icon";
 export { BankNoteSolidIcon } from "./components/icons/bank-note-solid-icon";
 export { FileTextSolidIcon } from "./components/icons/file-text-solid-icon";
 export { ChartColumnSolidIcon } from "./components/icons/chart-column-solid-icon";

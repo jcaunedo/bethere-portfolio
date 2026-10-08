@@ -8,10 +8,10 @@ import {
   HouseIcon,
   InboxIcon,
   PanelLeftIcon,
-  WalletIcon,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { BankNoteIcon } from "@/components/icons/bank-note-icon";
 import { BankNoteSolidIcon } from "@/components/icons/bank-note-solid-icon";
 import { CalendarSolidIcon } from "@/components/icons/calendar-solid-icon";
 import { ChartColumnSolidIcon } from "@/components/icons/chart-column-solid-icon";
@@ -161,7 +161,7 @@ const defaultPrimaryMenuItems: SidebarNavItem[] = [
 const defaultSecondaryMenuItems: SidebarNavItem[] = [
   { icon: GalleryHorizontalEndIcon, activeIcon: GalleryHorizontalEndSolidIcon, label: "Listings" },
   { icon: CalendarIcon, activeIcon: CalendarSolidIcon, label: "Calendar" },
-  { icon: WalletIcon, activeIcon: BankNoteSolidIcon, label: "Transactions" },
+  { icon: BankNoteIcon, activeIcon: BankNoteSolidIcon, label: "Transactions" },
   { icon: FileTextIcon, activeIcon: FileTextSolidIcon, label: "Documents" },
   { icon: ChartColumnIcon, activeIcon: ChartColumnSolidIcon, label: "Analytics" },
 ];
@@ -385,8 +385,9 @@ function Sidebar({
             className="flex size-9 shrink-0 cursor-e-resize items-center justify-center rounded-full outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-sidebar-ring/50"
           >
             <Symbol
-              // Figma Logo Collapsed: Bethere Symbol at 28px.
-              className={cn("h-7", isRailHovered && "hidden")}
+              // Figma Logo Collapsed: Bethere Symbol in a 30px frame; the glyph
+              // itself is 26.95 × 23.33 (our viewBox is cropped to the glyph).
+              className={cn("h-[23.33px]", isRailHovered && "hidden")}
             />
             <PanelLeftIcon
               // Figma Logo Collapsed Hover: panel-left in color/icon/foreground.
@@ -398,8 +399,9 @@ function Sidebar({
           </button>
         ) : (
           <div className="flex h-9 w-full items-center justify-between py-2 pr-0 pl-1.5">
-            {/* Figma Logo Extended: Bethere Logo at 24px. */}
-            <Logo className="h-6" />
+            {/* Figma Logo Extended: Bethere Logo in a 115.673 × 26 frame; the
+                glyph itself is 115.673 × 22.95 (our viewBox is cropped to the glyph). */}
+            <Logo className="h-[22.95px]" />
             <button
               type="button"
               data-slot="sidebar-collapse"
