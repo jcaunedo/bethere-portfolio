@@ -48,8 +48,13 @@ function SelectAccountInfo({
       aria-label={collapsed ? name : undefined}
       title={collapsed ? name : undefined}
       className={cn(
-        "flex h-10 w-full items-center justify-between rounded-xl px-1 outline-none transition-colors",
-        "hover:bg-card hover:ring-4 hover:ring-card focus-visible:ring-[3px] focus-visible:ring-ring/50",
+        "flex h-10 w-full items-center justify-between rounded-xl px-1 outline-none",
+        // Figma Hover: color/states/hover fill + a 4px outside frame in the same color. The frame sits
+        // outside the fill (no overlap), so the whole hover area reads as one even tint. The 4px ring
+        // is always there (transparent at rest) so hover only changes its color, and fill and ring
+        // fade together (motionDuration.fast, 160ms) rather than the ring growing or snapping in.
+        "ring-4 ring-transparent transition-[background-color,box-shadow] duration-160 ease-in-out",
+        "hover:bg-state-hover hover:ring-state-hover focus-visible:ring-[3px] focus-visible:ring-ring/50",
         collapsed && "justify-center px-0",
         className,
       )}

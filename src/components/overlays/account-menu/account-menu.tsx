@@ -1,33 +1,99 @@
 import * as React from "react";
 import { CheckIcon, ChevronRightIcon } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { DropdownMenu as DropdownMenuPrimitive } from "radix-ui";
 
 import { cn } from "@/lib/utils";
+import { accountMenuVariants, fadeVariants, useMotionPreference } from "@/lib/motion";
 
 /**
- * Tracks whether the trigger's last open interaction was pointer-driven vs
- * keyboard, shared between AccountMenuTrigger and AccountMenuContent via
- * context since they're composed as siblings under AccountMenu. Used by
- * AccountMenuContent's onCloseAutoFocus to skip Radix's auto-refocus
- * specifically for pointer closes — without this, closing via a mouse click
- * (including an outside click) still refocuses the trigger, and the
- * browser's `:focus-visible` heuristic treats that programmatic refocus as
- * keyboard-like, so a focus-ring border stays on SelectAccountInfo until the
- * user clicks elsewhere. Keyboard closes (Escape/Tab) are left alone so
- * focus-return still works. Same pattern as Popover/Select.
+ * State shared between AccountMenu, AccountMenuTrigger and AccountMenuContent (composed as
+ * siblings under AccountMenu):
+ * - `open`: AccountMenu owns the open state so AccountMenuContent can keep the panel mounted
+ *   through its Motion exit (AnimatePresence + `forceMount`).
+ * - `isPointerRef`: whether the trigger's last open interaction was pointer-driven vs keyboard.
+ *   AccountMenuContent's onCloseAutoFocus skips Radix's auto-refocus for pointer closes — without
+ *   this, closing via a mouse click (including an outside click) still refocuses the trigger, and
+ *   the browser's `:focus-visible` heuristic treats that programmatic refocus as keyboard-like, so
+ *   a focus ring stays on SelectAccountInfo. Keyboard closes (Escape/Tab) keep focus-return.
+ * - `pointerHeldRef`: whether a pointer button is held right now (see `usePointerHeldRef`).
  */
-const AccountMenuPointerContext = React.createContext<
-	React.RefObject<boolean> | null
->(null);
+const AccountMenuContext = React.createContext<{
+	open: boolean;
+	isPointerRef: React.RefObject<boolean>;
+	pointerHeldRef: React.RefObject<boolean>;
+} | null>(null);
+
+/**
+ * Whether a pointer button is held right now, tracked at the document level from the moment
+ * AccountMenu mounts. Radix opens the menu on pointer *down*, and a pointer release over an item
+ * chooses it (press–drag–release, like native menus). When the panel opens over its own trigger
+ * (Sidebar), an ordinary click's release lands on whatever item now sits under the cursor — the
+ * menu flashed open and shut, or ran that item. Reading this ref as the panel mounts tells it, with
+ * no race, that the opening press is still down.
+ */
+function usePointerHeldRef() {
+	const heldRef = React.useRef(false);
+	React.useEffect(() => {
+		const down = () => (heldRef.current = true);
+		const up = () => (heldRef.current = false);
+		document.addEventListener("pointerdown", down, true);
+		document.addEventListener("pointerup", up, true);
+		document.addEventListener("pointercancel", up, true);
+		return () => {
+			document.removeEventListener("pointerdown", down, true);
+			document.removeEventListener("pointerup", up, true);
+			document.removeEventListener("pointercancel", up, true);
+		};
+	}, []);
+	return heldRef;
+}
+
+/**
+ * The panel's items ignore the pointer until the press that opened it is released, so that
+ * release falls through instead of choosing an item. Opened by keyboard (no button held), they're
+ * interactive immediately.
+ */
+function useArmedAfterOpeningPress(pointerHeldRef: React.RefObject<boolean> | undefined) {
+	const [armed, setArmed] = React.useState(() => !pointerHeldRef?.current);
+	React.useEffect(() => {
+		if (armed) return;
+		const arm = () => setArmed(true);
+		document.addEventListener("pointerup", arm, { once: true, capture: true });
+		document.addEventListener("pointercancel", arm, { once: true, capture: true });
+		return () => {
+			document.removeEventListener("pointerup", arm, true);
+			document.removeEventListener("pointercancel", arm, true);
+		};
+	}, [armed]);
+	return armed;
+}
 
 function AccountMenu({
+	open: openProp,
+	defaultOpen = false,
+	onOpenChange,
 	...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
 	const isPointerRef = React.useRef(false);
+	const pointerHeldRef = usePointerHeldRef();
+	const [uncontrolledOpen, setUncontrolledOpen] = React.useState(defaultOpen);
+	const open = openProp ?? uncontrolledOpen;
+
+	const handleOpenChange = (next: boolean) => {
+		setUncontrolledOpen(next);
+		onOpenChange?.(next);
+	};
+
 	return (
-		<AccountMenuPointerContext.Provider value={isPointerRef}>
-			<DropdownMenuPrimitive.Root data-slot='account-menu' {...props} />
-		</AccountMenuPointerContext.Provider>
+		<AccountMenuContext.Provider value={{ open, isPointerRef, pointerHeldRef }}>
+			<DropdownMenuPrimitive.Root
+				data-slot='account-menu'
+				open={open}
+				onOpenChange={handleOpenChange}
+				{...props}
+			/>
+		</AccountMenuContext.Provider>
 	);
 }
 
@@ -43,12 +109,12 @@ function AccountMenuTrigger({
 	onPointerDown,
 	...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Trigger>) {
-	const isPointerRef = React.useContext(AccountMenuPointerContext);
+	const context = React.useContext(AccountMenuContext);
 	return (
 		<DropdownMenuPrimitive.Trigger
 			data-slot='account-menu-trigger'
 			onPointerDown={(event) => {
-				if (isPointerRef) isPointerRef.current = true;
+				if (context) context.isPointerRef.current = true;
 				onPointerDown?.(event);
 			}}
 			{...props}
@@ -56,50 +122,85 @@ function AccountMenuTrigger({
 	);
 }
 
+/** The panel's children; mounted fresh on each open so the "armed" state starts over. */
+function AccountMenuArmedItems({
+	pointerHeldRef,
+	children,
+}: {
+	pointerHeldRef: React.RefObject<boolean> | undefined;
+	children: React.ReactNode;
+}) {
+	const armed = useArmedAfterOpeningPress(pointerHeldRef);
+	// `contents`: no box of its own, so the panel's flex layout applies to the items directly, while
+	// `pointer-events` still inherits down to them. The gate sits on this wrapper rather than the
+	// panel because Radix sets an inline `pointer-events: auto` on the panel itself.
+	return (
+		<div className={cn("contents", !armed && "pointer-events-none")}>
+			{children}
+		</div>
+	);
+}
+
+/**
+ * The menu panel. Defaults to side="top" (grows upward, e.g. above a bottom-anchored trigger like
+ * Sidebar's SelectAccountInfo); pass `align`/`sideOffset` to place it — Sidebar opens it over its
+ * trigger (left edges aligned, panel bottom on the avatar's bottom), and the items ignore the
+ * opening press's release so that's safe (see `usePointerHeldRef`).
+ *
+ * Motion: `accountMenuVariants` — fades in while rising `motionDistance.small` (12px) on
+ * `standardTransition`; exits with a plain fade. Fade only under reduced motion.
+ */
 function AccountMenuContent({
 	className,
 	side = "top",
 	sideOffset = 4,
 	onCloseAutoFocus,
+	children,
 	...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Content>) {
-	const isPointerRef = React.useContext(AccountMenuPointerContext);
+	const context = React.useContext(AccountMenuContext);
+	const { prefersReducedMotion } = useMotionPreference();
+	const open = context?.open ?? false;
+
 	return (
-		<DropdownMenuPrimitive.Portal>
-			<DropdownMenuPrimitive.Content
-				data-slot='account-menu-content'
-				side={side}
-				sideOffset={sideOffset}
-				onCloseAutoFocus={(event) => {
-					if (isPointerRef?.current) {
-						event.preventDefault();
-						isPointerRef.current = false;
-					}
-					onCloseAutoFocus?.(event);
-				}}
-				className={cn(
-					// Defaults to side="top" (grows upward, e.g. above a
-					// bottom-anchored trigger like Sidebar's SelectAccountInfo).
-					// Deliberately does NOT cover the trigger the way
-					// SelectContent does — DropdownMenuTrigger opens on
-					// pointerdown, so covering the trigger puts the matching
-					// pointerup/click on the newly-rendered content instead of
-					// the trigger (or on whatever menu item now sits under the
-					// cursor, which can fire it by accident). Tried multiple
-					// workarounds (outside-click guard via trigger ref, a
-					// pointer-events-none "ready" gate) — both failed: Radix's
-					// DismissableLayer sets an inline `pointerEvents` style that
-					// beats any `className`, and even routing the gate through
-					// `style` directly still raced against how fast a real click
-					// completes vs. when a `useEffect` listener can attach.
-					// sideOffset provides a normal gap instead — safe, no
-					// special-casing needed.
-					"z-50 flex max-h-(--radix-dropdown-menu-content-available-height) w-[282px] origin-(--radix-dropdown-menu-content-transform-origin) flex-col gap-1.5 overflow-x-hidden overflow-y-auto rounded-popover border border-border bg-card px-4 py-4 text-foreground shadow-[var(--shadow-popover)] data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
-					className,
-				)}
-				{...props}
-			/>
-		</DropdownMenuPrimitive.Portal>
+		<AnimatePresence>
+			{open ? (
+				// Kept mounted through the exit by AnimatePresence; `forceMount` stops Radix from
+				// unmounting the panel itself as soon as `open` turns false.
+				<DropdownMenuPrimitive.Portal key='account-menu-content' forceMount>
+					<DropdownMenuPrimitive.Content
+						forceMount
+						asChild
+						side={side}
+						sideOffset={sideOffset}
+						onCloseAutoFocus={(event) => {
+							if (context?.isPointerRef.current) {
+								event.preventDefault();
+								context.isPointerRef.current = false;
+							}
+							onCloseAutoFocus?.(event);
+						}}
+						{...props}
+					>
+						<motion.div
+							data-slot='account-menu-content'
+							variants={prefersReducedMotion ? fadeVariants : accountMenuVariants}
+							initial='initial'
+							animate='animate'
+							exit='exit'
+							className={cn(
+								"z-50 flex max-h-(--radix-dropdown-menu-content-available-height) w-[282px] flex-col gap-1.5 overflow-x-hidden overflow-y-auto rounded-popover border border-border bg-card px-4 py-4 text-foreground shadow-[var(--shadow-popover)]",
+								className,
+							)}
+						>
+							<AccountMenuArmedItems pointerHeldRef={context?.pointerHeldRef}>
+								{children}
+							</AccountMenuArmedItems>
+						</motion.div>
+					</DropdownMenuPrimitive.Content>
+				</DropdownMenuPrimitive.Portal>
+			) : null}
+		</AnimatePresence>
 	);
 }
 

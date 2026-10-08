@@ -1,7 +1,8 @@
 import type { Variants } from "motion/react";
 
 import { motionDistance, motionDuration, motionScale, motionStagger } from "./tokens";
-import { enterTransition, exitTransition, standardTransition } from "./transitions";
+import { enterTransition, exitTransition, standardTransition, swapEnterTransition } from "./transitions";
+import { reducedMotionTransition } from "./reduced-motion";
 
 /**
  * Reusable `Variants` for `initial`/`animate`/`exit`. Named after the
@@ -120,6 +121,37 @@ const staggerContainerVariants: Variants = {
 };
 
 /**
+ * Account menu entrance: a fade plus a `motionDistance.small` (12px) slide up, on
+ * `standardTransition`. It opens over its trigger at the bottom of the screen, so it should read as
+ * rising out of it. No scale: the slide already carries the arrival. Exit is a plain fade.
+ * Under reduced motion, use `fadeVariants`.
+ */
+const accountMenuVariants: Variants = {
+  initial: { opacity: 0, y: motionDistance.small },
+  animate: { opacity: 1, y: 0, transition: standardTransition },
+  exit: { opacity: 0, transition: exitTransition },
+};
+
+/**
+ * Swap: two small elements stacked in place, one handing off to the other (e.g. the collapsed
+ * Sidebar's logo mark and expand icon on hover). Animate the one leaving to `hidden` and the one
+ * arriving to `shown`: the leaving one dissolves quickly (`exitTransition`) while the arriving one
+ * fades in and grows from `motionScale.swapIn` (`swapEnterTransition`).
+ * - `iconSwapReducedVariants` — the same states under reduced motion: an instant switch, no fade or
+ *   scale. The variants carry their own transitions (which win over a component's `transition`
+ *   prop), so reduced motion needs its own variants rather than a `resolve()` override.
+ */
+const iconSwapVariants: Variants = {
+  shown: { opacity: 1, scale: 1, transition: swapEnterTransition },
+  hidden: { opacity: 0, scale: motionScale.swapIn, transition: exitTransition },
+};
+
+const iconSwapReducedVariants: Variants = {
+  shown: { opacity: 1, scale: 1, transition: reducedMotionTransition },
+  hidden: { opacity: 0, scale: 1, transition: reducedMotionTransition },
+};
+
+/**
  * Pending: something is working on the element's behalf (e.g. AI generating text). A looping
  * pulse — `animate="pending"` while busy, `"idle"` otherwise; returning to idle eases back to rest.
  * CLAUDE.md "Skeletons and Loading States" (opacity pulse). Three variants:
@@ -153,6 +185,9 @@ export {
   panelVariants,
   slideVariants,
   staggerContainerVariants,
+  accountMenuVariants,
+  iconSwapVariants,
+  iconSwapReducedVariants,
   pendingIconVariants,
   pendingIconReducedVariants,
   pendingSurfaceVariants,

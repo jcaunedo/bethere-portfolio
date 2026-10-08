@@ -53,6 +53,8 @@ const motionScale = {
 	recede: 0.975,
 	/** Small inline icons (e.g. a selection check) appearing in place. */
 	iconIn: 0.6,
+	/** A small element (e.g. an icon) growing in as it replaces another in place (Swap pattern). */
+	swapIn: 0.8,
 	/** An item picked up by a drag (Lift while dragging), e.g. a photo tile being reordered. */
 	drag: 1.03,
 	/** Peak of a small trigger icon's Pending pulse (e.g. an AI mark while it generates). */

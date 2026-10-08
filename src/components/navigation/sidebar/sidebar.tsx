@@ -19,11 +19,18 @@ import { FileTextSolidIcon } from "@/components/icons/file-text-solid-icon";
 import { GalleryHorizontalEndSolidIcon } from "@/components/icons/gallery-horizontal-end-solid-icon";
 import { HomeSolidIcon } from "@/components/icons/home-solid-icon";
 import { InboxSolidIcon } from "@/components/icons/inbox-solid-icon";
-import { enterTransition, motionDuration, useMotionPreference } from "@/lib/motion";
+import {
+  enterTransition,
+  iconSwapReducedVariants,
+  iconSwapVariants,
+  motionDuration,
+  useMotionPreference,
+} from "@/lib/motion";
 import { Logo } from "@/components/data-display/logo";
 import { Symbol } from "@/components/data-display/symbol";
 import { SelectAccountInfo } from "@/components/data-display/select-account-info";
 import { Promotion } from "@/components/data-display/promotion";
+import { SidebarTooltip } from "@/components/overlays/sidebar-tooltip";
 import {
   AccountMenu,
   AccountMenuContent,
@@ -67,55 +74,61 @@ function SidebarMenuItem({
   /**
    * Icon-only layout for the collapsed Sidebar (Figma "Single/Multiple
    * Collapsed") — the label stays for accessibility (`aria-label`) but is
-   * visually hidden, and the icon centers in the row.
+   * visually hidden (shown in a `SidebarTooltip` on hover/focus), and the icon centers in the row.
    */
   collapsed?: boolean;
 }) {
   return (
-    <button
-      type="button"
-      data-slot="sidebar-menu-item"
-      data-active={active || undefined}
-      aria-current={active ? "page" : undefined}
-      aria-label={collapsed ? label : undefined}
-      title={collapsed ? label : undefined}
-      className={cn(
-        // Figma: 36px row (min 32), radius/menu-option, 8px/6px padding, 12px gap, 18px icon.
-        "flex h-9 min-h-8 items-center gap-3 rounded-menu-option px-2 py-1.5 text-sm outline-none transition-colors",
-        "focus-visible:ring-[3px] focus-visible:ring-sidebar-ring/50",
-        "[&_svg]:size-[18px] [&_svg]:shrink-0",
-        active
-          ? // State=Active: no fill; sm/semibold in color/foreground/foreground, solid icon in color/icon/foreground.
-            "font-semibold text-foreground [&_svg]:text-icon-foreground"
-          : // State=Default: sm/medium in sidebar-foreground, icon in color/icon/muted.
-            // State=Hover: color/states/hover fill; label and icon go to foreground.
-            "font-medium text-sidebar-foreground hover:bg-state-hover hover:text-foreground [&_svg]:text-icon-muted hover:[&_svg]:text-icon-foreground",
-        collapsed ? "size-9 shrink-0 justify-center px-0" : "w-full",
-        className,
-      )}
-      {...props}
-    >
-      {active ? (
-        ActiveIcon ? <ActiveIcon /> : <Icon className="fill-current" />
-      ) : (
-        <Icon />
-      )}
-      {collapsed ? null : (
-        <>
-          <span className="min-w-0 flex-1 overflow-hidden text-left text-ellipsis whitespace-nowrap">
-            {label}
-          </span>
-          {count !== undefined ? (
-            <span
-              data-slot="sidebar-menu-item-count"
-              className="shrink-0 px-0.5 text-center text-xs text-brand-500"
-            >
-              {count}
+    // Collapsed, the label is visually hidden, so hover/focus shows it in a SidebarTooltip to the
+    // right (Figma `sidebar-tooltip`). Always mounted, only `disabled` while expanded, so toggling
+    // the rail doesn't remount the button.
+    <SidebarTooltip label={label} disabled={!collapsed}>
+      <button
+        type="button"
+        data-slot="sidebar-menu-item"
+        data-active={active || undefined}
+        aria-current={active ? "page" : undefined}
+        aria-label={collapsed ? label : undefined}
+        className={cn(
+          // Figma: 36px row (min 32), radius/menu-option, 8px/6px padding, 12px gap, 18px icon.
+          "flex h-9 min-h-8 items-center gap-3 rounded-menu-option px-2 py-1.5 text-sm outline-none",
+          // The hover fill fades in and out with the text color (motionDuration.fast, 160ms).
+          "transition-[background-color,color] duration-160 ease-in-out",
+          "focus-visible:ring-[3px] focus-visible:ring-sidebar-ring/50",
+          "[&_svg]:size-[18px] [&_svg]:shrink-0",
+          active
+            ? // State=Active: no fill; sm/semibold in color/foreground/foreground, solid icon in color/icon/foreground.
+              "font-semibold text-foreground [&_svg]:text-icon-foreground"
+            : // State=Default: sm/medium in sidebar-foreground, icon in color/icon/muted.
+              // State=Hover: color/states/hover fill; label and icon go to foreground.
+              "font-medium text-sidebar-foreground hover:bg-state-hover hover:text-foreground [&_svg]:text-icon-muted hover:[&_svg]:text-icon-foreground",
+          collapsed ? "size-9 shrink-0 justify-center px-0" : "w-full",
+          className,
+        )}
+        {...props}
+      >
+        {active ? (
+          ActiveIcon ? <ActiveIcon /> : <Icon className="fill-current" />
+        ) : (
+          <Icon />
+        )}
+        {collapsed ? null : (
+          <>
+            <span className="min-w-0 flex-1 overflow-hidden text-left text-ellipsis whitespace-nowrap">
+              {label}
             </span>
-          ) : null}
-        </>
-      )}
-    </button>
+            {count !== undefined ? (
+              <span
+                data-slot="sidebar-menu-item-count"
+                className="shrink-0 px-0.5 text-center text-xs text-brand-500"
+              >
+                {count}
+              </span>
+            ) : null}
+          </>
+        )}
+      </button>
+    </SidebarTooltip>
   );
 }
 
@@ -165,6 +178,14 @@ const defaultSecondaryMenuItems: SidebarNavItem[] = [
   { icon: FileTextIcon, activeIcon: FileTextSolidIcon, label: "Documents" },
   { icon: ChartColumnIcon, activeIcon: ChartColumnSolidIcon, label: "Analytics" },
 ];
+
+/**
+ * The account menu opens over its trigger: left edges aligned (`align="start"`) and the panel's
+ * bottom edge on the avatar's bottom edge. SelectAccountInfo is 40px tall with its 36px avatar
+ * centered, so the avatar ends 2px above the trigger's bottom — a -38px offset pulls the panel from
+ * "above the trigger" down to there.
+ */
+const ACCOUNT_MENU_OFFSET = -38;
 
 interface SidebarAccountInfo {
   name: string;
@@ -276,7 +297,8 @@ function Sidebar({
   const [activeItem, setActiveItem] = React.useState(defaultActiveItem);
   const [collapsed, setCollapsed] = React.useState(defaultCollapsed);
   const [isRailHovered, setIsRailHovered] = React.useState(false);
-  const { resolve } = useMotionPreference();
+  const { resolve, prefersReducedMotion } = useMotionPreference();
+  const iconSwapMotion = prefersReducedMotion ? iconSwapReducedVariants : iconSwapVariants;
 
   const handleNavItemClick = (item: SidebarNavItem) => {
     setActiveItem(item.label);
@@ -346,6 +368,9 @@ function Sidebar({
     <motion.div
       data-slot="sidebar"
       data-collapsed={collapsed}
+      // `initial={false}`: mount at the target width. Without it, Motion animates the width on
+      // every mount from the element's natural size, so the rail slides in on each page load.
+      initial={false}
       // Figma widths: Single Collapsed 64px, Single Business 296px.
       animate={{ width: collapsed ? 64 : 296 }}
       transition={resolve(enterTransition)}
@@ -382,20 +407,34 @@ function Sidebar({
             onClick={handleToggleCollapsed}
             onMouseEnter={() => setIsRailHovered(true)}
             onMouseLeave={() => setIsRailHovered(false)}
-            className="flex size-9 shrink-0 cursor-e-resize items-center justify-center rounded-full outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-sidebar-ring/50"
+            className="relative flex size-9 shrink-0 cursor-e-resize items-center justify-center rounded-full outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-sidebar-ring/50"
           >
-            <Symbol
-              // Figma Logo Collapsed: Bethere Symbol in a 30px frame; the glyph
-              // itself is 26.95 × 23.33 (our viewBox is cropped to the glyph).
-              className={cn("h-[23.33px]", isRailHovered && "hidden")}
-            />
-            <PanelLeftIcon
-              // Figma Logo Collapsed Hover: panel-left in color/icon/foreground.
-              className={cn(
-                "hidden size-4 text-icon-foreground",
-                isRailHovered && "block",
-              )}
-            />
+            {/* Hovering the rail swaps the logo mark for the expand icon in place
+                (Swap: the leaving one dissolves while the arriving one fades in
+                and grows). Instant under reduced motion. */}
+            <motion.span
+              aria-hidden="true"
+              variants={iconSwapMotion}
+              initial={false}
+              animate={isRailHovered ? "hidden" : "shown"}
+              className="pointer-events-none absolute inset-0 flex items-center justify-center"
+            >
+              <Symbol
+                // Figma Logo Collapsed: Bethere Symbol in a 30px frame; the glyph
+                // itself is 26.95 × 23.33 (our viewBox is cropped to the glyph).
+                className="h-[23.33px]"
+              />
+            </motion.span>
+            <motion.span
+              aria-hidden="true"
+              variants={iconSwapMotion}
+              initial={false}
+              animate={isRailHovered ? "shown" : "hidden"}
+              className="pointer-events-none absolute inset-0 flex items-center justify-center"
+            >
+              {/* Figma Logo Collapsed Hover: panel-left in color/icon/foreground. */}
+              <PanelLeftIcon className="size-4 text-icon-foreground" />
+            </motion.span>
           </button>
         ) : (
           <div className="flex h-9 w-full items-center justify-between py-2 pr-0 pl-1.5">
@@ -461,7 +500,7 @@ function Sidebar({
                 collapsed={collapsed}
               />
             </AccountMenuTrigger>
-            <AccountMenuContent align="start">
+            <AccountMenuContent align="start" sideOffset={ACCOUNT_MENU_OFFSET}>
               {accountMenuItems.map((item) => (
                 <React.Fragment key={item.label}>
                   {item.separator ? <AccountMenuSeparator /> : null}

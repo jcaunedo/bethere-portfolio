@@ -394,6 +394,9 @@ export {
   TooltipProvider,
 } from "./components/overlays/tooltip";
 
+export { SidebarTooltip } from "./components/overlays/sidebar-tooltip";
+export type { SidebarTooltipProps, SidebarTooltipSide } from "./components/overlays/sidebar-tooltip";
+
 export {
   AccountMenu,
   AccountMenuContent,

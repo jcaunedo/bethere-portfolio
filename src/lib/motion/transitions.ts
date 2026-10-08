@@ -26,6 +26,16 @@ const exitTransition: Transition = {
 };
 
 /**
+ * An element growing in as it replaces another in place (`iconSwapVariants`): `motionDuration.normal`
+ * (300ms) on the enter curve, so the scale-up arrives quickly and settles gently. The element it
+ * replaces leaves on `exitTransition`.
+ */
+const swapEnterTransition: Transition = {
+	...enterTransition,
+	duration: motionDuration.normal,
+};
+
+/**
  * Page auto-scroll (bringing content into view): page-level timing on the standard curve, so the
  * page eases in and settles gently instead of the browser's quick native smooth scroll.
  */
@@ -65,6 +75,7 @@ export {
 	standardTransition,
 	enterTransition,
 	exitTransition,
+	swapEnterTransition,
 	scrollTransition,
 	subtleSpring,
 	responsiveSpring,
