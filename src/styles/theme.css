@@ -700,7 +700,7 @@
 	--input-fill-read-only: #fcfcfd; /* Figma color/input/fill-read-only — no matching primitive */
 
 	/* Interaction states (color/states/*) */
-	--state-hover: #3a342808; /* Figma color/states/hover — sand-900 @ ~3% alpha (was neutral-950-based) */
+	--state-hover: #3a34280a; /* Figma color/states/hover — sand-900 @ 4% alpha (was neutral-950-based) */
 	--state-active: #f0f2f599;
 	--state-highlight: #fff9e114;
 	--state-disabled: var(--neutral-100);
