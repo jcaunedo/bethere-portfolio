@@ -80,10 +80,10 @@ function SidebarMenuItem({
       aria-label={collapsed ? label : undefined}
       title={collapsed ? label : undefined}
       className={cn(
-        // Figma: 36px row (min 32), radius/menu-option, 8px/6px padding, 12px gap, 16px icon.
+        // Figma: 36px row (min 32), radius/menu-option, 8px/6px padding, 12px gap, 18px icon.
         "flex h-9 min-h-8 items-center gap-3 rounded-menu-option px-2 py-1.5 text-sm outline-none transition-colors",
         "focus-visible:ring-[3px] focus-visible:ring-sidebar-ring/50",
-        "[&_svg]:size-4 [&_svg]:shrink-0",
+        "[&_svg]:size-[18px] [&_svg]:shrink-0",
         active
           ? // State=Active: no fill; sm/semibold in color/foreground/foreground, solid icon in color/icon/foreground.
             "font-semibold text-foreground [&_svg]:text-icon-foreground"
@@ -306,8 +306,9 @@ function Sidebar({
   const menuItems = (
     <div
       data-slot="sidebar-menu-items"
+      // Figma "Menu Items Container": items (and the divider row) 12px apart (spacing/3).
       className={cn(
-        "flex w-full flex-col gap-2",
+        "flex w-full flex-col gap-3",
         collapsed ? "items-center" : "items-start",
       )}
     >
