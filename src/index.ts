@@ -454,7 +454,6 @@ export {
   SidebarMenuItem,
   SidebarDivider,
   type SidebarProps,
-  type SidebarBusiness,
   type SidebarAccountInfo,
   type SidebarAccountMenuItem,
   type SidebarNavItem,
@@ -601,3 +600,14 @@ export {
   AccountSettingsMenuLayout,
   type AccountSettingsMenuLayoutProps,
 } from "./layouts/account-settings/account-settings-menu";
+
+/* -------------------------------------------------------------------------- */
+/* Icons — solid nav icons (SidebarMenuItem Active state)                     */
+/* -------------------------------------------------------------------------- */
+export { HomeSolidIcon } from "./components/icons/home-solid-icon";
+export { InboxSolidIcon } from "./components/icons/inbox-solid-icon";
+export { GalleryHorizontalEndSolidIcon } from "./components/icons/gallery-horizontal-end-solid-icon";
+export { CalendarSolidIcon } from "./components/icons/calendar-solid-icon";
+export { BankNoteSolidIcon } from "./components/icons/bank-note-solid-icon";
+export { FileTextSolidIcon } from "./components/icons/file-text-solid-icon";
+export { ChartColumnSolidIcon } from "./components/icons/chart-column-solid-icon";

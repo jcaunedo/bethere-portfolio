@@ -12,10 +12,16 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { BankNoteSolidIcon } from "@/components/icons/bank-note-solid-icon";
+import { CalendarSolidIcon } from "@/components/icons/calendar-solid-icon";
+import { ChartColumnSolidIcon } from "@/components/icons/chart-column-solid-icon";
+import { FileTextSolidIcon } from "@/components/icons/file-text-solid-icon";
+import { GalleryHorizontalEndSolidIcon } from "@/components/icons/gallery-horizontal-end-solid-icon";
+import { HomeSolidIcon } from "@/components/icons/home-solid-icon";
+import { InboxSolidIcon } from "@/components/icons/inbox-solid-icon";
 import { enterTransition, motionDuration, useMotionPreference } from "@/lib/motion";
 import { Logo } from "@/components/data-display/logo";
 import { Symbol } from "@/components/data-display/symbol";
-import { SelectBusinessSwitcher } from "@/components/data-display/select-business-switcher";
 import { SelectAccountInfo } from "@/components/data-display/select-account-info";
 import { Promotion } from "@/components/data-display/promotion";
 import {
@@ -26,9 +32,13 @@ import {
   AccountMenuTrigger,
 } from "@/components/overlays/account-menu";
 
-/** One row in the primary nav list. Figma "Menu Item". */
+/**
+ * One row in a sidebar nav list. Figma "Sidebar Menu Item" (bethere.ds 62:936): State=Default,
+ * Hover, Active. Used by the app Sidebar and by SidebarSettings.
+ */
 function SidebarMenuItem({
   icon: Icon,
+  activeIcon: ActiveIcon,
   label,
   count,
   active = false,
@@ -37,18 +47,21 @@ function SidebarMenuItem({
   className,
   ...props
 }: React.ComponentProps<"button"> & {
-  /** Leading icon, e.g. a lucide-react icon component. */
+  /** Leading icon, e.g. a lucide-react icon component (Figma: the outline icon). */
   icon: React.ComponentType<{ className?: string }>;
+  /**
+   * Solid icon for the Active state (Figma swaps e.g. home-line for home-line-solid). Optional:
+   * without it, the outline `icon` is filled with its own color when active.
+   */
+  activeIcon?: React.ComponentType<{ className?: string }>;
   label: string;
   /** Optional trailing numeric badge (Figma "Counter", seen on Inbox). */
   count?: number;
-  /** Marks the item as the current route (Figma State=Active/Active-alt). */
+  /** Marks the item as the current route (Figma State=Active). */
   active?: boolean;
   /**
-   * Active fill treatment when `active` is true — `"default"` (Figma
-   * State=Active, solid `bg-card`) or `"alt"` (Figma State=Active-alt, tinted
-   * `bg-primary-subtle`, reserved for the Sidebar Settings context). Ignored
-   * when `active` is false.
+   * @deprecated Figma retired the filled Active and tinted Active-alt treatments: every active
+   * item now uses the same State=Active (no fill, semibold, solid icon). Accepted and ignored.
    */
   activeVariant?: "default" | "alt";
   /**
@@ -62,25 +75,31 @@ function SidebarMenuItem({
     <button
       type="button"
       data-slot="sidebar-menu-item"
-      data-active-variant={active ? activeVariant : undefined}
+      data-active={active || undefined}
       aria-current={active ? "page" : undefined}
       aria-label={collapsed ? label : undefined}
       title={collapsed ? label : undefined}
       className={cn(
-        "flex h-9 min-h-8 items-center gap-3 rounded-lg px-2 py-1.5 text-sm font-medium text-sidebar-foreground outline-none transition-colors",
+        // Figma: 36px row (min 32), radius/menu-option, 8px/6px padding, 12px gap, 16px icon.
+        "flex h-9 min-h-8 items-center gap-3 rounded-menu-option px-2 py-1.5 text-sm outline-none transition-colors",
         "focus-visible:ring-[3px] focus-visible:ring-sidebar-ring/50",
-        "[&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-sidebar-icon-foreground",
+        "[&_svg]:size-4 [&_svg]:shrink-0",
         active
-          ? activeVariant === "alt"
-            ? "bg-primary-subtle text-brand-500 [&_svg]:text-brand-500"
-            : "bg-card text-brand-500 [&_svg]:text-brand-500"
-          : "hover:bg-state-hover",
+          ? // State=Active: no fill; sm/semibold in color/foreground/foreground, solid icon in color/icon/foreground.
+            "font-semibold text-foreground [&_svg]:text-icon-foreground"
+          : // State=Default: sm/medium in sidebar-foreground, icon in color/icon/muted.
+            // State=Hover: color/states/hover fill; label and icon go to foreground.
+            "font-medium text-sidebar-foreground hover:bg-state-hover hover:text-foreground [&_svg]:text-icon-muted hover:[&_svg]:text-icon-foreground",
         collapsed ? "size-9 shrink-0 justify-center px-0" : "w-full",
         className,
       )}
       {...props}
     >
-      <Icon />
+      {active ? (
+        ActiveIcon ? <ActiveIcon /> : <Icon className="fill-current" />
+      ) : (
+        <Icon />
+      )}
       {collapsed ? null : (
         <>
           <span className="min-w-0 flex-1 overflow-hidden text-left text-ellipsis whitespace-nowrap">
@@ -106,7 +125,8 @@ function SidebarDivider({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="sidebar-divider"
       role="separator"
-      className={cn("h-px w-full border-t border-sidebar-border", className)}
+      // Figma: a 16px-tall row with the 1px line centered.
+      className={cn("my-[7.5px] h-px w-full border-t border-sidebar-border", className)}
       {...props}
     />
   );
@@ -115,6 +135,8 @@ function SidebarDivider({ className, ...props }: React.ComponentProps<"div">) {
 /** One row in the primary/secondary nav lists, as configured by the consumer. */
 interface SidebarNavItem {
   icon: React.ComponentType<{ className?: string }>;
+  /** Solid icon shown while the item is active (see `SidebarMenuItem`'s `activeIcon`). */
+  activeIcon?: React.ComponentType<{ className?: string }>;
   label: string;
   /** Optional trailing numeric badge (Figma "Counter", seen on Inbox). */
   count?: number;
@@ -130,24 +152,19 @@ interface SidebarNavItem {
   navigateTo?: string;
 }
 
+// Each item's solid icon (bethere.ds 934:46xx–47xx) shows while it's active.
 const defaultPrimaryMenuItems: SidebarNavItem[] = [
-  { icon: HouseIcon, label: "Home" },
-  { icon: InboxIcon, label: "Inbox" },
+  { icon: HouseIcon, activeIcon: HomeSolidIcon, label: "Home" },
+  { icon: InboxIcon, activeIcon: InboxSolidIcon, label: "Inbox" },
 ];
 
 const defaultSecondaryMenuItems: SidebarNavItem[] = [
-  { icon: GalleryHorizontalEndIcon, label: "Listings" },
-  { icon: CalendarIcon, label: "Calendar" },
-  { icon: WalletIcon, label: "Transactions" },
-  { icon: FileTextIcon, label: "Documents" },
-  { icon: ChartColumnIcon, label: "Analytics" },
+  { icon: GalleryHorizontalEndIcon, activeIcon: GalleryHorizontalEndSolidIcon, label: "Listings" },
+  { icon: CalendarIcon, activeIcon: CalendarSolidIcon, label: "Calendar" },
+  { icon: WalletIcon, activeIcon: BankNoteSolidIcon, label: "Transactions" },
+  { icon: FileTextIcon, activeIcon: FileTextSolidIcon, label: "Documents" },
+  { icon: ChartColumnIcon, activeIcon: ChartColumnSolidIcon, label: "Analytics" },
 ];
-
-interface SidebarBusiness {
-  name: string;
-  address: string;
-  avatarUrl?: string;
-}
 
 interface SidebarAccountInfo {
   name: string;
@@ -179,15 +196,6 @@ interface SidebarProps
     React.ComponentProps<"div">,
     "onDrag" | "onDragStart" | "onDragEnd" | "onAnimationStart" | "onAnimationEnd"
   > {
-  /**
-   * Whether the signed-in user belongs to a single business or can switch
-   * between multiple (Figma variants "Single Business" / "Multiple
-   * Businesses"). When `"multiple"`, the business switcher moves above the
-   * primary nav items and `business` is required.
-   */
-  businessMode?: "single" | "multiple";
-  /** Active business summary, shown only when `businessMode="multiple"`. */
-  business?: SidebarBusiness;
   /**
    * Inbox unread count (Figma "Counter"). Convenience applied to the nav
    * item labelled `"Inbox"` when that item doesn't set its own `count`.
@@ -245,10 +253,11 @@ interface SidebarProps
   onCollapsedChange?: (collapsed: boolean) => void;
 }
 
-/** Persistent app navigation rail. Figma: bethere.ds "Sidebar". */
+/**
+ * Persistent app navigation rail. Figma: bethere.ds "Sidebar" (62:973) — Property=Single Business
+ * (expanded) and Single Collapsed (icon rail). The multiple-business variant was retired.
+ */
 function Sidebar({
-  businessMode = "single",
-  business,
   inboxCount,
   primaryMenuItems = defaultPrimaryMenuItems,
   secondaryMenuItems = defaultSecondaryMenuItems,
@@ -306,6 +315,7 @@ function Sidebar({
         <SidebarMenuItem
           key={item.label}
           icon={item.icon}
+          activeIcon={item.activeIcon}
           label={item.label}
           count={
             item.count ?? (item.label === "Inbox" ? inboxCount : undefined)
@@ -320,6 +330,7 @@ function Sidebar({
         <SidebarMenuItem
           key={item.label}
           icon={item.icon}
+          activeIcon={item.activeIcon}
           label={item.label}
           count={item.count}
           active={activeItem === item.label}
@@ -333,13 +344,14 @@ function Sidebar({
   return (
     <motion.div
       data-slot="sidebar"
-      data-business-mode={businessMode}
       data-collapsed={collapsed}
+      // Figma widths: Single Collapsed 64px, Single Business 296px.
       animate={{ width: collapsed ? 64 : 296 }}
       transition={resolve(enterTransition)}
       className={cn(
         "relative flex h-screen shrink-0 flex-col items-start justify-between overflow-hidden bg-background",
-        collapsed ? "px-2 py-6" : "p-6",
+        // Figma: collapsed 10px sides / 24px top-bottom; expanded spacing/6 (24px) all round.
+        collapsed ? "px-[10px] py-6" : "p-6",
         className,
       )}
       {...props}
@@ -359,10 +371,7 @@ function Sidebar({
 
       <div
         data-slot="sidebar-content-top"
-        className={cn(
-          "relative z-10 flex w-full flex-col items-center",
-          businessMode === "multiple" ? "gap-4" : "gap-6",
-        )}
+        className="relative z-10 flex w-full flex-col items-center gap-6"
       >
         {collapsed ? (
           <button
@@ -375,38 +384,32 @@ function Sidebar({
             className="flex size-9 shrink-0 cursor-e-resize items-center justify-center rounded-full outline-none transition-colors focus-visible:ring-[3px] focus-visible:ring-sidebar-ring/50"
           >
             <Symbol
-              className={cn("h-[23.333px]", isRailHovered && "hidden")}
+              // Figma Logo Collapsed: Bethere Symbol at 28px.
+              className={cn("h-7", isRailHovered && "hidden")}
             />
             <PanelLeftIcon
+              // Figma Logo Collapsed Hover: panel-left in color/icon/foreground.
               className={cn(
-                "hidden size-4 text-foreground",
+                "hidden size-4 text-icon-foreground",
                 isRailHovered && "block",
               )}
             />
           </button>
         ) : (
-          <div className="flex h-9 w-full items-center justify-between py-2 pr-1 pl-1.5">
-            <Logo className="h-[24.72px]" />
+          <div className="flex h-9 w-full items-center justify-between py-2 pr-0 pl-1.5">
+            {/* Figma Logo Extended: Bethere Logo at 24px. */}
+            <Logo className="h-6" />
             <button
               type="button"
               data-slot="sidebar-collapse"
               aria-label="Collapse sidebar"
               onClick={handleToggleCollapsed}
-              className="flex size-6 shrink-0 cursor-w-resize items-center justify-center rounded-full outline-none transition-colors hover:bg-sidebar-accent focus-visible:ring-[3px] focus-visible:ring-sidebar-ring/50"
+              className="flex size-8 shrink-0 cursor-w-resize items-center justify-center rounded-xl outline-none transition-colors hover:bg-sidebar-accent focus-visible:ring-[3px] focus-visible:ring-sidebar-ring/50"
             >
               <PanelLeftIcon className="size-4 text-icon-subtle" />
             </button>
           </div>
         )}
-
-        {businessMode === "multiple" && business ? (
-          <SelectBusinessSwitcher
-            name={business.name}
-            address={business.address}
-            avatarUrl={business.avatarUrl}
-            collapsed={collapsed}
-          />
-        ) : null}
 
         {menuItems}
       </div>
@@ -488,7 +491,6 @@ function Sidebar({
 export { Sidebar, SidebarMenuItem, SidebarDivider };
 export type {
   SidebarProps,
-  SidebarBusiness,
   SidebarAccountInfo,
   SidebarAccountMenuItem,
   SidebarNavItem,

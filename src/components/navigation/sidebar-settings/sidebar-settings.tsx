@@ -31,8 +31,7 @@ type SidebarSettingsProps = React.ComponentProps<"nav"> & {
 
 /**
  * Settings sub-nav rail (Figma "Sidebar Settings"): a vertical list of
- * `SidebarMenuItem` rows, rendered with the tinted `Active-alt` treatment
- * instead of the primary Sidebar's solid `Active` state.
+ * `SidebarMenuItem` rows, with the same Active state as the primary Sidebar.
  */
 function SidebarSettings({
   items,
@@ -71,10 +70,10 @@ function SidebarSettings({
         <SidebarMenuItem
           key={item.label}
           icon={item.icon}
+          activeIcon={item.activeIcon}
           label={item.label}
           count={item.count}
           active={currentActiveItem === item.label}
-          activeVariant="alt"
           onClick={() => handleItemClick(item)}
         />
       ))}

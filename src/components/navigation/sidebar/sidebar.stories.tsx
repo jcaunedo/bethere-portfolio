@@ -14,6 +14,13 @@ import {
   SunMoonIcon,
   WalletIcon,
 } from "lucide-react";
+import { BankNoteSolidIcon } from "@/components/icons/bank-note-solid-icon";
+import { CalendarSolidIcon } from "@/components/icons/calendar-solid-icon";
+import { ChartColumnSolidIcon } from "@/components/icons/chart-column-solid-icon";
+import { FileTextSolidIcon } from "@/components/icons/file-text-solid-icon";
+import { GalleryHorizontalEndSolidIcon } from "@/components/icons/gallery-horizontal-end-solid-icon";
+import { HomeSolidIcon } from "@/components/icons/home-solid-icon";
+import { InboxSolidIcon } from "@/components/icons/inbox-solid-icon";
 
 import {
   Sidebar,
@@ -37,10 +44,6 @@ const account = {
   email: "lucysmith@email.com",
 };
 
-const business = {
-  name: "Key Biscayne Yacht Club",
-  address: "180 Harbor Dr, Key Biscayne, FL 33149",
-};
 
 const promotion = {
   title: "Refer us and win",
@@ -50,16 +53,16 @@ const promotion = {
 /** The default Figma nav sets, wired with `navigateTo` routes the consumer's
  * `onNavigate` receives verbatim. */
 const primaryMenuItems: SidebarNavItem[] = [
-  { icon: HouseIcon, label: "Home", navigateTo: "/" },
-  { icon: InboxIcon, label: "Inbox", navigateTo: "/inbox" },
+  { icon: HouseIcon, activeIcon: HomeSolidIcon, label: "Home", navigateTo: "/" },
+  { icon: InboxIcon, activeIcon: InboxSolidIcon, label: "Inbox", navigateTo: "/inbox" },
 ];
 
 const secondaryMenuItems: SidebarNavItem[] = [
-  { icon: GalleryHorizontalEndIcon, label: "Listings", navigateTo: "/listings" },
-  { icon: CalendarIcon, label: "Calendar", navigateTo: "/calendar" },
-  { icon: WalletIcon, label: "Transactions", navigateTo: "/transactions" },
-  { icon: FileTextIcon, label: "Documents", navigateTo: "/documents" },
-  { icon: ChartColumnIcon, label: "Analytics", navigateTo: "/analytics" },
+  { icon: GalleryHorizontalEndIcon, activeIcon: GalleryHorizontalEndSolidIcon, label: "Listings", navigateTo: "/listings" },
+  { icon: CalendarIcon, activeIcon: CalendarSolidIcon, label: "Calendar", navigateTo: "/calendar" },
+  { icon: WalletIcon, activeIcon: BankNoteSolidIcon, label: "Transactions", navigateTo: "/transactions" },
+  { icon: FileTextIcon, activeIcon: FileTextSolidIcon, label: "Documents", navigateTo: "/documents" },
+  { icon: ChartColumnIcon, activeIcon: ChartColumnSolidIcon, label: "Analytics", navigateTo: "/analytics" },
 ];
 
 /** Figma "Account Menu": items for the footer's SelectAccountInfo popover.
@@ -85,41 +88,22 @@ const accountMenuItems: SidebarAccountMenuItem[] = [
 const onNavigate = (navigateTo: string) =>
   console.log(`[Sidebar story] navigate to ${navigateTo}`);
 
-/** Figma "Sidebar Menu Item" state set: Default, Hover (`:hover` in the
- * browser), Active, and Active-alt (tinted fill, reserved for the upcoming
- * Sidebar Settings context). */
+/** Figma "Sidebar Menu Item" (62:936) state set: Default, Hover (`:hover` in
+ * the browser) and Active — no fill, semibold, solid icon (the outline icon
+ * filled, unless an `activeIcon` is passed). */
 export const MenuItemStates: Story = {
   render: () => (
     <div className="flex w-[294px] flex-col gap-2 bg-background p-4">
       <SidebarMenuItem icon={HouseIcon} label="Default" />
       <SidebarMenuItem icon={HouseIcon} label="Hover me" />
-      <SidebarMenuItem icon={HouseIcon} label="Active" active />
-      <SidebarMenuItem
-        icon={HouseIcon}
-        label="Active-alt"
-        active
-        activeVariant="alt"
-      />
+      <SidebarMenuItem icon={HouseIcon} activeIcon={HomeSolidIcon} label="Active" active />
     </div>
   ),
 };
 
+/** Figma Property=Single Business. */
 export const SingleBusiness: Story = {
   args: {
-    businessMode: "single",
-    primaryMenuItems,
-    secondaryMenuItems,
-    account,
-    accountMenuItems,
-    promotion,
-    onNavigate,
-  },
-};
-
-export const MultipleBusinesses: Story = {
-  args: {
-    businessMode: "multiple",
-    business,
     inboxCount: 12,
     primaryMenuItems,
     secondaryMenuItems,
@@ -130,27 +114,13 @@ export const MultipleBusinesses: Story = {
   },
 };
 
+/** Figma Property=Single Collapsed: icon rail, no labels. */
 export const SingleBusinessCollapsed: Story = {
   args: {
-    businessMode: "single",
-    primaryMenuItems,
-    secondaryMenuItems,
-    account,
-    promotion,
-    defaultCollapsed: true,
-    onNavigate,
-  },
-};
-
-export const MultipleBusinessesCollapsed: Story = {
-  args: {
-    businessMode: "multiple",
-    business,
     inboxCount: 12,
     primaryMenuItems,
     secondaryMenuItems,
     account,
-    accountMenuItems,
     promotion,
     defaultCollapsed: true,
     onNavigate,
@@ -161,7 +131,6 @@ export const MultipleBusinessesCollapsed: Story = {
  * action-only row (`onClick`, no route). */
 export const CustomMenuItems: Story = {
   args: {
-    businessMode: "single",
     primaryMenuItems: [
       { icon: HouseIcon, label: "Overview", navigateTo: "/overview" },
       { icon: BellIcon, label: "Notifications", count: 3, navigateTo: "/notifications" },
@@ -181,20 +150,11 @@ export const CustomMenuItems: Story = {
   },
 };
 
+/** Figma "Sidebar" (62:973): Single Business and Single Collapsed. */
 export const AllVariants: Story = {
   render: () => (
     <div className="flex gap-6">
       <Sidebar
-        businessMode="single"
-        primaryMenuItems={primaryMenuItems}
-        secondaryMenuItems={secondaryMenuItems}
-        account={account}
-        promotion={promotion}
-        onNavigate={onNavigate}
-      />
-      <Sidebar
-        businessMode="multiple"
-        business={business}
         inboxCount={12}
         primaryMenuItems={primaryMenuItems}
         secondaryMenuItems={secondaryMenuItems}
@@ -204,22 +164,10 @@ export const AllVariants: Story = {
         onNavigate={onNavigate}
       />
       <Sidebar
-        businessMode="single"
-        primaryMenuItems={primaryMenuItems}
-        secondaryMenuItems={secondaryMenuItems}
-        account={account}
-        promotion={promotion}
-        defaultCollapsed
-        onNavigate={onNavigate}
-      />
-      <Sidebar
-        businessMode="multiple"
-        business={business}
         inboxCount={12}
         primaryMenuItems={primaryMenuItems}
         secondaryMenuItems={secondaryMenuItems}
         account={account}
-        accountMenuItems={accountMenuItems}
         promotion={promotion}
         defaultCollapsed
         onNavigate={onNavigate}
