@@ -11,7 +11,7 @@ Last updated: Sep 03, 2026 (removed "This doesn't delete their BeThere account."
 **Description:** Manage the people attached to a business — see who's active, see who's been invited but hasn't accepted, invite new people by email, change a person's role or details, resend or revoke a pending invitation, and remove a member.
 **Figma:** Provider Portal → "Team members" frame; dialogs from bethere.ds (`Invite team members`, `Edit member`, `role-options`, `Select Content (Popper)` reused as a row-actions menu)
 **Source:**
-- `src/layouts/account-settings/pages/team-members/team-members.tsx` (page)
+- `src/layouts/provider-portal/account-settings/pages/team-members/team-members.tsx` (page)
 - `src/components/overlays/invite-team-members-dialog/` · `src/components/overlays/edit-member-dialog/` · `src/components/overlays/confirm-dialog/` · `src/components/forms/role-select/` · `src/components/data-display/table-cell-user/` · `src/components/forms/search-trigger/`
 - `src/lib/relative-date.ts` (the shared date formatter)
 

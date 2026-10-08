@@ -9,7 +9,7 @@ Last updated: Sep 25, 2026
 **Location:** Provider Portal → Settings → Business profiles → a business's Documents tab
 **Audience:** Business owner / provider (documents are collected here); BeThere trust & safety / ops (documents are reviewed here)
 **Description:** Defines the per-category-config "required documents" referenced in [onboarding-master-flow.md](onboarding-master-flow.md) Master Flow Principles #2 and in [experiences/yacht-charter.md](experiences/yacht-charter.md) Steps 11–14 — what a provider must submit, at minimum, before BeThere approves their business and lets them publish a listing. Two purposes: (1) verify the business is legitimate and legally allowed to operate the service it's listing, (2) protect BeThere legally by confirming valid licensing and insurance sit behind every listing.
-**Source (current implementation):** `src/layouts/account-settings/pages/business-profile/documents-tab.tsx` — see [business-profiles.md](business-profiles.md) Documents tab section for the UI spec. This file defines the _content_ of the requirement matrix; that file defines how it's _displayed_.
+**Source (current implementation):** `src/layouts/provider-portal/account-settings/pages/business-profile/documents-tab.tsx` — see [business-profiles.md](business-profiles.md) Documents tab section for the UI spec. This file defines the _content_ of the requirement matrix; that file defines how it's _displayed_.
 
 ---
 

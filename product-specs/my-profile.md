@@ -10,7 +10,7 @@ Last updated: Aug 09, 2026
 **Audience:** Business owner / provider
 **Description:** View and edit the personal profile fields tied to the signed-in provider account — name, title, contact methods, time zone, and language.
 **Figma:** Provider Portal → "Profile" frame (`Settings Detail Row` component states: `Default (Empty)` / `HasValue` / `Edit`)
-**Source:** `src/layouts/account-settings/pages/my-profile/my-profile.tsx`
+**Source:** `src/layouts/provider-portal/account-settings/pages/my-profile/my-profile.tsx`
 
 ---
 

@@ -1,7 +1,7 @@
 <!--
 Created: Sep 05, 2026
 Created by: Julio Caunedo
-Last updated: Oct 07, 2026 (Review step: page, summary cards, publish vs. save as draft; captains in the Documents card; optional sections hidden when empty, required ones always shown; general card before its parts; pricing cards per section; editing from Review ("Save and review" / "Back to review"); code-only summary-card states accepted; Multiple card has no resting shadow; every step's answers on Review — Destinations, Experience types, What's included, Business)
+Last updated: Oct 07, 2026 (layouts moved under src/layouts/provider-portal/; Review step: page, summary cards, publish vs. save as draft; captains in the Documents card; optional sections hidden when empty, required ones always shown; general card before its parts; pricing cards per section; editing from Review ("Save and review" / "Back to review"); code-only summary-card states accepted; Multiple card has no resting shadow; every step's answers on Review — Destinations, Experience types, What's included, Business)
 Scope: the New Listing creation flow for providers.
 Purpose: record the design rationale for keeping Experience/Service as the two primary listing-type paths and removing the redundant category step.
 -->
@@ -204,11 +204,11 @@ The Pricing step doesn't collapse into a single summary card. Each of its sectio
 ### Folder structure
 
 ```
-bethere-ucl/src/layouts/new-listing/
+bethere-ucl/src/layouts/provider-portal/new-listing/
   README.md                    structure + how to add a step
   new-listing.tsx              NewListingLayout — shared page frame for every step
-  new-listing.stories.tsx      Layouts/NewListing/Shell
-  new-listing-flow.stories.tsx Layouts/NewListing/Flow — all steps stitched into one wizard
+  new-listing.stories.tsx      Layouts/ProviderPortal/NewListing/Shell
+  new-listing-flow.stories.tsx Layouts/ProviderPortal/NewListing/Flow — all steps stitched into one wizard
   shared/                      helpers used by several steps (e.g. choice-chip-grid.tsx)
   steps/
     type/                      Experience or Service?
@@ -221,7 +221,7 @@ bethere-ucl/src/layouts/new-listing/
     pricing/                   rates per duration, by-day/holiday/seasonal pricing, add-on services
 ```
 
-Each step folder holds `<step>.tsx` (exports `<Name>Step` and `<Name>StepProps`) and `<step>.stories.tsx` (Storybook title `Layouts/NewListing/<Name>`).
+Each step folder holds `<step>.tsx` (exports `<Name>Step` and `<Name>StepProps`) and `<step>.stories.tsx` (Storybook title `Layouts/ProviderPortal/NewListing/<Name>`).
 
 ### Shared shell
 
@@ -231,7 +231,7 @@ Each step folder holds `<step>.tsx` (exports `<Name>Step` and `<Name>StepProps`)
 
 ### Naming convention
 
-Each step is **one word naming what it collects**: `type`, `category`, `search`, `matches`, `attributes`, `expectations`, `availability`, `pricing`. The component is that word plus `Step` (`SearchStep`, `ExpectationsStep`…), with a matching `<Name>StepProps` type and a `Layouts/NewListing/<Name>` story.
+Each step is **one word naming what it collects**: `type`, `category`, `search`, `matches`, `attributes`, `expectations`, `availability`, `pricing`. The component is that word plus `Step` (`SearchStep`, `ExpectationsStep`…), with a matching `<Name>StepProps` type and a `Layouts/ProviderPortal/NewListing/<Name>` story.
 
 **Design rationale:**
 
@@ -271,12 +271,12 @@ The steps were renamed twice on Sep 27, 2026: first into the flow folder with pr
 | `experience-availability/` | `availability` | `new-listing/steps/availability/` | `AvailabilityStep` |
 | `shared/choice-chip-grid.tsx` | — | `new-listing/shared/choice-chip-grid.tsx` | `ChoiceChipGrid` |
 
-⚠️ **Breaking:** old Storybook links (e.g. `layouts-listingattributes--default` or `layouts-newlisting-assetattributes--default`) no longer resolve; ids follow `layouts-newlisting-<step>--default` (e.g. `layouts-newlisting-attributes--default`).
+⚠️ **Breaking:** old Storybook links (e.g. `layouts-listingattributes--default` or `layouts-newlisting-assetattributes--default`) no longer resolve. Since Oct 07, 2026 the layouts are grouped by app (`src/layouts/provider-portal/new-listing/`), and ids follow `layouts-providerportal-newlisting-<step>--default` (e.g. `layouts-providerportal-newlisting-attributes--default`).
 
 ### Adding a step
 
 1. Pick one word for what the step collects (distinct from the existing steps) and create `steps/<word>/<word>.tsx` exporting `<Name>Step`, typed `NewListingStepProps & { … }`, rendering its content inside `<NewListingLayout title="…">`.
-2. Add `<word>.stories.tsx` titled `Layouts/NewListing/<Name>`.
+2. Add `<word>.stories.tsx` titled `Layouts/ProviderPortal/NewListing/<Name>`.
 3. Wire it into `new-listing-flow.stories.tsx` (step number + `previous` step for the back arrow) and add it to the New Listing order in `.storybook/preview.ts`.
 
 A Service path reuses the shared steps and adds any service-specific steps in the same `steps/` folder with the same one-word naming — no separate folder tree.

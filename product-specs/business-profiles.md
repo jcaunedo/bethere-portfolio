@@ -11,8 +11,8 @@ Last updated: Sep 25, 2026
 **Description:** Manage the businesses tied to a provider account — a list of businesses with status, and a per-business detail page covering profile fields, verification/compliance fields, and grouped compliance documents.
 **Figma:** Provider Portal — "Businesses" frame (list), "Business Profile" frame (detail: Profile tab), "Business Compliance" frame (detail: Compliance tab), "Business Documents" frame (detail: Documents tab)
 **Source:**
-- `src/layouts/account-settings/pages/business-profiles/business-profiles.tsx` (list)
-- `src/layouts/account-settings/pages/business-profile/business-profile.tsx` (detail)
+- `src/layouts/provider-portal/account-settings/pages/business-profiles/business-profiles.tsx` (list)
+- `src/layouts/provider-portal/account-settings/pages/business-profile/business-profile.tsx` (detail)
 - New/updated components: `Badge`, `CardBusiness`, `Tabs`, `RowDocuments`, `AvatarFiles` (see [New components](#new-components-built-for-this-feature))
 
 ---
@@ -193,7 +193,7 @@ The detail page was redesigned after its first build (bethere-ucl `88bc2ea`, "Se
 4. **The Owner row gained a second line** — the owner's email (`johnsmith@email.com`), muted, under the name. That makes Owner compound content *and* a flow-starting action; see [Row shape decisions](#row-shape-decisions).
 5. **Copy and spacing:** "EIN / Tax ID" → "Tax ID (EIN)", and Owner verification's inline "View" link moved from a bare trailing space onto `ml-2`.
 
-⚠️ **Naming trap:** the onboarding flow (`onboarding-business.md`) moved the *opposite* direction in the same commit — `src/layouts/business-compliance/` was renamed back to `src/layouts/business-verification/`. So "Compliance" now names a tab in account settings while "Verification" names a step in onboarding. They are different screens in different flows; don't reconcile the two vocabularies without checking both specs.
+⚠️ **Naming trap:** the onboarding flow (`onboarding-business.md`) moved the *opposite* direction in the same commit — `src/layouts/business-compliance/` was renamed back to `src/layouts/provider-portal/business-verification/`. So "Compliance" now names a tab in account settings while "Verification" names a step in onboarding. They are different screens in different flows; don't reconcile the two vocabularies without checking both specs.
 
 ### Row shape decisions
 

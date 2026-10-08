@@ -594,12 +594,12 @@ export {
   AccountSettingsLayout,
   settingsMenuItems,
   type AccountSettingsLayoutProps,
-} from "./layouts/account-settings/account-settings";
+} from "./layouts/provider-portal/account-settings/account-settings";
 
 export {
   AccountSettingsMenuLayout,
   type AccountSettingsMenuLayoutProps,
-} from "./layouts/account-settings/account-settings-menu";
+} from "./layouts/provider-portal/account-settings/account-settings-menu";
 
 /* -------------------------------------------------------------------------- */
 /* Icons — solid nav icons (SidebarMenuItem Active state)                     */

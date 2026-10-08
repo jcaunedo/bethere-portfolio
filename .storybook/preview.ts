@@ -26,7 +26,7 @@ const preview: Preview = {
           "Review",
         ];
         const rank = (title) => {
-          const match = /^Layouts\/NewListing\/(.+)$/.exec(title);
+          const match = /^Layouts\/ProviderPortal\/NewListing\/(.+)$/.exec(title);
           return match ? newListingOrder.indexOf(match[1]) : -1;
         };
         const rankA = rank(a.title);

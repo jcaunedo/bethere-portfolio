@@ -228,7 +228,7 @@ checking against the source.
 **Why:** Buttons in `InviteTeamMembersDialog`
 (`src/components/overlays/invite-team-members-dialog/invite-team-members-dialog.tsx`)
 and the "Invite member" trigger in `TeamMembersLayout`
-(`src/layouts/account-settings/pages/team-members/team-members.tsx`) were
+(`src/layouts/provider-portal/account-settings/pages/team-members/team-members.tsx`) were
 built at a size that didn't match Figma's actual `lg`/36px spec for those
 buttons — an easy drift to introduce silently, since an unset `size` prop
 still renders *a* button, just not necessarily the right one, and a
@@ -263,7 +263,7 @@ the matching `size`/`weight` below rather than picking a size by eye:
   `get_variable_defs` on an actual `h2`-level Figma node before treating
   this as load-bearing the way the `h1` pairing is.
 
-**Why:** `src/layouts/account-settings/pages/business-profile/
+**Why:** `src/layouts/provider-portal/account-settings/pages/business-profile/
 business-profile.tsx`'s business-name header was first built against a
 stale Figma pull as `as="h1" size="3xl"` with a `tracking-[0.3px]`
 override. A later Figma revision moved the bound style to `font-size/2xl`
@@ -285,7 +285,7 @@ looked equally plausible here and was wrong.
 
 **Rule:** `SettingsDetailRow` (title + value/placeholder + trailing text
 action that expands into an inline edit form) is the one reusable row
-component for **every** field-like row across `src/layouts/account-settings/
+component for **every** field-like row across `src/layouts/provider-portal/account-settings/
 pages/*` — not just `my-profile`. When a new settings page (e.g. Business
 Profile) shows a row shaped like "bold title, value below, trailing text
 action," reuse `SettingsDetailRow` rather than building a page-specific row
@@ -315,7 +315,7 @@ API for no visual difference. But blindly reusing its expand/edit-form
 behavior for rows that are actually navigation-to-another-flow (not a scalar
 edit) would invent UI Figma never specified.
 
-**How to apply:** For any new `src/layouts/account-settings/pages/*` page,
+**How to apply:** For any new `src/layouts/provider-portal/account-settings/pages/*` page,
 default to `SettingsDetailRow` for scalar-value rows (text, a single
 picked value) and a plain stubbed-`onClick` row for rows that read as
 "start a different flow" — check the row's Figma action label for a verb
@@ -394,7 +394,7 @@ already correct.
 
 ---
 
-## US phone number format & validation (`src/layouts/account-settings/pages/my-profile/my-profile.tsx`)
+## US phone number format & validation (`src/layouts/provider-portal/account-settings/pages/my-profile/my-profile.tsx`)
 
 **Rule:** Phone number and WhatsApp number are both US-only fields. They
 share the same national-number mask and validation, and must be kept in
@@ -439,7 +439,7 @@ prefix and E.164 storage.
 
 ---
 
-## Multi-row keyboard shortcuts: focus-aware, LIFO fallback (`src/layouts/account-settings/pages/my-profile/my-profile.tsx`)
+## Multi-row keyboard shortcuts: focus-aware, LIFO fallback (`src/layouts/provider-portal/account-settings/pages/my-profile/my-profile.tsx`)
 
 **Rule:** On a page where several independent expandable rows/sections can
 be open (editing) at once, a single shared Escape/Enter handler must:
@@ -514,7 +514,7 @@ bottom even though the table itself never intended that.
 
 **Why:** `DataTable` (`src/components/data-display/data-table/data-table.tsx`)
 and the "Team members" page's `MembersTable`
-(`src/layouts/account-settings/pages/team-members/team-members.tsx`) both
+(`src/layouts/provider-portal/account-settings/pages/team-members/team-members.tsx`) both
 wrapped `Table` in an `overflow-hidden rounded-xl` container. `Table` itself
 was already correctly top-only, so the bottom rounding was coming from the
 wrapper alone — an easy thing to miss since `rounded-xl` on a clipping
@@ -585,7 +585,7 @@ the two side by side.
   actually drives `open`/`onOpenChange`. See
   `TeamMembersLayout`'s `editingMember` (data, never cleared on close) vs.
   `editDialogOpen` (the boolean Cancel/Save/X actually toggle) in
-  `src/layouts/account-settings/pages/team-members/team-members.tsx`.
+  `src/layouts/provider-portal/account-settings/pages/team-members/team-members.tsx`.
 
 ---
 
@@ -721,7 +721,7 @@ directly.
 
 ---
 
-## Auto-scroll bottom clearance: scroll fade + 400px (`src/layouts/new-listing/new-listing.tsx`)
+## Auto-scroll bottom clearance: scroll fade + 400px (`src/layouts/provider-portal/new-listing/new-listing.tsx`)
 
 **Rule:** Whenever a page scrolls content into view automatically (a
 `TimeSlotAccordion` day opening or being added open, and any future
