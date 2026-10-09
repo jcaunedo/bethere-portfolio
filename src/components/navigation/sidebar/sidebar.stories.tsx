@@ -4,7 +4,6 @@ import {
   CalendarIcon,
   ChartColumnIcon,
   CircleUserIcon,
-  FileTextIcon,
   GalleryHorizontalEndIcon,
   LanguagesIcon,
   LogOutIcon,
@@ -16,7 +15,6 @@ import { BankNoteIcon } from "@/components/icons/bank-note-icon";
 import { BankNoteSolidIcon } from "@/components/icons/bank-note-solid-icon";
 import { CalendarSolidIcon } from "@/components/icons/calendar-solid-icon";
 import { ChartColumnSolidIcon } from "@/components/icons/chart-column-solid-icon";
-import { FileTextSolidIcon } from "@/components/icons/file-text-solid-icon";
 import { GalleryHorizontalEndSolidIcon } from "@/components/icons/gallery-horizontal-end-solid-icon";
 import { HomeIcon } from "@/components/icons/home-icon";
 import { HomeSolidIcon } from "@/components/icons/home-solid-icon";
@@ -61,7 +59,6 @@ const secondaryMenuItems: SidebarNavItem[] = [
   { icon: GalleryHorizontalEndIcon, activeIcon: GalleryHorizontalEndSolidIcon, label: "Listings", navigateTo: "/listings" },
   { icon: CalendarIcon, activeIcon: CalendarSolidIcon, label: "Calendar", navigateTo: "/calendar" },
   { icon: BankNoteIcon, activeIcon: BankNoteSolidIcon, label: "Transactions", navigateTo: "/transactions" },
-  { icon: FileTextIcon, activeIcon: FileTextSolidIcon, label: "Documents", navigateTo: "/documents" },
   { icon: ChartColumnIcon, activeIcon: ChartColumnSolidIcon, label: "Analytics", navigateTo: "/analytics" },
 ];
 

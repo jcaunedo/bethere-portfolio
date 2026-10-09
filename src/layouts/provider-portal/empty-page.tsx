@@ -25,10 +25,6 @@ const PORTAL_EMPTY_STATES: Record<EmptyPortalPage, { title: string; description:
     title: "No transactions yet",
     description: "Payments and payouts for your bookings will appear here.",
   },
-  documents: {
-    title: "No documents yet",
-    description: "Documents for your businesses and experiences will appear here.",
-  },
   analytics: {
     title: "No analytics yet",
     description: "Once guests start booking your experiences, you'll see how they're performing here.",
@@ -44,7 +40,7 @@ interface PortalEmptyPageProps {
 
 /**
  * A Provider Portal page with nothing to show yet (Messages, Listings, Calendar, Transactions,
- * Documents, Analytics): the page header and an `EmptyState` centered in the portal canvas (the
+ * Analytics): the page header and an `EmptyState` centered in the portal canvas (the
  * area beside the Sidebar), same as the empty Settings sections. Listings adds a "Create new
  * listing" button when `onCreateListing` is given.
  */

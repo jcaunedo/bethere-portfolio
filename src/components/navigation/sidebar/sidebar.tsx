@@ -3,7 +3,6 @@ import { AnimatePresence, motion } from "motion/react";
 import {
   CalendarIcon,
   ChartColumnIcon,
-  FileTextIcon,
   GalleryHorizontalEndIcon,
   MessageCircleIcon,
   PanelLeftIcon,
@@ -14,7 +13,6 @@ import { BankNoteIcon } from "@/components/icons/bank-note-icon";
 import { BankNoteSolidIcon } from "@/components/icons/bank-note-solid-icon";
 import { CalendarSolidIcon } from "@/components/icons/calendar-solid-icon";
 import { ChartColumnSolidIcon } from "@/components/icons/chart-column-solid-icon";
-import { FileTextSolidIcon } from "@/components/icons/file-text-solid-icon";
 import { GalleryHorizontalEndSolidIcon } from "@/components/icons/gallery-horizontal-end-solid-icon";
 import { HomeIcon } from "@/components/icons/home-icon";
 import { HomeSolidIcon } from "@/components/icons/home-solid-icon";
@@ -176,7 +174,6 @@ const defaultSecondaryMenuItems: SidebarNavItem[] = [
   { icon: GalleryHorizontalEndIcon, activeIcon: GalleryHorizontalEndSolidIcon, label: "Listings" },
   { icon: CalendarIcon, activeIcon: CalendarSolidIcon, label: "Calendar" },
   { icon: BankNoteIcon, activeIcon: BankNoteSolidIcon, label: "Transactions" },
-  { icon: FileTextIcon, activeIcon: FileTextSolidIcon, label: "Documents" },
   { icon: ChartColumnIcon, activeIcon: ChartColumnSolidIcon, label: "Analytics" },
 ];
 
@@ -233,7 +230,8 @@ interface SidebarProps
   primaryMenuItems?: SidebarNavItem[];
   /**
    * Nav items below the divider. Defaults to the Figma set (Listings,
-   * Calendar, Transactions, Documents, Analytics). Same per-item
+   * Calendar, Transactions, Analytics; documents live under Settings →
+   * Business profile → Documents). Same per-item
    * `onClick`/`navigateTo` behavior as `primaryMenuItems`.
    */
   secondaryMenuItems?: SidebarNavItem[];
