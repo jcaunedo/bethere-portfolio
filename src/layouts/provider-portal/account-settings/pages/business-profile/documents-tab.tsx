@@ -1,11 +1,13 @@
-import type * as React from "react";
-import { IdCardIcon, PlusIcon, SearchIcon } from "lucide-react";
+import * as React from "react";
+import { IdCardIcon, PlusIcon } from "lucide-react";
 import type { VariantProps } from "class-variance-authority";
 
 import { type badgeVariants } from "@/components/data-display/badge";
 import { RowDocuments } from "@/components/data-display/row-documents";
 import { Typography } from "@/components/typography";
 import { Button } from "@/components/buttons/button";
+import { EmptyState } from "@/components/feedback/empty-state";
+import { SearchTrigger } from "@/components/forms/search-trigger";
 
 type DocumentRow = {
 	id: string;
@@ -114,8 +116,21 @@ const DOCUMENT_GROUPS: DocumentGroup[] = [
 	},
 ];
 
+/**
+ * Front-end-only search over the seed rows, by name and description (same approach as Team
+ * members). Badge labels aren't searched — typing "missing" shouldn't match on status.
+ */
+function matchesQuery(row: DocumentRow, query: string): boolean {
+	const needle = query.trim().toLowerCase();
+	if (needle === "") return true;
+	return [row.name, row.description].some(
+		(field) => field !== undefined && field.toLowerCase().includes(needle),
+	);
+}
+
 type DocumentsTabProps = {
-	onSearchDocuments?: () => void;
+	/** Called with the search text as the user types. Filtering itself happens here. */
+	onSearchDocuments?: (query: string) => void;
 	onAddDocument?: () => void;
 	onDocumentActions?: (id: string) => void;
 };
@@ -123,7 +138,9 @@ type DocumentsTabProps = {
 /**
  * Business Profile's "Documents" tab (Figma: "Business Documents" frame) —
  * a search/Add document `Controls` row above three fixed document-group
- * tables, each a titled card of `RowDocuments`. Group/row data is
+ * tables, each a titled card of `RowDocuments`. Search (`SearchTrigger`)
+ * filters the rows; groups with no matching rows are hidden, and an empty
+ * state offers to clear the search when nothing matches. Group/row data is
  * hardcoded seed data (`DOCUMENT_GROUPS`) — see product-specs/business-profiles.md
  * for the persistence gap.
  */
@@ -132,25 +149,43 @@ function DocumentsTab({
 	onAddDocument,
 	onDocumentActions,
 }: DocumentsTabProps) {
+	const [searchQuery, setSearchQuery] = React.useState("");
+	const updateSearch = (query: string) => {
+		setSearchQuery(query);
+		onSearchDocuments?.(query);
+	};
+	const visibleGroups = DOCUMENT_GROUPS.map((group) => ({
+		...group,
+		rows: group.rows.filter((row) => matchesQuery(row, searchQuery)),
+	})).filter((group) => group.rows.length > 0);
+
 	return (
 		<div className="flex flex-col gap-12 py-6">
 			<div className="flex items-start gap-2">
-				<Button
-					type="button"
-					variant="outline"
-					size="icon-lg"
-					onClick={onSearchDocuments}
+				<SearchTrigger
 					aria-label="Search documents"
-				>
-					<SearchIcon />
-				</Button>
+					placeholder="Search documents"
+					value={searchQuery}
+					onChange={(e) => updateSearch(e.target.value)}
+					onClear={() => updateSearch("")}
+				/>
 				<Button type="button" variant="default" size="lg" onClick={onAddDocument}>
 					<PlusIcon />
 					Add document
 				</Button>
 			</div>
 
-			{DOCUMENT_GROUPS.map((group) => (
+			{visibleGroups.length === 0 ? (
+				<EmptyState
+					className="py-12"
+					title={`No matches for “${searchQuery.trim()}”`}
+					description="Check the spelling, or search by another document name."
+					buttonLabel="Clear search"
+					buttonProps={{ variant: "outline", onClick: () => updateSearch("") }}
+				/>
+			) : null}
+
+			{visibleGroups.map((group) => (
 				<div key={group.id} className="flex flex-col gap-3">
 					<div>
 						<Typography size="lg" weight="semibold">

@@ -5,8 +5,7 @@ import {
   ChartColumnIcon,
   FileTextIcon,
   GalleryHorizontalEndIcon,
-  HouseIcon,
-  InboxIcon,
+  MessageCircleIcon,
   PanelLeftIcon,
 } from "lucide-react";
 
@@ -17,8 +16,10 @@ import { CalendarSolidIcon } from "@/components/icons/calendar-solid-icon";
 import { ChartColumnSolidIcon } from "@/components/icons/chart-column-solid-icon";
 import { FileTextSolidIcon } from "@/components/icons/file-text-solid-icon";
 import { GalleryHorizontalEndSolidIcon } from "@/components/icons/gallery-horizontal-end-solid-icon";
+import { HomeIcon } from "@/components/icons/home-icon";
 import { HomeSolidIcon } from "@/components/icons/home-solid-icon";
-import { InboxSolidIcon } from "@/components/icons/inbox-solid-icon";
+import { MessageCircleSolidIcon } from "@/components/icons/message-circle-solid-icon";
+import { PanelLeftAltIcon } from "@/components/icons/panel-left-alt-icon";
 import {
   enterTransition,
   iconSwapReducedVariants,
@@ -62,7 +63,7 @@ function SidebarMenuItem({
    */
   activeIcon?: React.ComponentType<{ className?: string }>;
   label: string;
-  /** Optional trailing numeric badge (Figma "Counter", seen on Inbox). */
+  /** Optional trailing numeric badge (Figma "Counter", seen on Messages). */
   count?: number;
   /** Marks the item as the current route (Figma State=Active). */
   active?: boolean;
@@ -151,7 +152,7 @@ interface SidebarNavItem {
   /** Solid icon shown while the item is active (see `SidebarMenuItem`'s `activeIcon`). */
   activeIcon?: React.ComponentType<{ className?: string }>;
   label: string;
-  /** Optional trailing numeric badge (Figma "Counter", seen on Inbox). */
+  /** Optional trailing numeric badge (Figma "Counter", seen on Messages). */
   count?: number;
   /**
    * Action callback for non-routing items. Takes precedence over
@@ -167,8 +168,8 @@ interface SidebarNavItem {
 
 // Each item's solid icon (bethere.ds 934:46xx–47xx) shows while it's active.
 const defaultPrimaryMenuItems: SidebarNavItem[] = [
-  { icon: HouseIcon, activeIcon: HomeSolidIcon, label: "Home" },
-  { icon: InboxIcon, activeIcon: InboxSolidIcon, label: "Inbox" },
+  { icon: HomeIcon, activeIcon: HomeSolidIcon, label: "Home" },
+  { icon: MessageCircleIcon, activeIcon: MessageCircleSolidIcon, label: "Messages" },
 ];
 
 const defaultSecondaryMenuItems: SidebarNavItem[] = [
@@ -218,12 +219,14 @@ interface SidebarProps
     "onDrag" | "onDragStart" | "onDragEnd" | "onAnimationStart" | "onAnimationEnd"
   > {
   /**
-   * Inbox unread count (Figma "Counter"). Convenience applied to the nav
-   * item labelled `"Inbox"` when that item doesn't set its own `count`.
+   * Unread messages count (Figma "Counter"). Convenience applied to the nav
+   * item labelled `"Messages"` when that item doesn't set its own `count`.
    */
+  messagesCount?: number;
+  /** @deprecated Inbox was renamed Messages — use `messagesCount`. Still applied when `messagesCount` is unset. */
   inboxCount?: number;
   /**
-   * Nav items above the divider. Defaults to the Figma set (Home, Inbox).
+   * Nav items above the divider. Defaults to the Figma set (Home, Messages).
    * Each item may carry an `onClick` action or a `navigateTo` route that is
    * forwarded to `onNavigate`.
    */
@@ -285,6 +288,7 @@ interface SidebarProps
  * (expanded) and Single Collapsed (icon rail). The multiple-business variant was retired.
  */
 function Sidebar({
+  messagesCount,
   inboxCount,
   primaryMenuItems = defaultPrimaryMenuItems,
   secondaryMenuItems = defaultSecondaryMenuItems,
@@ -349,7 +353,8 @@ function Sidebar({
           activeIcon={item.activeIcon}
           label={item.label}
           count={
-            item.count ?? (item.label === "Inbox" ? inboxCount : undefined)
+            item.count ??
+            (item.label === "Messages" ? (messagesCount ?? inboxCount) : undefined)
           }
           active={activeItem === item.label}
           collapsed={collapsed}
@@ -456,7 +461,8 @@ function Sidebar({
               onClick={handleToggleCollapsed}
               className="flex size-8 shrink-0 cursor-w-resize items-center justify-center rounded-xl outline-none transition-colors hover:bg-sidebar-accent focus-visible:ring-[3px] focus-visible:ring-sidebar-ring/50"
             >
-              <PanelLeftIcon className="size-4 text-icon-subtle" />
+              {/* Figma panel-left-alt (short divider), 16px in color/icon/subtle. */}
+              <PanelLeftAltIcon className="size-4 text-icon-subtle" />
             </button>
           </div>
         )}

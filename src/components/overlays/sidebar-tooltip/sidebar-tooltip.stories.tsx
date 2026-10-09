@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { HouseIcon } from "lucide-react";
 
+import { HomeIcon } from "@/components/icons/home-icon";
 import { SidebarMenuItem } from "@/components/navigation/sidebar";
 import { SidebarTooltip } from "./sidebar-tooltip";
 
@@ -45,7 +45,7 @@ export const Open: Story = {
 
 /** In context: a collapsed `SidebarMenuItem` shows its label in the tooltip on hover/focus. */
 export const OnCollapsedMenuItem: Story = {
-  render: () => <SidebarMenuItem icon={HouseIcon} label="Home" collapsed />,
+  render: () => <SidebarMenuItem icon={HomeIcon} label="Home" collapsed />,
 };
 
 /** Every placement, open. The sidebar uses `right`. */

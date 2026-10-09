@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
  * (`muted`, `primary`, `background`) already have a UCL equivalent.
  * `AvatarImage` renders a photo (Figma `w1`-`w10`/`m1`-`m10`); `AvatarFallback`
  * renders either initials (Figma `i1`-`i10`) or an icon (Figma `Account`/
- * `Staff`/`Me`/`Business-1`/`Business-2`) depending on its children.
+ * `Staff`/`Me`/`Business-1`/`Business-2`/`Empty`) depending on its children.
  */
 function Avatar({
   className,
@@ -114,8 +114,12 @@ function AvatarFallback({
    * `"auto"` (default) derives the background from `colorSeed` (or stays
    * neutral `bg-muted` without one). `"business"` forces the fixed brand
    * blue used for business avatars (Figma `Business-1`, `#0073e6`).
+   * `"empty"` is the placeholder for a person with no identity yet — e.g. a
+   * team member invited by email who hasn't accepted: white fill, dashed
+   * neutral border, foreground icon (Figma `Empty`, node 959:4385). Pair it
+   * with a `UserIcon` child.
    */
-  tone?: "auto" | "business";
+  tone?: "auto" | "business" | "empty";
 }) {
   const hasColorSeed = tone === "auto" && colorSeed !== undefined;
   const isBusinessTone = tone === "business";
@@ -135,7 +139,12 @@ function AvatarFallback({
       }
       className={cn(
         "flex size-full items-center justify-center rounded-full text-sm font-medium text-muted-foreground group-data-[size=sm]/avatar:text-[10px] [&_svg]:size-4 group-data-[size=sm]/avatar:[&_svg]:size-3 group-data-[size=lg]/avatar:[&_svg]:size-5 group-data-[size=xl]/avatar:text-2xl group-data-[size=xl]/avatar:font-bold group-data-[size=xl]/avatar:[&_svg]:size-8",
-        hasColorBackground ? "text-white" : "bg-muted",
+        tone === "empty"
+          ? // Same dashed placeholder treatment as `AddIndicator`.
+            "border border-dashed border-foreground-subtle bg-card text-icon-foreground"
+          : hasColorBackground
+            ? "text-white"
+            : "bg-muted",
         className,
       )}
       {...props}

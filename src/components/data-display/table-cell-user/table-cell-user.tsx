@@ -23,9 +23,9 @@ function initialsFromName(name: string): string {
  * `name` is optional, for a person the product knows of but has no name
  * for yet — a pending team invitation is an email address and nothing
  * else until it's accepted. Without a name the email takes the primary
- * line and the avatar falls back to a neutral person icon, since there
- * are no initials to derive and a colored initials tile would imply an
- * identity that doesn't exist yet.
+ * line and the avatar falls back to the empty placeholder (Figma `Empty`:
+ * dashed outline + person icon), since there are no initials to derive and
+ * a colored initials tile would imply an identity that doesn't exist yet.
  */
 function TableCellUser({
   name,
@@ -54,9 +54,7 @@ function TableCellUser({
             {initialsFromName(name!)}
           </AvatarFallback>
         ) : (
-          // No `colorSeed` — an icon fallback stays on the neutral
-          // `bg-muted`, per `AvatarFallback`'s own contract.
-          <AvatarFallback>
+          <AvatarFallback tone="empty">
             <UserIcon />
           </AvatarFallback>
         )}

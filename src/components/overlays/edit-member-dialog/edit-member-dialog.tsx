@@ -205,10 +205,10 @@ function EditMemberDialog({
               <AvatarImage src={member.avatarUrl} alt="" />
             ) : null}
             {initialsFromName(member.name) === "" ? (
-              // No name to derive initials from — a neutral icon avatar,
-              // not a colored initials tile implying an identity that
-              // doesn't exist yet.
-              <AvatarFallback>
+              // No name to derive initials from — the empty placeholder
+              // avatar, not a colored initials tile implying an identity
+              // that doesn't exist yet.
+              <AvatarFallback tone="empty">
                 <UserIcon />
               </AvatarFallback>
             ) : (

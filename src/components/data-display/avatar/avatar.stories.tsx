@@ -81,6 +81,17 @@ export const Icon: Story = {
   ),
 };
 
+/** Placeholder for a person with no identity yet, e.g. a team member invited by email. */
+export const Empty: Story = {
+  render: () => (
+    <Avatar size="lg">
+      <AvatarFallback tone="empty">
+        <User />
+      </AvatarFallback>
+    </Avatar>
+  ),
+};
+
 export const WithBadge: Story = {
   render: () => (
     <Avatar>
@@ -145,6 +156,11 @@ export const AllVariants: Story = {
         </Avatar>
         <Avatar>
           <AvatarFallback>
+            <User />
+          </AvatarFallback>
+        </Avatar>
+        <Avatar>
+          <AvatarFallback tone="empty">
             <User />
           </AvatarFallback>
         </Avatar>

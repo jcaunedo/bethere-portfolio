@@ -617,8 +617,11 @@ export {
 /* -------------------------------------------------------------------------- */
 /* Icons — nav icons (SidebarMenuItem; solid = Active state)                  */
 /* -------------------------------------------------------------------------- */
+export { HomeIcon } from "./components/icons/home-icon";
 export { HomeSolidIcon } from "./components/icons/home-solid-icon";
+export { PanelLeftAltIcon } from "./components/icons/panel-left-alt-icon";
 export { InboxSolidIcon } from "./components/icons/inbox-solid-icon";
+export { MessageCircleSolidIcon } from "./components/icons/message-circle-solid-icon";
 export { GalleryHorizontalEndSolidIcon } from "./components/icons/gallery-horizontal-end-solid-icon";
 export { CalendarSolidIcon } from "./components/icons/calendar-solid-icon";
 export { BankNoteIcon } from "./components/icons/bank-note-icon";

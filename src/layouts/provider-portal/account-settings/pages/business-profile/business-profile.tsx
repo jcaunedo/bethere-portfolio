@@ -76,8 +76,8 @@ type BusinessProfileLayoutProps = {
 	onNavigate?: (navigateTo: string) => void;
 	/** Called when Insurance provider's "Edit" is activated — hooks into a (future) insurance-edit flow. */
 	onEditInsuranceProvider?: () => void;
-	/** Called when the Documents tab's search button is activated — hooks into a (future) document search/filter. */
-	onSearchDocuments?: () => void;
+	/** Called with the Documents tab's search text as the user types (the tab filters its rows itself). */
+	onSearchDocuments?: (query: string) => void;
 	/** Called when "Add document" is activated — hooks into a (future) document upload flow. */
 	onAddDocument?: () => void;
 	/** Called with a document row's `id` when its "more actions" button is activated — hooks into a (future) per-document actions menu. */

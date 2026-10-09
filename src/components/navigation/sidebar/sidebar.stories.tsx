@@ -6,10 +6,9 @@ import {
   CircleUserIcon,
   FileTextIcon,
   GalleryHorizontalEndIcon,
-  HouseIcon,
-  InboxIcon,
   LanguagesIcon,
   LogOutIcon,
+  MessageCircleIcon,
   SettingsIcon,
   SunMoonIcon,
 } from "lucide-react";
@@ -19,8 +18,9 @@ import { CalendarSolidIcon } from "@/components/icons/calendar-solid-icon";
 import { ChartColumnSolidIcon } from "@/components/icons/chart-column-solid-icon";
 import { FileTextSolidIcon } from "@/components/icons/file-text-solid-icon";
 import { GalleryHorizontalEndSolidIcon } from "@/components/icons/gallery-horizontal-end-solid-icon";
+import { HomeIcon } from "@/components/icons/home-icon";
 import { HomeSolidIcon } from "@/components/icons/home-solid-icon";
-import { InboxSolidIcon } from "@/components/icons/inbox-solid-icon";
+import { MessageCircleSolidIcon } from "@/components/icons/message-circle-solid-icon";
 
 import {
   Sidebar,
@@ -53,8 +53,8 @@ const promotion = {
 /** The default Figma nav sets, wired with `navigateTo` routes the consumer's
  * `onNavigate` receives verbatim. */
 const primaryMenuItems: SidebarNavItem[] = [
-  { icon: HouseIcon, activeIcon: HomeSolidIcon, label: "Home", navigateTo: "/" },
-  { icon: InboxIcon, activeIcon: InboxSolidIcon, label: "Inbox", navigateTo: "/inbox" },
+  { icon: HomeIcon, activeIcon: HomeSolidIcon, label: "Home", navigateTo: "/" },
+  { icon: MessageCircleIcon, activeIcon: MessageCircleSolidIcon, label: "Messages", navigateTo: "/messages" },
 ];
 
 const secondaryMenuItems: SidebarNavItem[] = [
@@ -92,9 +92,9 @@ const onNavigate = (navigateTo: string) =>
 export const MenuItemStates: Story = {
   render: () => (
     <div className="flex w-[294px] flex-col gap-2 bg-background p-4">
-      <SidebarMenuItem icon={HouseIcon} label="Default" />
-      <SidebarMenuItem icon={HouseIcon} label="Hover me" />
-      <SidebarMenuItem icon={HouseIcon} activeIcon={HomeSolidIcon} label="Active" active />
+      <SidebarMenuItem icon={HomeIcon} label="Default" />
+      <SidebarMenuItem icon={HomeIcon} label="Hover me" />
+      <SidebarMenuItem icon={HomeIcon} activeIcon={HomeSolidIcon} label="Active" active />
     </div>
   ),
 };
@@ -102,7 +102,7 @@ export const MenuItemStates: Story = {
 /** Figma Property=Single Business. */
 export const SingleBusiness: Story = {
   args: {
-    inboxCount: 12,
+    messagesCount: 12,
     primaryMenuItems,
     secondaryMenuItems,
     account,
@@ -115,7 +115,7 @@ export const SingleBusiness: Story = {
 /** Figma Property=Single Collapsed: icon rail, no labels. */
 export const SingleBusinessCollapsed: Story = {
   args: {
-    inboxCount: 12,
+    messagesCount: 12,
     primaryMenuItems,
     secondaryMenuItems,
     account,
@@ -130,7 +130,7 @@ export const SingleBusinessCollapsed: Story = {
 export const CustomMenuItems: Story = {
   args: {
     primaryMenuItems: [
-      { icon: HouseIcon, label: "Overview", navigateTo: "/overview" },
+      { icon: HomeIcon, label: "Overview", navigateTo: "/overview" },
       { icon: BellIcon, label: "Notifications", count: 3, navigateTo: "/notifications" },
     ],
     secondaryMenuItems: [
@@ -153,7 +153,7 @@ export const AllVariants: Story = {
   render: () => (
     <div className="flex gap-6">
       <Sidebar
-        inboxCount={12}
+        messagesCount={12}
         primaryMenuItems={primaryMenuItems}
         secondaryMenuItems={secondaryMenuItems}
         account={account}
@@ -162,7 +162,7 @@ export const AllVariants: Story = {
         onNavigate={onNavigate}
       />
       <Sidebar
-        inboxCount={12}
+        messagesCount={12}
         primaryMenuItems={primaryMenuItems}
         secondaryMenuItems={secondaryMenuItems}
         account={account}

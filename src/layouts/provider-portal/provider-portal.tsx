@@ -4,8 +4,7 @@ import {
   ChartColumnIcon,
   FileTextIcon,
   GalleryHorizontalEndIcon,
-  HouseIcon,
-  InboxIcon,
+  MessageCircleIcon,
 } from "lucide-react";
 
 import { BankNoteIcon } from "@/components/icons/bank-note-icon";
@@ -14,8 +13,9 @@ import { CalendarSolidIcon } from "@/components/icons/calendar-solid-icon";
 import { ChartColumnSolidIcon } from "@/components/icons/chart-column-solid-icon";
 import { FileTextSolidIcon } from "@/components/icons/file-text-solid-icon";
 import { GalleryHorizontalEndSolidIcon } from "@/components/icons/gallery-horizontal-end-solid-icon";
+import { HomeIcon } from "@/components/icons/home-icon";
 import { HomeSolidIcon } from "@/components/icons/home-solid-icon";
-import { InboxSolidIcon } from "@/components/icons/inbox-solid-icon";
+import { MessageCircleSolidIcon } from "@/components/icons/message-circle-solid-icon";
 import {
   Sidebar,
   type SidebarAccountInfo,
@@ -30,7 +30,7 @@ import { cn } from "@/lib/utils";
 /** The Provider Portal's pages — one per Sidebar item. */
 type PortalPage =
   | "home"
-  | "inbox"
+  | "messages"
   | "listings"
   | "calendar"
   | "transactions"
@@ -39,8 +39,8 @@ type PortalPage =
 
 /** Sidebar items, with the route each one hands to `onNavigate` (`/` for Home, `/<page>` otherwise). */
 const portalPrimaryItems: SidebarNavItem[] = [
-  { icon: HouseIcon, activeIcon: HomeSolidIcon, label: "Home", navigateTo: "/" },
-  { icon: InboxIcon, activeIcon: InboxSolidIcon, label: "Inbox", navigateTo: "/inbox" },
+  { icon: HomeIcon, activeIcon: HomeSolidIcon, label: "Home", navigateTo: "/" },
+  { icon: MessageCircleIcon, activeIcon: MessageCircleSolidIcon, label: "Messages", navigateTo: "/messages" },
 ];
 
 const portalSecondaryItems: SidebarNavItem[] = [
@@ -54,7 +54,7 @@ const portalSecondaryItems: SidebarNavItem[] = [
 /** Each page's Sidebar label (also its default title). */
 const PAGE_LABEL: Record<PortalPage, string> = {
   home: "Home",
-  inbox: "Inbox",
+  messages: "Messages",
   listings: "Listings",
   calendar: "Calendar",
   transactions: "Transactions",
@@ -75,7 +75,7 @@ interface ProviderPortalLayoutProps {
   account: SidebarAccountInfo;
   /** Items for the Sidebar footer's account menu. */
   accountMenuItems?: SidebarAccountMenuItem[];
-  /** Called with a Sidebar item's route ("/", "/inbox", "/listings"…) when it's clicked. */
+  /** Called with a Sidebar item's route ("/", "/messages", "/listings"…) when it's clicked. */
   onNavigate?: (route: string) => void;
   /**
    * Whether the Sidebar starts collapsed (Figma's Provider Portal frames show it collapsed). At `lg`

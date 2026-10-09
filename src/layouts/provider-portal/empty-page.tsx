@@ -8,7 +8,7 @@ type EmptyPortalPage = Exclude<PortalPage, "home">;
 
 /** Each page's empty-state copy: what's missing, and what will appear here. */
 const PORTAL_EMPTY_STATES: Record<EmptyPortalPage, { title: string; description: string }> = {
-  inbox: {
+  messages: {
     title: "No messages yet",
     description: "Messages about your bookings and experiences will appear here.",
   },
@@ -43,7 +43,7 @@ interface PortalEmptyPageProps {
 }
 
 /**
- * A Provider Portal page with nothing to show yet (Inbox, Listings, Calendar, Transactions,
+ * A Provider Portal page with nothing to show yet (Messages, Listings, Calendar, Transactions,
  * Documents, Analytics): the page header and an `EmptyState` centered in the portal canvas (the
  * area beside the Sidebar), same as the empty Settings sections. Listings adds a "Create new
  * listing" button when `onCreateListing` is given.

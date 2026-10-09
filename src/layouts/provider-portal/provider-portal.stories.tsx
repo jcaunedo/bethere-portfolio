@@ -170,19 +170,29 @@ function ProviderPortal({ initialPage = "home" }: { initialPage?: PortalPage }) 
         ) : null}
       </AnimatePresence>
       {/* Over the portal rather than replacing it, so closing settings returns to the same page and
-          Sidebar state. */}
-      {settingsRoute ? (
-        <div className="fixed inset-0 z-40 bg-card">
-          {/* The rail reads "Business profile" with one business, "Business profiles" with several. */}
-          <AccountSettingsProvider businessCount={businessScenario === "single" ? 1 : 3}>
-            <AccountSettings
-              initialRoute={settingsRoute}
-              businessScenario={businessScenario}
-              onClose={() => setSettingsRoute(null)}
-            />
-          </AccountSettingsProvider>
-        </div>
-      ) : null}
+          Sidebar state. Same Takeover motion as the New Listing flow: fade + 24px rise in, quicker
+          fade out (fade only under reduced motion). */}
+      <AnimatePresence>
+        {settingsRoute ? (
+          <motion.div
+            key="settings"
+            variants={prefersReducedMotion ? fadeVariants : takeoverVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="fixed inset-0 z-40 bg-card"
+          >
+            {/* The rail reads "Business profile" with one business, "Business profiles" with several. */}
+            <AccountSettingsProvider businessCount={businessScenario === "single" ? 1 : 3}>
+              <AccountSettings
+                initialRoute={settingsRoute}
+                businessScenario={businessScenario}
+                onClose={() => setSettingsRoute(null)}
+              />
+            </AccountSettingsProvider>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </>
   );
 }

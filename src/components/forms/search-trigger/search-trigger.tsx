@@ -5,7 +5,12 @@ import { SearchIcon, XIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/buttons/button";
 import { Input } from "@/components/forms/input";
-import { motionDuration } from "@/lib/motion";
+import {
+  exitTransition,
+  fadeVariants,
+  standardTransition,
+  useMotionPreference,
+} from "@/lib/motion";
 
 type SearchTriggerProps = Omit<React.ComponentProps<typeof Input>, "size" | "type"> & {
   /** Accessible label for the collapsed icon button. */
@@ -27,14 +32,24 @@ type SearchTriggerProps = Omit<React.ComponentProps<typeof Input>, "size" | "typ
 // line up with the lg square's 10px, which is why this doesn't reuse it.
 const ICON_OFFSET = { lg: 10, xl: 12 } as const;
 
+// Container width (px) per state: the icon button's square, or the open field (Figma w-56/w-60).
+const WIDTH = {
+  lg: { collapsed: 36, expanded: 224 },
+  xl: { collapsed: 40, expanded: 240 },
+} as const;
+
 /**
  * Collapsible search field (Figma: bethere.ds `Input` / `Type=Search`) — a
  * plain icon button by default, expanding into a text field on click.
  * Collapses back to the icon once blurred while empty; stays expanded
  * while it has a value. Uncontrolled `value`/`onChange` still flow
- * through. The icon↔field swap is a plain fade (`motionDuration.deliberate`);
- * both states are pinned to the same top-left corner and the magnifier icon
- * is positioned identically in each, so nothing shifts on click.
+ * through. Expand: the container grows from the button's square to the
+ * field's width (`standardTransition`) while the button crossfades into
+ * the field (`fadeVariants`). Collapsing shrinks it back on the shorter
+ * `exitTransition`. Both states are pinned to the same top-left corner and
+ * the magnifier icon is positioned identically in each, so it stays put
+ * while the field opens to its right. Under reduced motion the width
+ * changes at once and only the fade remains.
  */
 function SearchTrigger({
   size = "lg",
@@ -46,6 +61,7 @@ function SearchTrigger({
   ...props
 }: SearchTriggerProps) {
   const [expanded, setExpanded] = React.useState(false);
+  const { resolve } = useMotionPreference();
   const inputRef = React.useRef<HTMLInputElement>(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
   const hasValue = value != null && value !== "";
@@ -89,14 +105,15 @@ function SearchTrigger({
 
   const showClear = onClear && hasValue;
   const iconOffset = ICON_OFFSET[size];
+  const isOpen = expanded || hasValue;
 
   return (
-    <div
-      className={cn(
-        "relative inline-flex",
-        size === "xl" ? "size-10" : "size-9",
-        (expanded || hasValue) && (size === "xl" ? "w-60" : "w-56"),
-      )}
+    <motion.div
+      className={cn("relative inline-flex", size === "xl" ? "h-10" : "h-9")}
+      // `initial={false}`: mounts at its current width (e.g. already open with a value), no grow-in.
+      initial={false}
+      animate={{ width: isOpen ? WIDTH[size].expanded : WIDTH[size].collapsed }}
+      transition={resolve(isOpen ? standardTransition : exitTransition)}
       ref={containerRef}
       onBlur={handleContainerBlur}
     >
@@ -109,9 +126,10 @@ function SearchTrigger({
             // instead of the incoming element pushing in beside the
             // outgoing one before it finishes fading out.
             className="absolute top-0 left-0"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1, transition: { duration: motionDuration.deliberate } }}
-            exit={{ opacity: 0 }}
+            variants={fadeVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
           >
             <Button
               type="button"
@@ -127,10 +145,13 @@ function SearchTrigger({
         ) : (
           <motion.div
             key="expanded"
+            // `w-full` of the animating container, so the field's border grows with it rather
+            // than being revealed at its final width.
             className="absolute top-0 left-0 w-full"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1, transition: { duration: motionDuration.deliberate } }}
-            exit={{ opacity: 0 }}
+            variants={fadeVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
           >
             <div className="relative w-full">
               <SearchIcon
@@ -175,7 +196,7 @@ function SearchTrigger({
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 }
 

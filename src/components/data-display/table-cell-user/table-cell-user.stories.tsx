@@ -49,6 +49,13 @@ export const WithPhone: Story = {
   },
 };
 
+/** No `name` — a team member invited by email who hasn't accepted yet: the email takes the primary line and the avatar is the empty placeholder. */
+export const PendingInvite: Story = {
+  args: {
+    email: "kathryn.murphy@email.com",
+  },
+};
+
 /** Figma `row` (`Property 1=Avatar`) — the intended usage: a person column inside `Table`/`DataTable`. */
 export const InTable: Story = {
   render: () => (
