@@ -1,7 +1,7 @@
 <!--
 Created: Oct 08, 2026
 Created by: Julio Caunedo
-Last updated: Oct 08, 2026 (Profile / Account naming: menu "My profile" + "Account settings", page title "Settings", rail groups Profile / Account, "Business profiles" label; notifications confirmed per user)
+Last updated: Oct 09, 2026 (prototype "Reset prototype" item). Previously: Oct 08, 2026 (Profile / Account naming: menu "My profile" + "Account settings", page title "Settings", rail groups Profile / Account, "Business profiles" label; notifications confirmed per user)
 -->
 
 # Account Menu & Settings Architecture — Provider Portal
@@ -68,6 +68,6 @@ The settings page is titled **Settings** and holds two groups.
 - ✅ **Confirmed (Oct 08, 2026):** notification preferences are per user (see `notifications.md`).
 - ✅ **Copy fix (Oct 08, 2026):** the last item reads "Log out" (sentence case), in the spec and the code. ⚠️ Figma `Account Menu` (511:2314) still reads "Log Out" and needs the same change.
 - ✅ **Resolved (Oct 08, 2026):** a single business is the default. "Account settings" → Business profiles opens that business's details directly; the list of businesses only appears with several (see `business-profiles.md`).
-- ℹ️ **Prototype scenario links:** in the Storybook prototype (Provider Portal story), the account menu lists prototype-only links below Log out, after a divider, each jumping to a scenario that isn't the default — today "Multiple businesses" (switches the account to several businesses and opens the list). They're not part of the product's account menu; add new scenario links there.
+- ℹ️ **Prototype scenario links:** in the Storybook prototype (Provider Portal story), the account menu lists prototype-only links below Log out, after a divider, each jumping to a scenario that isn't the default — today "Multiple businesses" (switches the account to several businesses and opens the list). The last item is always "Reset prototype" (`undo-2` icon), which reloads the portal in its initial state (home, one business, nothing open). They're not part of the product's account menu; add new scenario links above "Reset prototype".
 - ⚠️ **Risk:** in consumer apps "account" often means the person's own login. Security sitting under Profile signals that Account is the business side; if users still look for their password under Account, add a one-line description to the Account pages.
 - ⚠️ **Decision needed:** business-wide security and access controls ("if applicable") have no section yet. Security sits under Profile and covers personal authentication only.

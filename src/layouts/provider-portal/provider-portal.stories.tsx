@@ -8,6 +8,7 @@ import {
   LogOutIcon,
   SettingsIcon,
   SunMoonIcon,
+  Undo2Icon,
 } from "lucide-react";
 
 import type { SidebarAccountMenuItem } from "@/components/navigation/sidebar";
@@ -28,6 +29,17 @@ import { NewListingFlow } from "./new-listing/new-listing-flow";
 import { ProviderPortalLayout, pageForRoute, type PortalPage } from "./provider-portal";
 
 const account = { name: "Lucy Smith", email: "lucysmith@email.com" };
+
+/**
+ * Prototype-only, and always the account menu's last item (it's appended after the scenario links,
+ * so new links land above it): reloads the portal's Default story, back to its initial state (home,
+ * one business, nothing open). Icon: bethere.ds `undo-2`.
+ */
+const resetPrototypeItem: SidebarAccountMenuItem = {
+  icon: Undo2Icon,
+  label: "Reset prototype",
+  onClick: () => openStory(PROTOTYPE_STORIES.providerPortal),
+};
 
 const accountMenuItems: SidebarAccountMenuItem[] = [
   { icon: CircleUserIcon, label: "My profile", navigateTo: "/settings/profile" },
@@ -152,7 +164,7 @@ function ProviderPortal({
       <ProviderPortalLayout
         page={initialPage}
         account={account}
-        accountMenuItems={[...accountMenuItems, ...prototypeLinks]}
+        accountMenuItems={[...accountMenuItems, ...prototypeLinks, resetPrototypeItem]}
         onNavigate={(route) => {
           if (route.startsWith("/settings/")) return setSettingsRoute(route);
           const next = pageForRoute(route);
