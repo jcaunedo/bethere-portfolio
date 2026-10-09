@@ -321,6 +321,11 @@ function Sidebar({
     }
   };
 
+  // The expanded wordmark goes Home: the item labelled "Home", or the first primary item when the
+  // consumer's set has none. Same as clicking that item (marks it active, fires its action/route).
+  const homeItem =
+    primaryMenuItems.find((item) => item.label === "Home") ?? primaryMenuItems[0];
+
   const handleAccountMenuItemClick = (item: SidebarAccountMenuItem) => {
     onAccountMenuAction?.(item.label);
     if (item.onClick) {
@@ -453,7 +458,19 @@ function Sidebar({
           <div className="flex h-9 w-full items-center justify-between py-2 pr-0 pl-1.5">
             {/* Figma Logo Extended: Bethere Logo in a 115.673 × 26 frame; the
                 glyph itself is 115.673 × 22.95 (our viewBox is cropped to the glyph). */}
-            <Logo className="h-[22.95px]" />
+            {homeItem ? (
+              <button
+                type="button"
+                data-slot="sidebar-home"
+                aria-label={`Go to ${homeItem.label}`}
+                onClick={() => handleNavItemClick(homeItem)}
+                className="flex shrink-0 rounded-md outline-none focus-visible:ring-[3px] focus-visible:ring-sidebar-ring/50"
+              >
+                <Logo className="h-[22.95px]" />
+              </button>
+            ) : (
+              <Logo className="h-[22.95px]" />
+            )}
             <button
               type="button"
               data-slot="sidebar-collapse"
