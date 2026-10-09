@@ -116,14 +116,21 @@ function AccountSettings({
  * Settings on My profile and "Account settings" opens it on Business profiles, full-screen over the
  * portal; its rail switches between the settings pages, and the X comes back to where you were.
  * The account has one business by default; the prototype link "Multiple businesses" (below Log out)
- * switches to several and opens the list of businesses.
+ * switches to several and opens the list of businesses. `startCreatingListing` opens the New Listing
+ * flow on arrival (onboarding's "Create my first listing" lands here, on Listings).
  */
-function ProviderPortal({ initialPage = "home" }: { initialPage?: PortalPage }) {
+function ProviderPortal({
+  initialPage = "home",
+  startCreatingListing = false,
+}: {
+  initialPage?: PortalPage;
+  startCreatingListing?: boolean;
+}) {
   const [page, setPage] = React.useState<PortalPage>(initialPage);
   const [settingsRoute, setSettingsRoute] = React.useState<SettingsRoute | null>(null);
   const [businessScenario, setBusinessScenario] = React.useState<BusinessScenario>("single");
   // The New Listing flow, opened from Listings' "Create new listing"; its X closes it again.
-  const [creatingListing, setCreatingListing] = React.useState(false);
+  const [creatingListing, setCreatingListing] = React.useState(startCreatingListing);
   const { prefersReducedMotion } = useMotionPreference();
 
   // Prototype-only links, below Log out after a divider: each jumps to a specific scenario that
@@ -224,3 +231,9 @@ export const Default: Story = {};
 
 /** Starting on Listings: its empty state, whose "Create new listing" opens the New Listing flow (X returns here). */
 export const Listings: Story = { args: { initialPage: "listings" } };
+
+/**
+ * Onboarding's "Create my first listing" lands here: Listings, with the New Listing flow opening over
+ * it on arrival (Takeover motion). Its X returns to Listings.
+ */
+export const NewListing: Story = { args: { initialPage: "listings", startCreatingListing: true } };

@@ -7,6 +7,8 @@
 /** Story ids the prototype links to. */
 const PROTOTYPE_STORIES = {
   providerPortal: "layouts-providerportal-portal--default",
+  /** The portal on Listings with the New Listing flow already open (onboarding's "Create my first listing"). */
+  providerPortalNewListing: "layouts-providerportal-portal--new-listing",
   signIn: "layouts-shared-signupsignin--default",
   /** New users' first step after signing in: "Tell us about your business". */
   onboardingBusinessProfile: "layouts-providerportal-businessprofile--default",

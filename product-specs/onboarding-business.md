@@ -1,7 +1,7 @@
 <!--
 Created: Aug 15, 2026
 Created by: Julio Caunedo
-Last updated: Oct 08, 2026 (Phone number removed; both CTAs need the required fields and open the Provider Portal)
+Last updated: Oct 09, 2026 (second CTA renamed "Create my first listing"; it opens Listings with the New listing flow already open)
 
 Scope: Provider-side "Create Business" onboarding funnel — currently just the "Tell us about your
 business" screen and its business-category dropdown. Not the Business Profile detail page (see
@@ -21,7 +21,9 @@ guest-facing Concierge mood-tile taxonomy it should stay legible against.
 
 Define the "What does your business offer?" dropdown on the "Tell us about your business" onboarding screen. This is Manage-register copy (account/provider setup) — plain and precise, not Discover-stage conversational phrasing — but should still read as the same product as the guest-facing Concierge tiles. See [../DESIGN.md](../DESIGN.md) "Brand voice."
 
-✅ **Confirmed in Figma:** the screen is a single step — Business name, this dropdown, Website, then two exit actions ("Take me to my portal" / "Create my first experience"). No second "business type" question exists on this screen. Phone number was removed from the screen on Oct 08, 2026.
+✅ **Confirmed in Figma:** the screen is a single step — Business name, this dropdown, Website, then two exit actions ("Take me to my portal" / "Create my first listing"). No second "business type" question exists on this screen. Phone number was removed from the screen on Oct 08, 2026.
+
+⚠️ **Copy sync:** the second action was renamed from "Create my first experience" to "Create my first listing" on Oct 09, 2026, in the spec and the code. Check that Figma (`29:1349`) uses the new label too.
 
 ## Category list
 
@@ -169,5 +171,5 @@ The onboarding category informs and personalizes the listing-details step (which
 
 ## Open Questions
 
-- ⚠️ What happens after this screen's two exit actions ("Take me to my portal" vs. "Create my first experience")? Neither destination is specced yet — see `business-profiles.md`'s "Add business"/Create Business gap.
+- ✅ **Resolved (Oct 09, 2026):** "Take me to my portal" opens the Provider Portal (Dashboard home). "Create my first listing" (renamed from "Create my first experience") opens Dashboard → Listings with the New listing flow already open over it; closing the flow leaves the user on Listings. Implemented in the Storybook prototype (Provider Portal → New Listing story).
 - ⚠️ Business name and website (the screen's other two fields) aren't covered by this doc — add if/when they need their own spec notes.

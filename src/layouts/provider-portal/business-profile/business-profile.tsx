@@ -109,16 +109,16 @@ function BusinessProfile() {
                   <Button type="submit" size="xl" className="w-full" disabled={!isValid}>
                     Take me to my portal
                   </Button>
-                  {/* Prototype: also opens the Provider Portal (no dedicated destination yet). */}
+                  {/* Prototype: opens the Provider Portal on Listings with the New Listing flow already open. */}
                   <Button
                     type="button"
                     variant="outline"
                     size="xl"
                     className="w-full"
                     disabled={!isValid}
-                    onClick={() => openStory(PROTOTYPE_STORIES.providerPortal)}
+                    onClick={() => openStory(PROTOTYPE_STORIES.providerPortalNewListing)}
                   >
-                    Create my first experience
+                    Create my first listing
                   </Button>
                 </div>
               </Form>
