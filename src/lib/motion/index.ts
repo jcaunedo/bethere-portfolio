@@ -6,6 +6,7 @@ export {
   exitTransition,
   swapEnterTransition,
   scrollTransition,
+  overshootEnterTransition,
   subtleSpring,
   responsiveSpring,
   layoutSpring,
@@ -13,6 +14,7 @@ export {
 
 export {
   fadeVariants,
+  rowRemoveVariants,
   revealVariants,
   expandVariants,
   dismissVariants,

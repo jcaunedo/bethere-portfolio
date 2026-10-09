@@ -52,6 +52,26 @@ const dismissVariants: Variants = {
 };
 
 /**
+ * A table/list row removed from its data (CLAUDE.md "Lists"; DESIGN.md "Row removal motion"): the
+ * row fades out on the exit timing (Dismiss), then the rows below glide up into its space. Opacity
+ * only — no `y` nudge, which would push a `<tr>` over the next row's border. `initial` equals
+ * `animate`, so rows added by a routine data update just appear (no replayed entrance).
+ *
+ * Wiring (each piece is load-bearing):
+ * - `<AnimatePresence initial={false}>` around the rows, in the default `"sync"` mode — never
+ *   `"popLayout"`, which pulls the exiting element out with `position: absolute`; a `<tr>` loses
+ *   its table layout that way and its cells collapse.
+ * - Each row: `layout="position"` + `transition={{ layout: resolve(layoutSpring) }}`
+ *   (`useMotionPreference`), so under reduced motion the gap closes at once and only the fade
+ *   remains as feedback. Stable unique `key`s (the record id, never the index).
+ */
+const rowRemoveVariants: Variants = {
+  initial: { opacity: 1 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0, transition: exitTransition },
+};
+
+/**
  * Overlay/scrim backdrop for dialogs and overlays (fade only — the dialog
  * surface itself should use `panelVariants` or a Motion `layout` animation).
  */
@@ -190,6 +210,7 @@ const pendingSurfaceVariants: Variants = {
 
 export {
   fadeVariants,
+  rowRemoveVariants,
   revealVariants,
   expandVariants,
   dismissVariants,

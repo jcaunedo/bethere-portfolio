@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
+import { Toaster } from "@/components/feedback/sonner";
 import { TeamMembersLayout, ALL_BUSINESSES_ID } from "./team-members";
 
 // Same example businesses as BusinessProfilesLayout, for a consistent
@@ -17,6 +18,15 @@ const meta: Meta<typeof TeamMembersLayout> = {
   parameters: {
     layout: "fullscreen",
   },
+  // The page's success feedback is a toast; an app mounts `<Toaster />` once at its root.
+  decorators: [
+    (Story) => (
+      <>
+        <Story />
+        <Toaster />
+      </>
+    ),
+  ],
 };
 export default meta;
 type Story = StoryObj<typeof TeamMembersLayout>;

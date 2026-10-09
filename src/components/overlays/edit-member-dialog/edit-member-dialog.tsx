@@ -1,5 +1,5 @@
 import * as React from "react";
-import { UserIcon, XIcon } from "lucide-react";
+import { CircleXIcon, UserIcon, XIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/buttons/button";
@@ -69,11 +69,22 @@ type EditMemberDialogProps = React.ComponentProps<typeof Dialog> & {
   lockedRoleLabel?: string;
   /**
    * Marks this as an invitation that hasn't been accepted yet. The person
-   * has no account, so the name/phone/title fields are pre-seed data rather
-   * than edits, and changing the email re-targets the invitation — both of
-   * which the dialog says out loud rather than leaving the user to infer.
+   * has no account, so only Email and Role are shown — the name, phone and
+   * job title fields are hidden (they belong to the person, who fills them
+   * in on sign-up). A note says the invitation is still waiting, and
+   * changing the email re-targets the invitation, which the dialog also
+   * says out loud rather than leaving the user to infer.
    */
   pending?: boolean;
+  /**
+   * Called when the footer's destructive "Remove" action is activated (Figma
+   * `Edit member`: left-aligned, `circle-x` icon). The dialog closes itself
+   * first, so the consumer can open its own confirmation. Omit to hide the
+   * action — e.g. for the business owner, who can't be removed.
+   */
+  onRemove?: () => void;
+  /** Label for the Remove action — e.g. "Revoke invitation" for a pending invite. */
+  removeLabel?: string;
   className?: string;
 };
 
@@ -89,13 +100,15 @@ type EditMemberDialogProps = React.ComponentProps<typeof Dialog> & {
  * Two rows need special handling and get it through props rather than a
  * separate dialog: the business owner (`lockedRoleLabel`), whose role isn't
  * assignable from a picker, and a pending invitation (`pending`), whose
- * person doesn't exist yet.
+ * person doesn't exist yet — so it shows only Email and Role.
  */
 function EditMemberDialog({
   member,
   onSave,
   lockedRoleLabel,
   pending = false,
+  onRemove,
+  removeLabel = "Remove",
   className,
   children,
   open,
@@ -112,17 +125,17 @@ function EditMemberDialog({
     onOpenChange?.(next);
   }
 
-  const { firstName: initialFirstName, lastName: initialLastName } =
-    splitName(member.name);
+  const { firstName: initialFirstName, lastName: initialLastName } = splitName(
+    member.name,
+  );
   const [firstName, setFirstName] = React.useState(initialFirstName);
   const [lastName, setLastName] = React.useState(initialLastName);
   const [title, setTitle] = React.useState(member.title);
   const [email, setEmail] = React.useState(member.email);
   const [phone, setPhone] = React.useState(member.phone ?? "");
   const [role, setRole] = React.useState<TeamRole>(member.role ?? "staff");
-  const contentRef = React.useRef<React.ComponentRef<typeof DialogContent>>(
-    null,
-  );
+  const contentRef =
+    React.useRef<React.ComponentRef<typeof DialogContent>>(null);
 
   // Reseed the form from `member` whenever the dialog transitions to open —
   // covers both "reopened for a different member" and "reopened for the
@@ -166,6 +179,11 @@ function EditMemberDialog({
       role: lockedRoleLabel !== undefined ? undefined : role,
     });
     setOpen(false);
+  }
+
+  function handleRemove() {
+    setOpen(false);
+    onRemove?.();
   }
 
   return (
@@ -220,22 +238,24 @@ function EditMemberDialog({
         </div>
 
         <div className="flex flex-col gap-4">
-          <div className="grid grid-cols-2 gap-4">
-            <FormField htmlFor="edit-member-first-name" label="First name">
-              <Input
-                id="edit-member-first-name"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-              />
-            </FormField>
-            <FormField htmlFor="edit-member-last-name" label="Last name">
-              <Input
-                id="edit-member-last-name"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-              />
-            </FormField>
-          </div>
+          {pending ? null : (
+            <div className="grid grid-cols-2 gap-4">
+              <FormField htmlFor="edit-member-first-name" label="First name">
+                <Input
+                  id="edit-member-first-name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                />
+              </FormField>
+              <FormField htmlFor="edit-member-last-name" label="Last name">
+                <Input
+                  id="edit-member-last-name"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                />
+              </FormField>
+            </div>
+          )}
           <FormField htmlFor="edit-member-email" label="Email">
             <Input
               id="edit-member-email"
@@ -244,21 +264,25 @@ function EditMemberDialog({
               onChange={(e) => setEmail(e.target.value)}
             />
           </FormField>
-          <FormField htmlFor="edit-member-phone" label="Phone">
-            <Input
-              id="edit-member-phone"
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-            />
-          </FormField>
-          <FormField htmlFor="edit-member-title" label="Job title">
-            <Input
-              id="edit-member-title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-          </FormField>
+          {pending ? null : (
+            <>
+              <FormField htmlFor="edit-member-phone" label="Phone">
+                <Input
+                  id="edit-member-phone"
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
+              </FormField>
+              <FormField htmlFor="edit-member-title" label="Job title">
+                <Input
+                  id="edit-member-title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
+              </FormField>
+            </>
+          )}
           {lockedRoleLabel !== undefined ? (
             <FormField
               htmlFor="edit-member-role"
@@ -282,9 +306,7 @@ function EditMemberDialog({
           {pending ? (
             <Alert variant="info">
               <AlertDescription>
-                This person hasn&apos;t accepted yet — anything you add here
-                pre-fills their profile, and their own entries win once they
-                sign up.
+                Awaiting invitation acceptance.
               </AlertDescription>
             </Alert>
           ) : null}
@@ -300,6 +322,19 @@ function EditMemberDialog({
         </div>
 
         <DialogFooter>
+          {onRemove ? (
+            <Button
+              type="button"
+              variant="ghost-destructive"
+              size="lg"
+              onClick={handleRemove}
+              // Figma: pushed to the left of Cancel/Save (footer is space-between).
+              className="sm:mr-auto"
+            >
+              <CircleXIcon />
+              {removeLabel}
+            </Button>
+          ) : null}
           <DialogClose asChild>
             <Button type="button" variant="outline" size="lg">
               Cancel

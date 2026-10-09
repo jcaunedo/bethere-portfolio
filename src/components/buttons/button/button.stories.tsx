@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { ArrowLeft, ChevronRight, Mail, X } from "lucide-react";
+import { ArrowLeft, ChevronRight, CircleXIcon, Mail, X } from "lucide-react";
 import { Button } from "./button";
 
 const meta: Meta<typeof Button> = {
@@ -16,6 +16,7 @@ const meta: Meta<typeof Button> = {
         "secondary",
         "outline",
         "ghost",
+        "ghost-destructive",
         "link",
         "link-neutral",
       ],
@@ -83,6 +84,22 @@ export const Ghost: Story = {
     variant: "ghost",
     children: "Ghost",
   },
+};
+
+/** Figma Style=Ghost, Tone=Destructive. No fill; hover fills destructive-subtle. Disabled greys the label. */
+export const GhostDestructive: Story = {
+  render: () => (
+    <div className="flex items-center gap-2">
+      <Button variant="ghost-destructive">
+        <CircleXIcon />
+        Remove
+      </Button>
+      <Button variant="ghost-destructive" disabled>
+        <CircleXIcon />
+        Remove
+      </Button>
+    </div>
+  ),
 };
 
 /** Figma Style=Link, Tone=Brand. Hover swaps the label to foreground. */
@@ -178,6 +195,7 @@ export const AllVariants: Story = {
         <Button variant="secondary">Secondary</Button>
         <Button variant="outline">Outline</Button>
         <Button variant="ghost">Ghost</Button>
+        <Button variant="ghost-destructive">Ghost Destructive</Button>
         <Button variant="link">Link</Button>
         <Button variant="link-neutral">Link Neutral</Button>
       </div>

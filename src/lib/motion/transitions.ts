@@ -45,6 +45,18 @@ const scrollTransition: Transition = {
 };
 
 /**
+ * Entrance with overshoot: passes its target by ~10% and settles back (CSS "ease-out-back").
+ * ⚠️ Documented exception to CLAUDE.md "avoid elastic overshoot" — product-approved for the
+ * Sonner toast entrance only (DESIGN.md "Toast entrance overshoot"); not for exits, layout or
+ * general UI motion. 400ms is Sonner's own transition length, kept as-is. Sonner animates with
+ * CSS, so `theme.css` mirrors this curve as `--ease-overshoot` (`ease-overshoot`) — keep both in sync.
+ */
+const overshootEnterTransition: Transition = {
+	duration: 0.4,
+	ease: [0.34, 1.56, 0.64, 1],
+};
+
+/**
  * Spring presets. CLAUDE.md "Spring" — direct manipulation, drag, press,
  * shared-element movement, responsive layout changes. Deliberately
  * non-bouncy (high damping) per the brand's "Calm/Refined" personality.
@@ -77,6 +89,7 @@ export {
 	exitTransition,
 	swapEnterTransition,
 	scrollTransition,
+	overshootEnterTransition,
 	subtleSpring,
 	responsiveSpring,
 	layoutSpring,

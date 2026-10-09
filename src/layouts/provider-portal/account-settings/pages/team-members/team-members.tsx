@@ -1,15 +1,19 @@
 import * as React from "react";
+import { AnimatePresence, motion } from "motion/react";
 import {
+  CircleXIcon,
   EllipsisIcon,
   PencilIcon,
   SendIcon,
-  Trash2Icon,
   UserPlusIcon,
 } from "lucide-react";
 
 import { AccountSettingsLayout } from "@/layouts/provider-portal/account-settings/account-settings";
 import { Button } from "@/components/buttons/button";
 import { EmptyState } from "@/components/feedback/empty-state";
+// Success feedback (sent, resent, revoked, removed) is a toast — bottom-right,
+// self-dismissing. The consuming app mounts `<Toaster />` once at its root.
+import { toast } from "@/components/feedback/sonner";
 import { Typography } from "@/components/typography";
 import { TransferOwnershipIcon } from "@/components/icons/transfer-ownership-icon";
 import { TableCellUser } from "@/components/data-display/table-cell-user";
@@ -45,6 +49,14 @@ import {
   SelectValue,
 } from "@/components/forms/select";
 import { formatRelativeDate } from "@/lib/relative-date";
+import {
+  layoutSpring,
+  rowRemoveVariants,
+  useMotionPreference,
+} from "@/lib/motion";
+
+/** `TableRow` as a Motion component, for the row-removal motion (React 19 passes `ref` through its props spread). */
+const MotionTableRow = motion.create(TableRow);
 
 /**
  * A member's role within the business, as displayed. "Owner" is included
@@ -131,8 +143,10 @@ type MemberRow = {
 // yesterday → days → absolute) instead of a frozen set of strings.
 const SEED_NOW = Date.now();
 const minutesAgo = (n: number) => new Date(SEED_NOW - n * 60_000).toISOString();
-const hoursAgo = (n: number) => new Date(SEED_NOW - n * 3_600_000).toISOString();
-const daysAgo = (n: number) => new Date(SEED_NOW - n * 86_400_000).toISOString();
+const hoursAgo = (n: number) =>
+  new Date(SEED_NOW - n * 3_600_000).toISOString();
+const daysAgo = (n: number) =>
+  new Date(SEED_NOW - n * 86_400_000).toISOString();
 
 const PENDING_INVITES: PendingInvite[] = [
   {
@@ -317,6 +331,7 @@ function MembersTable({
   onRemoveMember,
   onTransferOwnership,
 }: MembersTableProps) {
+  const { resolve } = useMotionPreference();
   return (
     // `rounded-t-xl`, never `rounded-xl` — a table rounds only its top
     // corners (DESIGN.md, "Tables round only their top corners").
@@ -334,39 +349,51 @@ function MembersTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {loading
-            ? Array.from({ length: skeletonRows }, (_, index) => (
-                <TableRow key={`skeleton-${index}`}>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <span className="size-9 shrink-0 animate-pulse rounded-full bg-muted" />
-                      <span className="flex flex-1 flex-col gap-1.5">
-                        <SkeletonLine className="w-32" />
-                        <SkeletonLine className="w-40" />
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <SkeletonLine className="w-24" />
-                  </TableCell>
-                  <TableCell>
-                    <SkeletonLine className="w-12" />
-                  </TableCell>
-                  <TableCell>
-                    <SkeletonLine className="w-16" />
-                  </TableCell>
-                  <TableCell />
-                </TableRow>
-              ))
-            : rows.map((row) => {
+          {loading ? (
+            Array.from({ length: skeletonRows }, (_, index) => (
+              <TableRow key={`skeleton-${index}`} className="[&>td]:py-3">
+                <TableCell>
+                  <div className="flex items-center gap-3">
+                    <span className="size-9 shrink-0 animate-pulse rounded-full bg-muted" />
+                    <span className="flex flex-1 flex-col gap-1.5">
+                      <SkeletonLine className="w-32" />
+                      <SkeletonLine className="w-40" />
+                    </span>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <SkeletonLine className="w-24" />
+                </TableCell>
+                <TableCell>
+                  <SkeletonLine className="w-12" />
+                </TableCell>
+                <TableCell>
+                  <SkeletonLine className="w-16" />
+                </TableCell>
+                <TableCell />
+              </TableRow>
+            ))
+          ) : (
+            // Row removal motion (DESIGN.md): a removed row fades out, then the rows below glide up.
+            // Default "sync" mode, not popLayout — an absolutely positioned <tr> collapses its cells.
+            <AnimatePresence initial={false}>
+              {rows.map((row) => {
                 const isOwner = row.kind === "active" && row.role === "Owner";
                 const isPending = row.kind === "pending";
                 // A pending invite has no name to address the menu by.
                 const rowLabel = row.name ?? row.email;
                 return (
-                  <TableRow
+                  <MotionTableRow
                     key={row.id}
-                    className="group/row cursor-pointer"
+                    layout="position"
+                    variants={rowRemoveVariants}
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    transition={{ layout: resolve(layoutSpring) }}
+                    // Figma `row-team-members`: 12px (spacing/3) top/bottom
+                    // padding, vs the shared TableCell's 8px.
+                    className="group/row cursor-pointer [&>td]:py-3"
                     onClick={() => onEditMember?.(row)}
                   >
                     <TableCell>
@@ -442,7 +469,8 @@ function MembersTable({
                           ) : (
                             <DropdownMenuItem
                               showIcon
-                              icon={<Trash2Icon />}
+                              // Figma bethere.ds `circle-x`, for both Remove and Revoke invitation.
+                              icon={<CircleXIcon />}
                               variant="destructive"
                               onSelect={() =>
                                 isPending
@@ -450,17 +478,17 @@ function MembersTable({
                                   : onRemoveMember?.(row)
                               }
                             >
-                              {isPending
-                                ? "Revoke invitation"
-                                : "Remove from team"}
+                              {isPending ? "Revoke invitation" : "Remove"}
                             </DropdownMenuItem>
                           )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
-                  </TableRow>
+                  </MotionTableRow>
                 );
               })}
+            </AnimatePresence>
+          )}
         </TableBody>
       </Table>
     </div>
@@ -490,7 +518,12 @@ function MembersSection({
           <AlertDescription className="flex w-full items-center justify-between gap-4">
             <span>{error}</span>
             {onRetry ? (
-              <Button type="button" variant="outline" size="sm" onClick={onRetry}>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={onRetry}
+              >
                 Try again
               </Button>
             ) : null}
@@ -624,22 +657,31 @@ function TeamMembersLayout({
     null,
   );
   const [confirmDialogOpen, setConfirmDialogOpen] = React.useState(false);
+
   /**
-   * ⚠️ Stand-in for a toast. Resending an invitation and removing a member
-   * both complete with no other visible change, so without this the user
-   * can't tell whether anything happened. Replace with a real toast
-   * primitive once UCL has one — `Alert` is a static banner and can't
-   * self-dismiss.
+   * Rows removed (or invitations revoked) in this session, keyed `kind:id`.
+   * Hidden optimistically the moment the removal is confirmed — the same
+   * moment the success toast fires — rather than waiting for the app to drop
+   * them from `activeMembers`/`pendingInvites`. Once the app does, the entry
+   * is simply inert.
    */
-  const [feedback, setFeedback] = React.useState<string | null>(null);
+  const [removedKeys, setRemovedKeys] = React.useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
 
   const pendingRows = React.useMemo(
-    () => pendingInvites.map(toPendingRow),
-    [pendingInvites],
+    () =>
+      pendingInvites
+        .map(toPendingRow)
+        .filter((row) => !removedKeys.has(`${row.kind}:${row.id}`)),
+    [pendingInvites, removedKeys],
   );
   const activeRows = React.useMemo(
-    () => activeMembers.map(toActiveRow),
-    [activeMembers],
+    () =>
+      activeMembers
+        .map(toActiveRow)
+        .filter((row) => !removedKeys.has(`${row.kind}:${row.id}`)),
+    [activeMembers, removedKeys],
   );
 
   const filteredPending = pendingRows.filter((row) =>
@@ -667,25 +709,25 @@ function TeamMembersLayout({
   const [inviteOpen, setInviteOpen] = React.useState(false);
 
   function openEditDialog(row: MemberRow) {
-    setFeedback(null);
     setEditingRow(row);
     setEditDialogOpen(true);
   }
 
   function openConfirmDialog(row: MemberRow) {
-    setFeedback(null);
     setConfirmingRow(row);
     setConfirmDialogOpen(true);
   }
 
   function handleConfirm() {
     if (!confirmingRow) return;
+    const removedKey = `${confirmingRow.kind}:${confirmingRow.id}`;
+    setRemovedKeys((keys) => new Set(keys).add(removedKey));
     if (confirmingRow.kind === "pending") {
       onRevokeInvite?.(confirmingRow);
-      setFeedback(`Invitation for ${confirmingRow.email} revoked.`);
+      toast.success(`Invitation for ${confirmingRow.email} revoked.`);
     } else {
       onRemoveMember?.(confirmingRow);
-      setFeedback(
+      toast.success(
         `${confirmingRow.name ?? confirmingRow.email} removed from the team.`,
       );
     }
@@ -693,7 +735,7 @@ function TeamMembersLayout({
 
   function handleResend(row: MemberRow) {
     onResendInvite?.(row);
-    setFeedback(`Invitation resent to ${row.email}.`);
+    toast.success(`Invitation resent to ${row.email}.`);
   }
 
   const editingMember: EditMemberDialogMember | null = editingRow
@@ -708,7 +750,11 @@ function TeamMembersLayout({
     : null;
 
   return (
-    <AccountSettingsLayout activeItem="Team members" onClose={onClose} onNavigate={onNavigate}>
+    <AccountSettingsLayout
+      activeItem="Team members"
+      onClose={onClose}
+      onNavigate={onNavigate}
+    >
       <div className="flex flex-col gap-8 pb-24">
         <div className="flex flex-col">
           <Typography size="2xl" weight="semibold">
@@ -725,10 +771,7 @@ function TeamMembersLayout({
               aria-label="Search team members"
               placeholder="Search team members"
               value={searchQuery}
-              onChange={(e) => {
-                setFeedback(null);
-                setSearchQuery(e.target.value);
-              }}
+              onChange={(e) => setSearchQuery(e.target.value)}
               onClear={() => setSearchQuery("")}
             />
             <InviteTeamMembersDialog
@@ -739,7 +782,7 @@ function TeamMembersLayout({
               pendingEmails={pendingRows.map((row) => row.email)}
               onSendInvites={(invites) => {
                 onSendInvites?.(invites);
-                setFeedback(
+                toast.success(
                   invites.length === 1
                     ? `Invitation sent to ${invites[0].email}.`
                     : `${invites.length} invitations sent.`,
@@ -747,7 +790,7 @@ function TeamMembersLayout({
               }}
             >
               <DialogTrigger asChild>
-                <Button type="button" size="lg" onClick={() => setFeedback(null)}>
+                <Button type="button" size="lg">
                   <UserPlusIcon />
                   Invite member
                 </Button>
@@ -756,10 +799,7 @@ function TeamMembersLayout({
           </div>
 
           {businesses && businesses.length > 0 ? (
-            <Select
-              value={selectedBusinessId}
-              onValueChange={onBusinessChange}
-            >
+            <Select value={selectedBusinessId} onValueChange={onBusinessChange}>
               <SelectTrigger
                 aria-label="Filter by business"
                 className="w-[220px] shrink-0"
@@ -779,12 +819,6 @@ function TeamMembersLayout({
             </Select>
           ) : null}
         </div>
-
-        {feedback ? (
-          <Alert variant="success">
-            <AlertDescription>{feedback}</AlertDescription>
-          </Alert>
-        ) : null}
 
         {showPending ? (
           <MembersSection
@@ -838,10 +872,7 @@ function TeamMembersLayout({
             buttonLabel="Invite team members"
             buttonIcon={<UserPlusIcon />}
             buttonProps={{
-              onClick: () => {
-                setFeedback(null);
-                setInviteOpen(true);
-              },
+              onClick: () => setInviteOpen(true),
             }}
           />
         ) : null}
@@ -852,7 +883,10 @@ function TeamMembersLayout({
             title={`No matches for “${searchQuery.trim()}”`}
             description="Check the spelling, or search by another name or email."
             buttonLabel="Clear search"
-            buttonProps={{ variant: "outline", onClick: () => setSearchQuery("") }}
+            buttonProps={{
+              variant: "outline",
+              onClick: () => setSearchQuery(""),
+            }}
           />
         ) : null}
       </div>
@@ -867,6 +901,16 @@ function TeamMembersLayout({
           lockedRoleLabel={editingRow.role === "Owner" ? "Owner" : undefined}
           pending={editingRow.kind === "pending"}
           onSave={(edited) => onEditMember?.(editingRow, edited)}
+          // Same confirm flow as the row menu's Remove / Revoke invitation;
+          // the owner can't be removed, so no action for them.
+          onRemove={
+            editingRow.role === "Owner"
+              ? undefined
+              : () => openConfirmDialog(editingRow)
+          }
+          removeLabel={
+            editingRow.kind === "pending" ? "Revoke invitation" : "Remove"
+          }
         />
       )}
 

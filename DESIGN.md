@@ -917,3 +917,100 @@ Same convention as verita-ai (adopted here 2026-10-08).
   changes.
 - Describe breakpoints in comments and specs as "at `lg` (1024) and below" /
   "above `lg`", not "below `lg`" / "from `lg`".
+
+---
+
+## Row removal motion: fade out, then the rows below glide up (`src/lib/motion/variants.ts`)
+
+**Rule:** when a row leaves a table or list because its data was removed
+(a member removed, an invitation revoked), it doesn't just vanish. The row
+fades out on the exit timing (`exitTransition`, 160ms), then the rows below
+move up into its space on `layoutSpring`. Use `rowRemoveVariants` plus the
+wiring below, not a one-off animation.
+
+```tsx
+const MotionTableRow = motion.create(TableRow);
+const { resolve } = useMotionPreference();
+
+<TableBody>
+  <AnimatePresence initial={false}>
+    {rows.map((row) => (
+      <MotionTableRow
+        key={row.id}
+        layout="position"
+        variants={rowRemoveVariants}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+        transition={{ layout: resolve(layoutSpring) }}
+      >
+        …
+      </MotionTableRow>
+    ))}
+  </AnimatePresence>
+</TableBody>
+```
+
+**Behavior:**
+
+- **Opacity only.** No `y` nudge (unlike `dismissVariants`): a `<tr>` moving
+  down overlaps the next row's bottom border.
+- **No entrance.** `initial` equals `animate`, and `AnimatePresence` has
+  `initial={false}`. Rows on first render and rows added by a data update
+  just appear. CLAUDE.md: don't replay entrances on routine data updates.
+- **Sequenced, not overlapping.** The row finishes fading before the gap
+  closes. That's how `AnimatePresence`'s default `"sync"` mode works: the
+  row keeps its space until its exit ends.
+- **Reduced motion:** `resolve(layoutSpring)` makes the gap close at once.
+  The fade stays, so the removal is still visible.
+- **Search/filter changes** use the same motion, because a filtered-out row
+  also leaves the list.
+
+⚠️ **Constraint:** never `mode="popLayout"` on table rows. It takes the
+exiting element out of flow with `position: absolute`, and a `<tr>` loses its
+table layout that way: its cells collapse to their content widths while it
+fades. `SortableList` uses `popLayout` safely because its rows are `<li>`s.
+
+⚠️ **Constraint:** keys must be the record id, never the array index.
+Otherwise `AnimatePresence` fades out the wrong row.
+
+**Where it's used:** the "Team members" page's `MembersTable`
+(`src/layouts/provider-portal/account-settings/pages/team-members/team-members.tsx`).
+The page also hides a removed or revoked row right away when the removal is
+confirmed, at the same moment as the success toast. It doesn't wait for the
+app to drop the row from `activeMembers`/`pendingInvites`.
+
+ℹ️ When the last row of a section goes (e.g. the last pending invitation is
+revoked), the whole section unmounts, so that row disappears without the fade.
+
+---
+
+## Toast entrance overshoot (`src/components/feedback/sonner/sonner.tsx`)
+
+**Rule:** a toast arriving at the front of the Sonner stack passes its
+resting position by about 10% (roughly 5px on a 52px toast) and settles back.
+This is the only overshoot in UCL. ⚠️ **Exception:** CLAUDE.md says to avoid
+elastic overshoot unless it's explicitly required. Product asked for it on
+the toast entrance (2026-10-09), so it stays limited to that entrance.
+
+**Spec:** `cubic-bezier(0.34, 1.56, 0.64, 1)` ("ease-out-back") over Sonner's
+own 400ms transition. It's defined in two places, and they must stay in sync:
+
+- `overshootEnterTransition` in `src/lib/motion/transitions.ts`, for any Motion use
+- `--ease-overshoot` in `src/styles/theme.css` (the `ease-overshoot` class),
+  because Sonner animates with CSS, and CSS can't read `src/lib/motion`
+
+**Behavior:**
+
+- **Entrance only.** The class is scoped to
+  `data-[front=true]:not-data-[removed=true]`. Dismissing a toast, and older
+  toasts shifting back in the stack, keep Sonner's plain ease.
+- **Needs `!important`** (`ease-overshoot!`). Sonner's injected
+  `[data-sonner-toast] { transition: … }` rule is unlayered, so it beats any
+  Tailwind utility (those live in `@layer utilities`) without it.
+- **Reduced motion:** Sonner turns off all toast transitions itself, so the
+  toast just appears. The message still shows.
+
+**How to apply:** don't reuse `ease-overshoot` or `overshootEnterTransition`
+elsewhere without a product decision. Everything else uses the standard,
+enter and exit curves.

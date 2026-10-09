@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 
 import type { SidebarAccountMenuItem } from "@/components/navigation/sidebar";
+import { Toaster } from "@/components/feedback/sonner";
 import { AccountSettingsProvider } from "./account-settings/account-settings";
 import { BusinessProfileLayout } from "./account-settings/pages/business-profile/business-profile";
 import { BusinessProfilesLayout } from "./account-settings/pages/business-profiles/business-profiles";
@@ -201,6 +202,15 @@ const meta: Meta<typeof ProviderPortal> = {
   title: "Layouts/ProviderPortal/Portal",
   component: ProviderPortal,
   parameters: { layout: "fullscreen" },
+  // Pages (e.g. Team members) report success with toasts; an app mounts `<Toaster />` once at its root.
+  decorators: [
+    (Story) => (
+      <>
+        <Story />
+        <Toaster />
+      </>
+    ),
+  ],
 };
 export default meta;
 type Story = StoryObj<typeof ProviderPortal>;

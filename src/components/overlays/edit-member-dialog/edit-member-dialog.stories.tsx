@@ -24,6 +24,7 @@ export const Default: Story = {
         title: "General Assistance",
         role: "admin",
       }}
+      onRemove={() => {}}
     >
       <DialogTrigger asChild>
         <Button>Edit member</Button>
@@ -46,6 +47,28 @@ export const WithPhoto: Story = {
     >
       <DialogTrigger asChild>
         <Button>Edit member</Button>
+      </DialogTrigger>
+    </EditMemberDialog>
+  ),
+};
+
+/** `pending` — an invitation not yet accepted: only Email and Role, plus a waiting note. */
+export const PendingInvite: Story = {
+  render: () => (
+    <EditMemberDialog
+      defaultOpen
+      pending
+      member={{
+        name: "",
+        email: "kathryn.murphy@email.com",
+        title: "",
+        role: "admin",
+      }}
+      onRemove={() => {}}
+      removeLabel="Revoke invitation"
+    >
+      <DialogTrigger asChild>
+        <Button>Edit invitation</Button>
       </DialogTrigger>
     </EditMemberDialog>
   ),

@@ -82,7 +82,7 @@ Arbitrary/custom breakpoints (a one-off value Tailwind's scale doesn't cover) us
 radii `rounded-lg`/`rounded-[10px]`/`rounded-xl`, `shadow-xs`.
 
 **Button API (mirror these names when the concept matches):**
-- `variant`: `default` (solid primary), `destructive` (light-red fill), `destructiveSolid` (solid red), `secondary` (flat neutral), `outline`, `ghost`, `link`.
+- `variant`: `default` (solid primary), `destructive` (light-red fill), `destructiveSolid` (solid red), `secondary` (flat neutral), `outline`, `ghost`, `ghost-destructive` (no fill, red label, light-red hover), `link`.
 - `size`: `xs sm md lg xl` (+ `icon-*` counterparts). Heights 24/28/32/36/40; radii 8/10/12/12/12.
 - extras: `asChild` (radix `Slot`), `loading` (dependency-free spinner).
 

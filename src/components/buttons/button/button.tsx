@@ -24,6 +24,10 @@ const buttonVariants = cva(
 					"border border-border bg-card text-foreground shadow-xs hover:bg-accent",
 				// Ghost
 				ghost: "bg-transparent text-foreground hover:bg-accent",
+				// Ghost (Tone=Destructive): no fill, red label; hover fills color/tone/desctructive/subtle.
+				// Disabled: color/foreground/subtle at full opacity, not the shared fade.
+				"ghost-destructive":
+					"bg-transparent text-destructive hover:bg-destructive-subtle focus-visible:ring-destructive/20 disabled:text-foreground-subtle disabled:opacity-100",
 				// Link (Tone=Brand): brand label; hover swaps to foreground (no underline).
 				// Disabled: color/foreground/subtle at full opacity, not the shared fade.
 				// No Figma focus state: focus mirrors hover, as the existing call sites did.
