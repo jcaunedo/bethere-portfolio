@@ -11,7 +11,7 @@ import type { SidebarSettingsGroup } from "@/components/navigation/sidebar-setti
 
 interface AccountSettingsMenuLayoutProps {
   /**
-   * Settings sections, grouped under labels. Defaults to the rail's groups
+   * Settings sections, grouped (divider between groups). Defaults to the rail's groups
    * (`createSettingsMenuGroups`, with the business count from `AccountSettingsProvider`). Pass the same groups given to
    * `AccountSettingsLayout` so the mobile menu and the desktop rail can't
    * diverge.
@@ -30,8 +30,8 @@ interface AccountSettingsMenuLayoutProps {
  * Menu`, 570:3326). The settings root on mobile — the equivalent of the
  * desktop `SidebarSettings` rail, which `AccountSettingsLayout` hides at `md`
  * and below: an X to close settings, then one `NavigationListItem` row per
- * section, grouped under the same "Profile" / "Account" labels with a
- * divider between groups.
+ * section, in the same "Profile" / "Account" groups as the rail — no
+ * visible group titles, just a divider between groups.
  */
 function AccountSettingsMenuLayout({
   groups,
@@ -39,7 +39,6 @@ function AccountSettingsMenuLayout({
   onClose,
   onNavigate,
 }: AccountSettingsMenuLayoutProps) {
-  const groupId = React.useId();
   const businessCount = React.useContext(BusinessCountContext);
   const menuGroups = items ? undefined : (groups ?? createSettingsMenuGroups({ businessCount }));
 
@@ -66,7 +65,7 @@ function AccountSettingsMenuLayout({
         mobileAction="close"
         title="Settings"
       />
-      {/* Figma: 24px between the header and the list; labels, rows and the divider row 12px apart. */}
+      {/* Figma: 24px between the header and the list; rows and the divider row 12px apart. */}
       <div className="flex w-full flex-1 flex-col gap-3 overflow-y-auto px-6 pt-3 pb-6">
         {menuGroups
           ? menuGroups.map((group, index) => (
@@ -75,16 +74,9 @@ function AccountSettingsMenuLayout({
                 {index > 0 ? <SidebarDivider className="my-[11.5px]" /> : null}
                 <div
                   role="group"
-                  aria-labelledby={`${groupId}-${index}`}
+                  aria-label={group.label}
                   className="flex w-full flex-col gap-3"
                 >
-                  {/* Same group label as the desktop rail (SidebarSettings). */}
-                  <p
-                    id={`${groupId}-${index}`}
-                    className="text-[10px] leading-[18px] tracking-[1px] text-muted-foreground uppercase"
-                  >
-                    {group.label}
-                  </p>
                   {group.items.map(renderItem)}
                 </div>
               </React.Fragment>

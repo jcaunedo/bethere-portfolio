@@ -87,11 +87,11 @@ function SettingsHeader({
         {mobileTitle ?? title}
       </Typography>
       {/* Desktop: an X that closes settings (same action and icon as the mobile settings menu's X),
-          20px, color/icon/foreground, in a 36px ghost `icon-nav` button. A back arrow/chevron is kept
-          for moving up a level inside settings (mobile sub-pages). */}
+          20px, color/icon/foreground, in a 36px Flat (`secondary`) `icon-nav` button. A back arrow/chevron
+          is kept for moving up a level inside settings (mobile sub-pages). */}
       <Button
         type="button"
-        variant="ghost"
+        variant="secondary"
         size="icon-nav"
         onClick={onClose}
         aria-label={closeLabel}

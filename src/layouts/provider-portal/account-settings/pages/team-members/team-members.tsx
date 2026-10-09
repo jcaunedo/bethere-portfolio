@@ -366,7 +366,7 @@ function MembersTable({
                 return (
                   <TableRow
                     key={row.id}
-                    className="cursor-pointer"
+                    className="group/row cursor-pointer"
                     onClick={() => onEditMember?.(row)}
                   >
                     <TableCell>
@@ -399,7 +399,11 @@ function MembersTable({
                             variant="ghost"
                             size="icon-sm"
                             aria-label={`More actions for ${rowLabel}`}
-                            className="text-muted-foreground hover:text-foreground"
+                            // Figma `row-team-members`: the actions button only
+                            // shows on row Hover. Also reveal it when focus is in
+                            // the row or its menu is open, and keep it visible on
+                            // touch devices (no hover), so it stays reachable.
+                            className="text-icon-foreground opacity-0 group-hover/row:opacity-100 group-focus-within/row:opacity-100 data-[state=open]:opacity-100 [@media(hover:none)]:opacity-100"
                           >
                             <EllipsisIcon />
                           </Button>

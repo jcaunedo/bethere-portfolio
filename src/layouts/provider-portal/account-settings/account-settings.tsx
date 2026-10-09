@@ -111,7 +111,7 @@ interface AccountSettingsLayoutProps {
   /** Page content rendered in the Content area, to the right of the menu. */
   children?: React.ReactNode;
   /**
-   * Settings sections to render in the rail, grouped under labels. Defaults to
+   * Settings sections to render in the rail, grouped with a divider between groups. Defaults to
    * `settingsMenuGroups`. Each item carries a `navigateTo` (forwarded to
    * `onNavigate`) or its own `onClick`, so the consuming app owns routing and
    * any per-item action.

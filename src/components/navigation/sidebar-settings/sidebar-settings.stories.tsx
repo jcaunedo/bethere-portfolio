@@ -28,7 +28,7 @@ const meta: Meta<typeof SidebarSettings> = {
 export default meta;
 type Story = StoryObj<typeof SidebarSettings>;
 
-/** The Figma rail: personal settings under "Profile", the business account's under "Account". */
+/** The Figma rail: personal settings ("Profile") and the business account's ("Account"), split by a divider. */
 const groups: SidebarSettingsGroup[] = [
   {
     label: "Profile",
@@ -78,7 +78,7 @@ export const SecurityActive: Story = {
   },
 };
 
-/** Without `groups`: one unlabelled list of rows. */
+/** Without `groups`: one list of rows, no divider. */
 export const Ungrouped: Story = {
   render: (args) => (
     <div className="w-[296px] py-6">

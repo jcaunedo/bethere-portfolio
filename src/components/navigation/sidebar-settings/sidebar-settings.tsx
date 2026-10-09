@@ -7,16 +7,19 @@ import {
   type SidebarNavItem,
 } from "@/components/navigation/sidebar";
 
-/** A labelled run of rows in the rail ("Profile" / "Account", shown uppercase). */
+/** A run of rows in the rail, separated from the next by a divider ("Profile" / "Account"). */
 interface SidebarSettingsGroup {
-  /** Group label, shown uppercase above its rows (e.g. "Profile"). */
+  /**
+   * Group name (e.g. "Profile"). Not shown — Figma dropped the visible
+   * section titles — but kept as the group's accessible name (`aria-label`).
+   */
   label: string;
   items: SidebarNavItem[];
 }
 
 type SidebarSettingsProps = React.ComponentProps<"nav"> & {
   /**
-   * Rows grouped under labels, with a divider between groups (Figma: Profile
+   * Rows grouped with a divider between groups, no visible titles (Figma: Profile
    * — My profile, Notifications, Security; Account — Business profiles, Team
    * members, Billing, Promo codes, Integrations). Takes precedence over
    * `items`.
@@ -49,7 +52,7 @@ type SidebarSettingsProps = React.ComponentProps<"nav"> & {
 /**
  * Settings sub-nav rail (Figma "Sidebar Settings"): `SidebarMenuItem` rows,
  * 12px apart, with the same Active state as the primary Sidebar. With
- * `groups`, each group gets an uppercase label and a divider separates them.
+ * `groups`, a divider separates each group (no visible group titles).
  */
 function SidebarSettings({
   groups,
@@ -64,7 +67,6 @@ function SidebarSettings({
   const [uncontrolledActiveItem, setUncontrolledActiveItem] = React.useState(
     defaultActiveItem ?? allItems[0]?.label,
   );
-  const groupId = React.useId();
   const isControlled = activeItem !== undefined;
   const currentActiveItem = isControlled ? activeItem : uncontrolledActiveItem;
 
@@ -96,7 +98,7 @@ function SidebarSettings({
   return (
     <nav
       data-slot="sidebar-settings"
-      // Figma: rows, labels and the divider row all 12px apart (spacing/3).
+      // Figma: rows and the divider row all 12px apart (spacing/3).
       className={cn("flex w-full flex-col items-start gap-3 px-8", className)}
       {...props}
     >
@@ -106,18 +108,10 @@ function SidebarSettings({
               {index > 0 ? <SidebarDivider /> : null}
               <div
                 role="group"
-                aria-labelledby={`${groupId}-${index}`}
+                aria-label={group.label}
                 data-slot="sidebar-settings-group"
                 className="flex w-full flex-col items-start gap-3"
               >
-                {/* Figma group label: 10px regular, color/foreground/muted, 1px tracking, uppercase. */}
-                <p
-                  id={`${groupId}-${index}`}
-                  data-slot="sidebar-settings-group-label"
-                  className="text-[10px] leading-[18px] tracking-[1px] text-muted-foreground uppercase"
-                >
-                  {group.label}
-                </p>
                 {group.items.map(renderItem)}
               </div>
             </React.Fragment>

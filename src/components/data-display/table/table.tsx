@@ -61,8 +61,9 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
   return (
     <tr
       data-slot="table-row"
+      // Hover binds color/states/hover-row (Figma `row-team-members` Hover), not the generic --state-hover.
       className={cn(
-        "border-b border-border transition-colors hover:bg-state-hover data-[state=selected]:bg-muted",
+        "border-b border-border transition-colors hover:bg-state-hover-row data-[state=selected]:bg-muted",
         className,
       )}
       {...props}

@@ -153,6 +153,7 @@
 
 	/* Interaction states (color/states/*) */
 	--color-state-hover: var(--state-hover);
+	--color-state-hover-row: var(--state-hover-row);
 	--color-state-active: var(--state-active);
 	--color-state-highlight: var(--state-highlight);
 	--color-state-disabled: var(--state-disabled);
@@ -718,6 +719,7 @@
 
 	/* Interaction states (color/states/*) */
 	--state-hover: #3a34280a; /* Figma color/states/hover — sand-900 @ 4% alpha (was neutral-950-based) */
+	--state-hover-row: #3a342808; /* Figma color/states/hover-row — sand-900 @ 3% alpha; table/list row hover, a step lighter than --state-hover */
 	--state-active: #f0f2f599;
 	--state-highlight: #fff9e114;
 	--state-disabled: var(--neutral-100);

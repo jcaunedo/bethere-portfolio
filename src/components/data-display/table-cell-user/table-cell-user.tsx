@@ -44,7 +44,8 @@ function TableCellUser({
   return (
     <div
       data-slot="table-cell-user"
-      className={cn("flex min-w-0 items-center gap-2", className)}
+      // Avatar → text gap is spacing/3 (12px) per Figma `row-team-members`.
+      className={cn("flex min-w-0 items-center gap-3", className)}
       {...props}
     >
       <Avatar size="lg" className="shrink-0">
